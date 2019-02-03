@@ -1,0 +1,32 @@
+./kafka-topics --create --zookeeper localhost:2181 --replication-factor 1 --partitions 10 --topic test
+./kafka-topics --create --zookeeper localhost:2181 --replication-factor 1 --partitions 10 --topic test2
+
+
+.. ksql ...
+
+
+
+./kafka-console-producer --broker-list localhost:9092 --topic test2
+
+{"myforeignkey":"fk2", "myvalue3":"3", "myvalue4":"4"}
+
+
+
+./kafka-console-producer --broker-list localhost:9092 --topic test
+
+{"mykey":"k1", "myforeignkey":"fk2", "myvalue1":"1", "myvalue2":"2"}
+
+
+
+
+./kafka-console-consumer --bootstrap-server localhost:9092 --topic test --from-beginning
+./kafka-console-consumer --bootstrap-server localhost:9092 --topic test2 --from-beginning
+
+
+
+
+
+./kafka-console-consumer --bootstrap-server localhost:9092 --topic THEOUTPUT --from-beginning
+
+
+

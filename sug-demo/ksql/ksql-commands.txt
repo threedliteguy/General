@@ -1,0 +1,33 @@
+CREATE STREAM test \
+  (mykey VARCHAR, \
+   myforeignkey VARCHAR, \
+   myvalue1 VARCHAR,  \
+   myvalue2 VARCHAR   \
+) \
+  WITH (KAFKA_TOPIC='test', \
+        VALUE_FORMAT='JSON');
+
+CREATE STREAM test2   \
+  (myforeignkey VARCHAR, \
+   myvalue3 VARCHAR,  \
+   myvalue4 VARCHAR   \
+) \
+  WITH (KAFKA_TOPIC='test2', \
+        VALUE_FORMAT='JSON');
+
+CREATE STREAM test_keyed with (partitions=4) as select * from test partition by myforeignkey;
+CREATE STREAM test2_keyed with (partitions=4) as select * from test2 partition by myforeignkey;
+
+CREATE TABLE test2_table \
+(myforeignkey VARCHAR, \
+   myvalue3 VARCHAR,  \
+   myvalue4 VARCHAR   \
+) \
+with (KAFKA_TOPIC='TEST2_KEYED', KEY='myforeignkey', VALUE_FORMAT='JSON');
+
+CREATE STREAM theoutput AS \
+  SELECT * FROM test_keyed t  \
+  left join test2_table t2 \
+  ON t.myforeignkey=t2.myforeignkey;
+
+
