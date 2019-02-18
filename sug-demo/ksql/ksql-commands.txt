@@ -15,8 +15,8 @@ CREATE STREAM thedimension   \
   WITH (KAFKA_TOPIC='thedimension', \
         VALUE_FORMAT='JSON');
 
-CREATE STREAM event_keyed with (partitions=4) as select * from test partition by myforeignkey;
-CREATE STREAM dimension_keyed with (partitions=4) as select * from test2 partition by myforeignkey;
+CREATE STREAM event_keyed with (partitions=4) as select * from theevent partition by myforeignkey;
+CREATE STREAM dimension_keyed with (partitions=4) as select * from thedimension partition by myforeignkey;
 
 CREATE TABLE dimension_table \
 (myforeignkey VARCHAR, \
