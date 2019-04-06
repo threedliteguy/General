@@ -1,33 +1,33 @@
-CREATE STREAM test \
+CREATE STREAM theevent \
   (mykey VARCHAR, \
    myforeignkey VARCHAR, \
    myvalue1 VARCHAR,  \
    myvalue2 VARCHAR   \
 ) \
-  WITH (KAFKA_TOPIC='test', \
+  WITH (KAFKA_TOPIC='theevent', \
         VALUE_FORMAT='JSON');
 
-CREATE STREAM test2   \
+CREATE STREAM thedimension   \
   (myforeignkey VARCHAR, \
    myvalue3 VARCHAR,  \
    myvalue4 VARCHAR   \
 ) \
-  WITH (KAFKA_TOPIC='test2', \
+  WITH (KAFKA_TOPIC='thedimension', \
         VALUE_FORMAT='JSON');
 
-CREATE STREAM test_keyed with (partitions=4) as select * from test partition by myforeignkey;
-CREATE STREAM test2_keyed with (partitions=4) as select * from test2 partition by myforeignkey;
+CREATE STREAM event_keyed with (partitions=4) as select * from theevent partition by myforeignkey;
+CREATE STREAM dimension_keyed with (partitions=4) as select * from thedimension partition by myforeignkey;
 
-CREATE TABLE test2_table \
+CREATE TABLE dimension_table \
 (myforeignkey VARCHAR, \
    myvalue3 VARCHAR,  \
    myvalue4 VARCHAR   \
 ) \
-with (KAFKA_TOPIC='TEST2_KEYED', KEY='myforeignkey', VALUE_FORMAT='JSON');
+with (KAFKA_TOPIC='DIMENSION_KEYED', KEY='myforeignkey', VALUE_FORMAT='JSON');
 
 CREATE STREAM theoutput AS \
-  SELECT * FROM test_keyed t  \
-  left join test2_table t2 \
+  SELECT * FROM event_keyed t  \
+  left join dimension_table t2 \
   ON t.myforeignkey=t2.myforeignkey;
 
 
