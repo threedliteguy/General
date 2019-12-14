@@ -18,7 +18,7 @@ trait GroverI {
         sb.append("[")
         for (x: Int <- 0 until size) {
           if (x > 0) sb.append(", ")
-          sb.append(a(z)(y)(x) * -3000)  // hack: fixup for frontend
+          sb.append(a(z)(y)(x))
         }
         sb.append("]")
         if (newlines) sb.append("\n")

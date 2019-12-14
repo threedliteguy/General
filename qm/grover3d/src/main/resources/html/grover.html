@@ -48,25 +48,79 @@ li{
 </style>
 </head>
 <body>
-  <h1>Grover 3D coin probability distributions for different initial conditions.  Visualization with D3 surface plots <a href="http://bl.ocks.org/supereggbert/aff58196188816576af0">[link]</a></h1>
+  <script type="text/javascript" src="vis-graph3d.min.js"></script>
+  <script src="d3.v3.min.js"></script>
+  
+  <h1>Grover 3D coin probability distributions for different initial conditions. Scale: log(probability * 100). </h1>
   Initial vector: <input id="initialVector" type="text" value="1,1,-1,-1,1,1" />
   Iterations: <input id="iterations" type="text" value="10" />
   Size: <input id="size" type="text" value="15" />
-  <p>Drag graph to change view</p>
+  Cutoff: <input id="cutoff" type="text" value="1" />
+
+  <script type="text/javascript">
+    var data = null;
+    var graph = null;
+
+    function onclick(point) {
+      console.log(point);
+    }
+
+    function drawVisualization(d) {
+    	
+      var cutoff = Number(document.getElementById("cutoff").value);
 
 
+      data = new vis.DataSet();
+      
+      for (var x = 0; x < d.length; x++) {
+      for (var y = 0; y < d.length; y++) {
+      for (var z = 0; z < d.length; z++) {
+        var style = Math.log( d[x][y][z] * 100 );
+        if (style >= cutoff) {      
+           console.log(style)
+           data.add({x:x,y:y,z:z,style:style});
+        }
+      }}}
 
-  <script src="d3.v3.min.js"></script>
-  <script src="surface3d.js"></script>
+   
+      var options = {
+        width:  '600px',
+        height: '600px',
+        style: 'dot-color',
+        showPerspective: true,
+        showGrid: true,
+        keepAspectRatio: true,
+        verticalRatio: 1.0,
+        legendLabel: 'Value',
+        onclick: onclick,
+        cameraPosition: {
+          horizontal: -0.35,
+          vertical: 0.22,
+          distance: 1.8
+        }
+      };
+
+   
+      var container = document.getElementById('mygraph');
+      if (data.length == 0) {
+    	  alert("cutoff too high - no data to view")
+      } else {
+    	  graph = new vis.Graph3d(container, data, options);
+      }
+    }
+  </script>
+
   <script>
-  var yaw=0.5,pitch=0.5, width=700, height=400, drag=false;
 
-  function getData(p, i, s, f) {
+  function getData(f) {
 
+     var p = document.getElementById("initialVector").value;
+     var i = Number(document.getElementById("iterations").value);
+     var s = Number(document.getElementById("size").value);
      var x = JSON.stringify({size: s, iterations: i, initialVector: p});
 
 
-      d3.xhr('http://localhost:8080/compute')
+     d3.xhr('http://localhost:8080/compute')
     .header("Content-Type", "application/json")
     .post(
         x,
@@ -75,102 +129,20 @@ li{
             //console.log("got response", data.result);
             var d = eval(data.result);
             //console.log("evaled", d);
-            var n = new Array(d.length)
-            for (var k=0;k<d.length;k++) { n[k] = new Array(0) }
-            for (var k=0;k<d.length;k++) {
-                for (var j=0;j<d.length;j++) {
-                   n[j] = n[j].concat(d[k][j]);
-            	}
-            }
-            //console.log("flattened", n);
-            surfaces[0].data = n;
-            f();
+            f(d);
         }
-    );
+    ); 
 
   }
-
-
-  function dataFromFormular(func){
-    var output=[];
-    for(var x=-20;x<20;x++){
-      var f0=[];            
-      output.push(f0);
-      for(var y=-20;y<20;y++){
-          f0.push(func(x,y));
-      }
-    }
-    return output;
-  }
-
-  var surfaces=[
-    {
-      name: 'Dataset 1',
-      data: []
-    }
-  ];
-  var selected=surfaces[0];
-
-
-  var ul=d3.select('body')
-           .append('ul');
-  var svg=d3.select('body')
-          .append('svg')
-            .attr('height',height)
-            .attr('width',width);
-
-  var group = svg.append("g");
-
-  var md=group.data([surfaces[0].data])
-    .surface3D(width,height)
-      .surfaceHeight(function(d){ 
-        return d;
-      }).surfaceColor(function(d){
-        var c=d3.hsl((d+100), 0.6, 0.5).rgb();
-        return "rgb("+parseInt(c.r)+","+parseInt(c.g)+","+parseInt(c.b)+")";
-      });
-
-  function refresh() {
-    md.data([surfaces[0].data]).surface3D()
-            .transition().duration(500)
-            .surfaceHeight(function(d){
-              return d;
-            }).surfaceColor(function(d){
-              var c=d3.hsl((d+100), 0.6, 0.5).rgb();
-              return "rgb("+parseInt(c.r)+","+parseInt(c.g)+","+parseInt(c.b)+")";
-            });
-  }
-
-  ul.selectAll('li')
-    .data(surfaces)
-      .enter().append('li')
-        .html(function(d){
-          return d.name
-        }).on('mousedown',function(){
-
-          var p = document.getElementById("initialVector").value;
-          var i = Number(document.getElementById("iterations").value);
-          var s = Number(document.getElementById("size").value);
-
-          getData(p, i, s, refresh);
-
-        });
-
-  svg.on("mousedown",function(){
-    drag=[d3.mouse(this),yaw,pitch];
-  }).on("mouseup",function(){
-    drag=false;
-  }).on("mousemove",function(){
-    if(drag){
-      var mouse=d3.mouse(this);
-      yaw=drag[1]-(mouse[0]-drag[0][0])/50;
-      pitch=drag[2]+(mouse[1]-drag[0][1])/50;
-      pitch=Math.max(-Math.PI/2,Math.min(Math.PI/2,pitch));
-      md.turntable(yaw,pitch);
-    }
-  });
 
   
   </script>
+
+
+  <button onclick='javascript:getData(drawVisualization)'>Go</button>
+  <div id="mygraph"></div>
+  <p>Drag graph to change view</p>
+
+
 </body>
 </html>
