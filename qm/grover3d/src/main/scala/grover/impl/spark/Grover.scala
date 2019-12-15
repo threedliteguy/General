@@ -1,4 +1,5 @@
 package grover.impl.spark
+import breeze.math.Complex
 
 import grover.GroverI
 import grover.utils.Config
@@ -9,7 +10,7 @@ import org.apache.spark.{SparkConf, SparkContext}
 
 import scala.collection.mutable.ListBuffer
 
-case class VType(value:Array[Double], connected:Array[Boolean])
+case class VType(value:Array[Complex], connected:Array[Boolean])
 
 object Grover  extends GroverI {
 
@@ -20,7 +21,7 @@ object Grover  extends GroverI {
     Logger.getLogger("akka").setLevel(Level.ERROR)
 
 
-    val result: Array[Array[Array[Double]]] = computeGraph(Array(0d, 0d, 1d, 0d, 0d, 0d), 10, 21)
+    val result: Array[Array[Array[Complex]]] = computeGraph(Array(Complex.zero, Complex.zero, Complex.one, Complex.zero, Complex.zero, Complex.zero), 10, 21)
 
     val formatted: String = getSquareGraphFormatted(result, true)
 
@@ -30,7 +31,7 @@ object Grover  extends GroverI {
 
   }
 
-  override def computeGraph(initialVector:Array[Double], iterations:Int, size:Int): Array[Array[Array[Double]]] = {
+  override def computeGraph(initialVector:Array[Complex], iterations:Int, size:Int): Array[Array[Array[Complex]]] = {
 
     val sc = Config.sparkContext
 
@@ -45,7 +46,7 @@ object Grover  extends GroverI {
   
           val connected = Array(x > 0, x < size - 1, y < size - 1, y > 0, z < size - 1, z > 0)
   
-          var value = Array(0d, 0d, 0d, 0d, 0d, 0d)
+          var value = Array(Complex.zero, Complex.zero, Complex.zero, Complex.zero, Complex.zero, Complex.zero)
           if (z == Math.floor(size/2.0) && y == Math.floor(size/2.0) && x == Math.floor(size/2.0)) value = initialVector
           val p = (vcount, new VType(value, connected))
   
@@ -76,10 +77,10 @@ object Grover  extends GroverI {
     //    printSum(graph)
 
     // Set up Pregel functions
-    val initialMsg = Array[Double]()
-    val zeroMsg = Array[Double](0d, 0d, 0d, 0d, 0d, 0d)
+    val initialMsg = Array[Complex]()
+    val zeroMsg = Array[Complex](Complex.zero, Complex.zero, Complex.zero, Complex.zero, Complex.zero, Complex.zero)
 
-    def vprog(vertexId: VertexId, value: VType, message: Array[Double]): VType = {
+    def vprog(vertexId: VertexId, value: VType, message: Array[Complex]): VType = {
       if (message.length == 0)
         value
       else {
@@ -87,30 +88,30 @@ object Grover  extends GroverI {
       }
     }
 
-    def sendMsg(triplet: EdgeTriplet[VType, Int]): Iterator[(VertexId, Array[Double])] = {
+    def sendMsg(triplet: EdgeTriplet[VType, Int]): Iterator[(VertexId, Array[Complex])] = {
 
       val v = triplet.srcAttr.value
 
-      if (v(0) == 0 && v(1) == 0 && v(2) == 0 && v(3) == 0 && v(4) == 0 && v(5) == 0) {
+      if (v(0) == Complex.zero && v(1) == Complex.zero && v(2) == Complex.zero && v(3) == Complex.zero && v(4) == Complex.zero && v(5) == Complex.zero) {
         return Iterator()
       }
 
       val direction = triplet.toTuple._3
 
-      val g: Array[Double] = grover(v)
+      val g: Array[Complex] = grover(v)
 
       if (triplet.srcId == triplet.dstId) {
         // TODO Boundary reflection
       }
 
-      val m: Array[Double] = mask(g, direction)
+      val m: Array[Complex] = mask(g, direction)
       if (norm(m) == 0) return Iterator()
 
       // zero message needed to tell pregel to run for that vertex
       Iterator((triplet.dstId, m), (triplet.srcId, zeroMsg))
     }
 
-    def mergeMsg(m1: Array[Double], m2: Array[Double]): Array[Double] = {
+    def mergeMsg(m1: Array[Complex], m2: Array[Complex]): Array[Complex] = {
       m1.indices.map(i => m1(i) + m2(i)).toArray
     }
 
@@ -128,8 +129,8 @@ object Grover  extends GroverI {
 
 
 
-  def getSquareGraph(g: Graph[VType, Int], size: Int): Array[Array[Array[Double]]] = {
-    val result: Array[Array[Array[Double]]] = Array.ofDim[Double](size, size, size)
+  def getSquareGraph(g: Graph[VType, Int], size: Int): Array[Array[Array[Complex]]] = {
+    val result: Array[Array[Array[Complex]]] = Array.ofDim[Complex](size, size, size)
     
     g.vertices.collect.sortBy(_._1).foreach { p => {
       val anorm = norm(p._2.value)

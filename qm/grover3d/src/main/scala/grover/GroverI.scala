@@ -1,11 +1,11 @@
 package grover
-
+import breeze.math.Complex
 
 trait GroverI {
 
-  def computeGraph(initialVector:Array[Double], iterations:Int, size:Int): Array[Array[Array[Double]]]
+  def computeGraph(initialVector:Array[Complex], iterations:Int, size:Int): Array[Array[Array[Complex]]]
 
-  def getSquareGraphFormatted(a: Array[Array[Array[Double]]], newlines:Boolean): String = {
+  def getSquareGraphFormatted(a: Array[Array[Array[Complex]]], newlines:Boolean): String = {
     val size = a.length
     val sb = new StringBuilder()
     sb.append("[")
@@ -18,7 +18,7 @@ trait GroverI {
         sb.append("[")
         for (x: Int <- 0 until size) {
           if (x > 0) sb.append(", ")
-          sb.append(a(z)(y)(x))
+          sb.append(a(z)(y)(x).abs)
         }
         sb.append("]")
         if (newlines) sb.append("\n")
@@ -32,7 +32,7 @@ trait GroverI {
   }
 
   
-  def grover(a: Array[Double]): Array[Double] = {
+  def grover(a: Array[Complex]): Array[Complex] = {
     Array(
       -2*a(0) + a(1) + a(2) + a(3) + a(4) + a(5),
       a(0) - 2*a(1) + a(2) + a(3) + a(4) + a(5),
@@ -69,19 +69,19 @@ g3=(ones - 3*matrix.identity(6))*(1/3)
   val IN = 4
   val OUT = 5
 
-  def mask(a: Array[Double], d: Int): Array[Double] = {
+  def mask(a: Array[Complex], d: Int): Array[Complex] = {
     d match {
-      case LEFT  => Array(a(0), 0, 0, 0, 0, 0)
-      case RIGHT => Array(0, a(1), 0, 0, 0, 0)
-      case UP    => Array(0, 0, a(2), 0, 0, 0)
-      case DOWN  => Array(0, 0, 0, a(3), 0, 0)
-      case IN    => Array(0, 0, 0, 0, a(4), 0)
-      case OUT   => Array(0, 0, 0, 0, 0, a(5))
+      case LEFT  => Array(a(0), Complex.zero, Complex.zero, Complex.zero, Complex.zero, Complex.zero)
+      case RIGHT => Array(Complex.zero, a(1), Complex.zero, Complex.zero, Complex.zero, Complex.zero)
+      case UP    => Array(Complex.zero, Complex.zero, a(2), Complex.zero, Complex.zero, Complex.zero)
+      case DOWN  => Array(Complex.zero, Complex.zero, Complex.zero, a(3), Complex.zero, Complex.zero)
+      case IN    => Array(Complex.zero, Complex.zero, Complex.zero, Complex.zero, a(4), Complex.zero)
+      case OUT   => Array(Complex.zero, Complex.zero, Complex.zero, Complex.zero, Complex.zero, a(5))
     }
   }
 
-  def norm(a: Array[Double]): Double = {
-    a.indices.map(i => a(i) * a(i)).sum
+  def norm(a: Array[Complex]): Complex = {
+    a.indices.map(i => a(i) * a(i)).reduce(_+_)
   }
 
 
