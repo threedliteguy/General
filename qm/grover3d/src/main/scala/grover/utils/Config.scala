@@ -6,7 +6,7 @@ import grover.impl.flink.Grover
 import org.apache.flink.api.scala.ExecutionEnvironment
 import org.apache.log4j.{Level, Logger}
 import org.apache.spark.{SparkContext, SparkConf}
-
+import org.apache.spark.sql.SparkSession
 
 object Config {
 
@@ -16,11 +16,13 @@ object Config {
 
   private val config =  ConfigFactory.load()
 
-  @transient val sparkConf = new SparkConf()
-    .setMaster(config.getString("application.spark.master-uri"))
-    .setAppName(config.getString("application.spark.app-name"))
 
-  val sparkContext = new SparkContext(sparkConf)
+  
+  val spark = SparkSession
+   .builder()
+   .appName(config.getString("application.spark.app-name"))
+   .master(config.getString("application.spark.master-uri"))
+   .getOrCreate()
 
   //val flinkEnvironment = ExecutionEnvironment.createLocalEnvironment()
   val flinkEnvironment = ExecutionEnvironment.getExecutionEnvironment

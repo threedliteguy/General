@@ -14,6 +14,7 @@ import org.apache.flink.api.scala._
 
 import org.apache.flink.graph.{EdgeDirection, Edge, Vertex}
 
+// NOTE: Going to deprecate flink support here due to akka version issues with rest of libs, and also it or gelly seems to be (much) slower now.
 
 
 case class VType(var value:Array[Complex], connected:Array[Boolean])
@@ -24,7 +25,7 @@ object Grover extends GroverI {
 
   def main(args: Array[String]) {
 
-    val result: Array[Array[Array[Complex]]] = computeGraph(Array(Complex.zero, Complex.zero, Complex.one, Complex.zero, Complex.zero), 10, 21)
+    val result: Array[Array[Array[Complex]]] = computeGraph(Array(Complex.zero, Complex.zero, Complex.one, Complex.zero, Complex.zero, Complex.zero), 10, 21)
 
     val formatted: String = getSquareGraphFormatted(result, true)
 
@@ -54,8 +55,8 @@ object Grover extends GroverI {
           val connected = Array(x > 0, x < size - 1, y < size - 1, y > 0, z < size - 1, z > 0)
   
   
-          var value = Array(smallvalue, smallvalue, smallvalue, smallvalue)
-          if (y == Math.floor(size/2.0) && x == Math.floor(size/2.0)) value = initialVector
+          var value = Array(smallvalue, smallvalue, smallvalue, smallvalue, smallvalue, smallvalue)
+          if (z == Math.floor(size/2.0) && y == Math.floor(size/2.0) && x == Math.floor(size/2.0)) value = initialVector
           val p = new Vertex(vcount, new VType(value, connected))
   
           vs += p
@@ -72,8 +73,8 @@ object Grover extends GroverI {
         if (c(RIGHT)) es += new Edge(id, id + 1, RIGHT)
         if (c(UP)) es += new Edge(id, id + size, UP)
         if (c(DOWN)) es += new Edge(id, id - size, DOWN)
-        if (c(IN)) es += new Edge(id, id + size, IN)
-        if (c(OUT)) es += new Edge(id, id - size, OUT)
+        if (c(IN)) es += new Edge(id, id + size*size, IN)
+        if (c(OUT)) es += new Edge(id, id - size*size, OUT)
       }
     }
 

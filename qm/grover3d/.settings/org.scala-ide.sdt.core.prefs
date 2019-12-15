@@ -1,5 +1,6 @@
 //src/main/resources=main
 //src/main/scala=main
+//src/test/java=tests
 P=
 Xcheckinit=false
 Xdisable-assertions=false
@@ -20,7 +21,7 @@ Ypresentation-replay=
 Ypresentation-verbose=false
 apiDiff=false
 compileorder=Mixed
-deprecation=false
+deprecation=true
 eclipse.preferences.version=1
 explaintypes=false
 feature=false

@@ -27,13 +27,13 @@ object Grover  extends GroverI {
 
     println(formatted)
 
-    Config.sparkContext.stop()
+    Config.spark.stop()
 
   }
 
   override def computeGraph(initialVector:Array[Complex], iterations:Int, size:Int): Array[Array[Array[Complex]]] = {
 
-    val sc = Config.sparkContext
+    val spark = Config.spark
 
     // Set up grid
     val vs = new ListBuffer[(VertexId, VType)]
@@ -69,8 +69,8 @@ object Grover  extends GroverI {
     }
 
     // GraphX RDDs
-    val vertices: RDD[(VertexId, VType)] = sc.parallelize(vs)
-    val edges: RDD[Edge[Int]] = sc.parallelize(es)
+    val vertices: RDD[(VertexId, VType)] = spark.sparkContext.parallelize(vs)
+    val edges: RDD[Edge[Int]] = spark.sparkContext.parallelize(es)
     val graph = Graph(vertices, edges)
 
     //    println(getSquareGraphFormatted(getSquareGraph(graph, size),true))
