@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html> <!-- http://bl.ocks.org/supereggbert/aff58196188816576af0 -->
+<head>
+<meta charset="utf-8">
+<style>
+body{
+  font-family: sans;
+  padding: 10px;
+}
+svg path{
+  stroke: #000;
+  stroke-width: 1px;
+  stroke: rgba(0,0,0,0.2);
+}
+svg{
+  border: 1px solid #DED8BF;
+  background-color: #f4f4d9;
+  width: 700px;
+  height: 400px;
+}
+h1{
+  font-weight: normal;
+  margin: 0;
+  padding-left: 5px;
+  color: #53483e;
+}
+p{
+  margin: 0;
+  margin-bottom: 10px;
+  padding-left: 5px;
+  color: #917e6b;
+}
+ul{
+  width: 200px;
+  float: left;
+  list-style-type: none;
+  margin: 0;
+  padding: 0;
+  padding-right: 10px;
+}
+li{
+  cursor: pointer;
+  background-color: #c8ad93;
+  padding: 10px;
+  margin: 2px;
+  color: #fff;
+}
+</style>
+</head>
+<body>
+  <h1>Grover coin probability distributions for different initial conditions.  Visualization with D3 surface plots <a href="http://bl.ocks.org/supereggbert/aff58196188816576af0">[link]</a></h1>
+  Initial vector: <input id="initialVector" type="text" value="1,i,-1,-i" />
+  Iterations: <input id="iterations" type="text" value="20" />
+  Size: <input id="size" type="text" value="35" />
+  <p>Drag graph to change view</p>
+
+
+
+  <script src="d3.v3.min.js"></script>
+  <script src="surface3d.js"></script>
+  <script>
+  var yaw=0.5,pitch=0.5, width=700, height=400, drag=false;
+
+  function getData(p, i, s, f) {
+
+     var x = JSON.stringify({size: s, iterations: i, initialVector: p});
+
+
+      d3.xhr('http://localhost:8080/compute')
+    .header("Content-Type", "application/json")
+    .post(
+        x,
+        function(err, rawData){
+            var data = JSON.parse(rawData.response);
+            //console.log("got response", data.result);
+            surfaces[0].data = eval(data.result);
+            f();
+        }
+    );
+
+  }
+
+
+   var surfaces=[
+    {
+      name: 'Dataset 1',
+      data: []
+    }
+  ];
+  var selected=surfaces[0];
+
+
+  var ul=d3.select('body')
+           .append('ul');
+  var svg=d3.select('body')
+          .append('svg')
+            .attr('height',height)
+            .attr('width',width);
+
+  var group = svg.append("g");
+
+  var md=group.data([surfaces[0].data])
+    .surface3D(width,height)
+      .surfaceHeight(function(d){ 
+        return d;
+      }).surfaceColor(function(d){
+        var c=d3.hsl((d+100), 0.6, 0.5).rgb();
+        return "rgb("+parseInt(c.r)+","+parseInt(c.g)+","+parseInt(c.b)+")";
+      });
+
+  function refresh() {
+    md.data([surfaces[0].data]).surface3D()
+            .transition().duration(500)
+            .surfaceHeight(function(d){
+              return d;
+            }).surfaceColor(function(d){
+              var c=d3.hsl((d+100), 0.6, 0.5).rgb();
+              return "rgb("+parseInt(c.r)+","+parseInt(c.g)+","+parseInt(c.b)+")";
+            });
+  }
+
+  ul.selectAll('li')
+    .data(surfaces)
+      .enter().append('li')
+        .html(function(d){
+          return d.name
+        }).on('mousedown',function(){
+
+          var p = document.getElementById("initialVector").value;
+          var i = Number(document.getElementById("iterations").value);
+          var s = Number(document.getElementById("size").value);
+
+          getData(p, i, s, refresh);
+
+        });
+
+  svg.on("mousedown",function(){
+    drag=[d3.mouse(this),yaw,pitch];
+  }).on("mouseup",function(){
+    drag=false;
+  }).on("mousemove",function(){
+    if(drag){
+      var mouse=d3.mouse(this);
+      yaw=drag[1]-(mouse[0]-drag[0][0])/50;
+      pitch=drag[2]+(mouse[1]-drag[0][1])/50;
+      pitch=Math.max(-Math.PI/2,Math.min(Math.PI/2,pitch));
+      md.turntable(yaw,pitch);
+    }
+  });
+
+  
+  </script>
+</body>
+</html>
