@@ -25,8 +25,12 @@ trait GroverI {
     sb.toString()
   }
 
-  // Standard balanced 2D grover coin:
   def grover(a: Array[Complex]): Array[Complex] = {
+     _grover(a)
+  }
+  
+  // Standard balanced 2D grover coin:
+  def _grover(a: Array[Complex]): Array[Complex] = {
     Array(
       -a(0) + a(1) + a(2) + a(3),
       a(0) - a(1) + a(2) + a(3),
@@ -38,7 +42,7 @@ trait GroverI {
   // DFT coin:
   // https://iopscience.iop.org/article/10.1088/1367-2630/5/1/383/fulltext/
   
-  def dft(a: Array[Complex]): Array[Complex] = {
+  def _dft(a: Array[Complex]): Array[Complex] = {
     Array(
       a(0) + a(1) + a(2) + a(3),
       a(0) + Complex(0,1) * a(1) - a(2) - Complex(0,1) * a(3),
