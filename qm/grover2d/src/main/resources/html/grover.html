@@ -52,6 +52,7 @@ li{
   Initial vector: <input id="initialVector" type="text" value="1,i,-1,-i" />
   Iterations: <input id="iterations" type="text" value="20" />
   Size: <input id="size" type="text" value="35" />
+  <button onclick="javascript:gorandom1()">Random</button>
   <p>Drag graph to change view</p>
 
 
@@ -79,11 +80,35 @@ li{
     );
 
   }
+  
+  function gorandom1() {
+		v = ele()+","+ele()+","+ele()+","+ele()
+	    document.getElementById("initialVector").value = v
+	    go();
+  }
+  
+  
+  function ele() {
+	  return rnd()+rnd()+"i"
+  }
+  function rnd() {
+	  r = Math.floor(Math.random() * 5)-2
+	  if (r>=0) return "+"+r
+	  return ""+r
+  }
 
+  function go() {
+      var p = document.getElementById("initialVector").value;
+      var i = Number(document.getElementById("iterations").value);
+      var s = Number(document.getElementById("size").value);
+
+      getData(p, i, s, refresh);
+
+  }
 
    var surfaces=[
     {
-      name: 'Dataset 1',
+      name: 'Plot',
       data: []
     }
   ];
@@ -126,11 +151,7 @@ li{
           return d.name
         }).on('mousedown',function(){
 
-          var p = document.getElementById("initialVector").value;
-          var i = Number(document.getElementById("iterations").value);
-          var s = Number(document.getElementById("size").value);
-
-          getData(p, i, s, refresh);
+        	go();
 
         });
 

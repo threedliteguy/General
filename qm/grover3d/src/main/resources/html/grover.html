@@ -54,8 +54,8 @@ li{
   <h1>Grover 3D coin probability distributions for different initial conditions. Scale: log(probability * 100). </h1>
   Initial vector: <input id="initialVector" type="text" value="1,i,-1,-i,1+i,1-i" />
   Iterations: <input id="iterations" type="text" value="10" />
-  Size: <input id="size" type="text" value="15" />
-  Cutoff: <input id="cutoff" type="text" value="1" />
+  Size: <input id="size" type="text" value="40" />
+  Cutoff: <input id="cutoff" type="text" value="0.5" />
 
   <script type="text/javascript">
     var data = null;
@@ -135,13 +135,39 @@ li{
 
   }
 
+  function gorandom1() {
+		v = ele()+","+ele()+","+ele()+","+ele()+","+ele()+","+ele()
+	    document.getElementById("initialVector").value = v
+	    go();
+  }
+  
+  function step() {
+	    document.getElementById("iterations").value = Number(document.getElementById("iterations").value) + 1
+	    go();
+  }
+  
+  function ele() {
+	  return rnd()+rnd()+"i"
+  }
+  function rnd() {
+	  r = Math.floor(Math.random() * 9) - 4
+	  if (r>=0) return "+"+r
+	  return ""+r
+  }
+
+  function go() {
+	  getData(drawVisualization);
+  }
   
   </script>
 
 
-  <button onclick='javascript:getData(drawVisualization)'>Go</button>
+  <button onclick='javascript:go()'>Go</button>
+  <button onclick='javascript:step()'>Step</button>
+  <button onclick='javascript:gorandom1()'>Random</button>
   <div id="mygraph"></div>
   <p>Drag graph to change view</p>
+
 
 
 </body>
