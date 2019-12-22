@@ -22,7 +22,8 @@ def calc(r):
 	   v.append([0]*maxn)
 
 
-	center=int(maxn/2)
+	cp=int(size/2)
+	center=cp+cp*size+cp*size*size
 	v[0][center]=init[0]
 	v[1][center]=init[1]
 	v[2][center]=init[2]
@@ -70,8 +71,13 @@ def calc(r):
 	m5=[]
 
 	for n in range(maxn):
-	   n0=n-1
-	   if n0>=0:
+
+	   x=n%size
+	   y=int(n/size)%size
+	   z=int(n/(size*size))%size
+ 
+	   if x>0:
+	      n0=n-1
 	      src.append(n) 
 	      dst.append(n0)
 	      m0.append(1)
@@ -82,8 +88,8 @@ def calc(r):
 	      m5.append(0)
 
 
-	   n1=n+1
-	   if n1<maxn: 
+	   if x<size-1: 
+	      n1=n+1
 	      src.append(n) 
 	      dst.append(n1)
 	      m0.append(0)
@@ -93,8 +99,8 @@ def calc(r):
 	      m4.append(0)
 	      m5.append(0)
 	       
-	   n2=n-size
-	   if n2>=0: 
+	   if y>0: 
+	      n2=n-size
 	      src.append(n) 
 	      dst.append(n2)
 	      m0.append(0)
@@ -104,8 +110,8 @@ def calc(r):
 	      m4.append(0)
 	      m5.append(0)
 
-	   n3=n+size
-	   if n3<maxn: 
+	   if y<size-1: 
+	      n3=n+size
 	      src.append(n) 
 	      dst.append(n3)
 	      m0.append(0)
@@ -115,8 +121,8 @@ def calc(r):
 	      m4.append(0)
 	      m5.append(0)
 
-	   n4=n-size*size
-	   if n4>=0: 
+	   if z>0: 
+	      n4=n-size*size
 	      src.append(n) 
 	      dst.append(n4)
 	      m0.append(0)
@@ -126,8 +132,8 @@ def calc(r):
 	      m4.append(1)
 	      m5.append(0)
 
-	   n5=n+size*size
-	   if n5<maxn: 
+	   if z<size-1: 
+	      n5=n+size*size
 	      src.append(n) 
 	      dst.append(n5)
 	      m0.append(0)
@@ -138,8 +144,7 @@ def calc(r):
 	      m5.append(1)
 
 
-
-
+	print("len(edges)=",len(src))
 	print("creating edges")
 
 	edges = cudf.DataFrame(
@@ -194,9 +199,11 @@ def calc(r):
 	# TODO add complex support
 	verts['norm'] = verts.v0r+verts.v1r+verts.v2r+verts.v3r+verts.v4r+verts.v5r
 	n = verts.loc[:,'norm'].to_pandas().values
-	n = array(n).reshape(size,size,size)
-	#print(n)
-	return n.tolist()
+	a=array(n).reshape(size,size,size).tolist()
+	
+	#print(a)
+	print("calc done")
+	return a
  
 
 
@@ -223,7 +230,7 @@ def compute():
     r['initialVector'] = [int(c[0]),0,int(c[1]),0,int(c[2]),0,int(c[3]),0,int(c[4]),0,int(c[5]),0] 
     result = calc(r)
     s = '{"result":'+str(result)+'}'
-    print(s)
+    #print(s)
     return s
 
 
