@@ -3,7 +3,7 @@ from flask import Flask, request, json
 from numpy import array
 from flask_cors import CORS
 
-# Example request:  {"size":100,"iterations":20,"initialVector":[1,0,1,0,-1,0,-1,0,1,0,1,0]}
+# Example request:  {"size":100,"iterations":20,"initialVector":[1,0,1,0,-1,0,-1,0]}
 def calc(r):
 
 	print("Received: ",r)
@@ -13,7 +13,7 @@ def calc(r):
 	init = r['initialVector']   
        
  
-	maxn = size*size*size
+	maxn = size*size
 
 	# vertices
 	n=range(maxn)
@@ -23,7 +23,7 @@ def calc(r):
 
 
 	cp=int(size/2)
-	center=cp+cp*size+cp*size*size
+	center=cp+cp*size
 	v[0][center]=init[0]
 	v[1][center]=init[1]
 	v[2][center]=init[2]
@@ -32,10 +32,6 @@ def calc(r):
 	v[5][center]=init[5]
 	v[6][center]=init[6]
 	v[7][center]=init[7]
-	v[8][center]=init[8]
-	v[9][center]=init[9]
-	v[10][center]=init[10]
-	v[11][center]=init[11]
 
 	print("creating verts")
 	verts = cudf.DataFrame(
@@ -49,10 +45,6 @@ def calc(r):
 	'v2i':v[5],
 	'v3r':v[6],
 	'v3i':v[7],
-	'v4r':v[8],
-	'v4i':v[9],
-	'v5r':v[10],
-	'v5i':v[11]
 	}
 	)
 
@@ -67,8 +59,6 @@ def calc(r):
 	m1=[]
 	m2=[]
 	m3=[]
-	m4=[]
-	m5=[]
 
 	for n in range(maxn):
 
@@ -84,8 +74,6 @@ def calc(r):
 	      m1.append(0)
 	      m2.append(0)
 	      m3.append(0)
-	      m4.append(0)
-	      m5.append(0)
 
 
 	   if x<size-1: 
@@ -96,8 +84,6 @@ def calc(r):
 	      m1.append(1)
 	      m2.append(0)
 	      m3.append(0)
-	      m4.append(0)
-	      m5.append(0)
 	       
 	   if y>0: 
 	      n2=n-size
@@ -107,8 +93,6 @@ def calc(r):
 	      m1.append(0)
 	      m2.append(1)
 	      m3.append(0)
-	      m4.append(0)
-	      m5.append(0)
 
 	   if y<size-1: 
 	      n3=n+size
@@ -118,30 +102,7 @@ def calc(r):
 	      m1.append(0)
 	      m2.append(0)
 	      m3.append(1)
-	      m4.append(0)
-	      m5.append(0)
 
-	   if z>0: 
-	      n4=n-size*size
-	      src.append(n) 
-	      dst.append(n4)
-	      m0.append(0)
-	      m1.append(0)
-	      m2.append(0)
-	      m3.append(0)
-	      m4.append(1)
-	      m5.append(0)
-
-	   if z<size-1: 
-	      n5=n+size*size
-	      src.append(n) 
-	      dst.append(n5)
-	      m0.append(0)
-	      m1.append(0)
-	      m2.append(0)
-	      m3.append(0)
-	      m4.append(0)
-	      m5.append(1)
 
 
 	print("len(edges)=",len(src))
@@ -154,9 +115,7 @@ def calc(r):
 	'm0':m0,
 	'm1':m1,
 	'm2':m2,
-	'm3':m3,
-	'm4':m4,
-	'm5':m5
+	'm3':m3
 	}
 	)
 
@@ -174,12 +133,10 @@ def calc(r):
 
 	   #print(len(m))
 
-	   m['p0r']=(-2 * m.v0r*m.m0 + m.v1r*m.m1 + m.v2r*m.m2 + m.v3r*m.m3 + m.v4r*m.m4 + m.v5r*m.m5 )/3 
-	   m['p1r']=(m.v0r*m.m0 + -2 * m.v1r*m.m1 + m.v2r*m.m2 + m.v3r*m.m3 + m.v4r*m.m4 + m.v5r*m.m5 )/3 
-	   m['p2r']=(m.v0r*m.m0 + m.v1r*m.m1 + -2 * m.v2r*m.m2 + m.v3r*m.m3 + m.v4r*m.m4 + m.v5r*m.m5 )/3 
-	   m['p3r']=(m.v0r*m.m0 + m.v1r*m.m1 + m.v2r*m.m2 + -2 * m.v3r*m.m3 + m.v4r*m.m4 + m.v5r*m.m5 )/3
-	   m['p4r']=(m.v0r*m.m0 + m.v1r*m.m1 + m.v2r*m.m2 + m.v3r*m.m3 + -2 * m.v4r*m.m4 + m.v5r*m.m5 )/3 
-	   m['p5r']=(m.v0r*m.m0 + m.v1r*m.m1 + m.v2r*m.m2 + m.v3r*m.m3 + m.v4r*m.m4 + -2 * m.v5r*m.m5 )/3
+	   m['p0r']=(-1 * m.v0r*m.m0 + m.v1r*m.m1 + m.v2r*m.m2 + m.v3r*m.m3 )/2 
+	   m['p1r']=(m.v0r*m.m0 + -1 * m.v1r*m.m1 + m.v2r*m.m2 + m.v3r*m.m3 )/2 
+	   m['p2r']=(m.v0r*m.m0 + m.v1r*m.m1 + -1 * m.v2r*m.m2 + m.v3r*m.m3 )/2 
+	   m['p3r']=(m.v0r*m.m0 + m.v1r*m.m1 + m.v2r*m.m2 + -1 * m.v3r*m.m3 )/2
 
 	   s = m.groupby('dst').sum().reset_index()
 
@@ -190,16 +147,14 @@ def calc(r):
 	   s['v1r'] = s.p1r 
 	   s['v2r'] = s.p2r 
 	   s['v3r'] = s.p3r 
-	   s['v4r'] = s.p4r 
-	   s['v5r'] = s.p5r 
-	   verts = s.loc[:,['id','v0r','v1r','v2r','v3r','v4r','v5r']]
+	   verts = s.loc[:,['id','v0r','v1r','v2r','v3r']]
 
 	   #print(iter,'-----------------------------------------------')
 
 	# TODO add complex support
-	verts['norm'] = verts.v0r**2+verts.v1r**2+verts.v2r**2+verts.v3r**2+verts.v4r**2+verts.v5r**2
+	verts['norm'] = ( verts.v0r**2 +verts.v1r**2 +verts.v2r**2+verts.v3r**2 )  * -3000
 	n = verts.loc[:,'norm'].to_pandas().values
-	a=array(n).reshape(size,size,size).tolist()
+	a=array(n).reshape(size,size).tolist()
 	
 	#print(a)
 	print("calc done")
@@ -227,7 +182,7 @@ def compute():
     print(r)
     c = r['initialVector'].split(',')
     # TODO handle complex inits
-    r['initialVector'] = [int(c[0]),0,int(c[1]),0,int(c[2]),0,int(c[3]),0,int(c[4]),0,int(c[5]),0] 
+    r['initialVector'] = [int(c[0]),0,int(c[1]),0,int(c[2]),0,int(c[3]),0] 
     result = calc(r)
     s = '{"result":'+str(result)+'}'
     #print(s)
