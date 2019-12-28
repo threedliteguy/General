@@ -3,6 +3,8 @@ from flask import Flask, request, json
 from numpy import array
 from flask_cors import CORS
 
+
+
 # Example request:  {"size":100,"iterations":20,"initialVector":[1,0,1,0,-1,0,-1,0]}
 def calc(r):
 
@@ -18,7 +20,7 @@ def calc(r):
 	# vertices
 	n=range(maxn)
 	v=[]
-	for d in range(0,12):
+	for d in range(0,8):
 	   v.append([0]*maxn)
 
 
@@ -64,7 +66,6 @@ def calc(r):
 
 	   x=n%size
 	   y=int(n/size)%size
-	   z=int(n/(size*size))%size
  
 	   if x>0:
 	      n0=n-1
@@ -137,6 +138,10 @@ def calc(r):
 	   m['p1r']=(m.v0r*m.m0 + -1 * m.v1r*m.m1 + m.v2r*m.m2 + m.v3r*m.m3 )/2 
 	   m['p2r']=(m.v0r*m.m0 + m.v1r*m.m1 + -1 * m.v2r*m.m2 + m.v3r*m.m3 )/2 
 	   m['p3r']=(m.v0r*m.m0 + m.v1r*m.m1 + m.v2r*m.m2 + -1 * m.v3r*m.m3 )/2
+	   m['p0i']=(-1 * m.v0i*m.m0 + m.v1i*m.m1 + m.v2i*m.m2 + m.v3i*m.m3 )/2 
+	   m['p1i']=(m.v0i*m.m0 + -1 * m.v1i*m.m1 + m.v2i*m.m2 + m.v3i*m.m3 )/2 
+	   m['p2i']=(m.v0i*m.m0 + m.v1i*m.m1 + -1 * m.v2i*m.m2 + m.v3i*m.m3 )/2 
+	   m['p3i']=(m.v0i*m.m0 + m.v1i*m.m1 + m.v2i*m.m2 + -1 * m.v3i*m.m3 )/2
 
 	   s = m.groupby('dst').sum().reset_index()
 
@@ -147,12 +152,16 @@ def calc(r):
 	   s['v1r'] = s.p1r 
 	   s['v2r'] = s.p2r 
 	   s['v3r'] = s.p3r 
-	   verts = s.loc[:,['id','v0r','v1r','v2r','v3r']]
+	   s['v0i'] = s.p0i 
+	   s['v1i'] = s.p1i 
+	   s['v2i'] = s.p2i 
+	   s['v3i'] = s.p3i 
+	   verts = s.loc[:,['id','v0r','v1r','v2r','v3r','v0i','v1i','v2i','v3i']]
 
 	   #print(iter,'-----------------------------------------------')
 
-	# TODO add complex support
-	verts['norm'] = ( verts.v0r**2 +verts.v1r**2 +verts.v2r**2+verts.v3r**2 )  * -3000
+	# c.conjugate * c = a**2 + b**2  
+	verts['norm'] = ( verts.v0r**2 + verts.v1r**2 + verts.v2r**2 + verts.v3r**2 + verts.v0i**2 + verts.v1i**2 + verts.v2i**2 + verts.v3i**2 )  * -3000
 	n = verts.loc[:,'norm'].to_pandas().values
 	a=array(n).reshape(size,size).tolist()
 	
@@ -181,8 +190,8 @@ def compute():
     r = request.json
     print(r)
     c = r['initialVector'].split(',')
-    # TODO handle complex inits
-    r['initialVector'] = [int(c[0]),0,int(c[1]),0,int(c[2]),0,int(c[3]),0] 
+    c = list(map(lambda x: complex(x.replace(' ','').replace('i','j')),c))
+    r['initialVector'] = [c[0].real,c[0].imag,c[1].real,c[1].imag,c[2].real,c[2].imag,c[3].real,c[3].imag] 
     result = calc(r)
     s = '{"result":'+str(result)+'}'
     #print(s)
@@ -191,3 +200,4 @@ def compute():
 
 if __name__ == '__main__':
     app.run(host="localhost", port=8080)
+

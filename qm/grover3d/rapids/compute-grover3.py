@@ -180,6 +180,12 @@ def calc(r):
 	   m['p3r']=(m.v0r*m.m0 + m.v1r*m.m1 + m.v2r*m.m2 + -2 * m.v3r*m.m3 + m.v4r*m.m4 + m.v5r*m.m5 )/3
 	   m['p4r']=(m.v0r*m.m0 + m.v1r*m.m1 + m.v2r*m.m2 + m.v3r*m.m3 + -2 * m.v4r*m.m4 + m.v5r*m.m5 )/3 
 	   m['p5r']=(m.v0r*m.m0 + m.v1r*m.m1 + m.v2r*m.m2 + m.v3r*m.m3 + m.v4r*m.m4 + -2 * m.v5r*m.m5 )/3
+	   m['p0i']=(-2 * m.v0i*m.m0 + m.v1i*m.m1 + m.v2i*m.m2 + m.v3i*m.m3 + m.v4i*m.m4 + m.v5i*m.m5 )/3 
+	   m['p1i']=(m.v0i*m.m0 + -2 * m.v1i*m.m1 + m.v2i*m.m2 + m.v3i*m.m3 + m.v4i*m.m4 + m.v5i*m.m5 )/3 
+	   m['p2i']=(m.v0i*m.m0 + m.v1i*m.m1 + -2 * m.v2i*m.m2 + m.v3i*m.m3 + m.v4i*m.m4 + m.v5i*m.m5 )/3 
+	   m['p3i']=(m.v0i*m.m0 + m.v1i*m.m1 + m.v2i*m.m2 + -2 * m.v3i*m.m3 + m.v4i*m.m4 + m.v5i*m.m5 )/3
+	   m['p4i']=(m.v0i*m.m0 + m.v1i*m.m1 + m.v2i*m.m2 + m.v3i*m.m3 + -2 * m.v4i*m.m4 + m.v5i*m.m5 )/3 
+	   m['p5i']=(m.v0i*m.m0 + m.v1i*m.m1 + m.v2i*m.m2 + m.v3i*m.m3 + m.v4i*m.m4 + -2 * m.v5i*m.m5 )/3
 
 	   s = m.groupby('dst').sum().reset_index()
 
@@ -192,12 +198,18 @@ def calc(r):
 	   s['v3r'] = s.p3r 
 	   s['v4r'] = s.p4r 
 	   s['v5r'] = s.p5r 
-	   verts = s.loc[:,['id','v0r','v1r','v2r','v3r','v4r','v5r']]
+	   s['v0i'] = s.p0i 
+	   s['v1i'] = s.p1i 
+	   s['v2i'] = s.p2i 
+	   s['v3i'] = s.p3i 
+	   s['v4i'] = s.p4i 
+	   s['v5i'] = s.p5i 
+	   verts = s.loc[:,['id','v0r','v1r','v2r','v3r','v4r','v5r','v0i','v1i','v2i','v3i','v4i','v5i']]
 
 	   #print(iter,'-----------------------------------------------')
 
-	# TODO add complex support
-	verts['norm'] = verts.v0r**2+verts.v1r**2+verts.v2r**2+verts.v3r**2+verts.v4r**2+verts.v5r**2
+	# c.conjugate * c = a**2 + b**2  
+	verts['norm'] = verts.v0r**2 + verts.v1r**2 + verts.v2r**2 + verts.v3r**2 + verts.v4r**2 + verts.v5r**2 + verts.v0i**2 + verts.v1i**2 + verts.v2i**2 + verts.v3i**2 + verts.v4i**2 + verts.v5i**2 
 	n = verts.loc[:,'norm'].to_pandas().values
 	a=array(n).reshape(size,size,size).tolist()
 	
@@ -226,8 +238,8 @@ def compute():
     r = request.json
     print(r)
     c = r['initialVector'].split(',')
-    # TODO handle complex inits
-    r['initialVector'] = [int(c[0]),0,int(c[1]),0,int(c[2]),0,int(c[3]),0,int(c[4]),0,int(c[5]),0] 
+    c = list(map(lambda x: complex(x.replace(' ','').replace('i','j')),c))
+    r['initialVector'] = [c[0].real,c[0].imag,c[1].real,c[1].imag,c[2].real,c[2].imag,c[3].real,c[3].imag,c[4].real,c[4].imag,c[5].real,c[5].imag] 
     result = calc(r)
     s = '{"result":'+str(result)+'}'
     #print(s)
@@ -236,3 +248,4 @@ def compute():
 
 if __name__ == '__main__':
     app.run(host="localhost", port=8080)
+
