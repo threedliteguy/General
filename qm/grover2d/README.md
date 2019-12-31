@@ -7,7 +7,7 @@ java -DIMPL_TYPE=spark -jar target/grover2d-1.0-SNAPSHOT-allinone.jar
   or
 java -DIMPL_TYPE=flink -jar target/grover2d-1.0-SNAPSHOT-allinone.jar
 
-Point browser to:  http://localhost:8080/html/grover.html
+Point browser to:  http://localhost:8080/html/grover2.html
 Click button and wait a couple seconds.
 
 

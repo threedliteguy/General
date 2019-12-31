@@ -51,30 +51,7 @@ trait GroverI {
     ).map(_ * Complex(0.5, 0))
   }
 
-  
-  
-  /*
-   
-   For a 3D Grover coin, use:
-   
-   See: https://iopscience.iop.org/article/10.1088/1367-2630/15/7/073041
-
-3D grover coin (6x6) sagemath code:
-import numpy
-ones=matrix( numpy.array(map(lambda x: int(x), numpy.ones((6,6)).ravel() )).reshape(6,6) )
-g3=(ones - 3*matrix.identity(6))*(1/3)
-
-[-2/3  1/3  1/3  1/3  1/3  1/3]
-[ 1/3 -2/3  1/3  1/3  1/3  1/3]
-[ 1/3  1/3 -2/3  1/3  1/3  1/3]
-[ 1/3  1/3  1/3 -2/3  1/3  1/3]
-[ 1/3  1/3  1/3  1/3 -2/3  1/3]
-[ 1/3  1/3  1/3  1/3  1/3 -2/3]
-
-  */
-
-
-
+ 
 
   val LEFT = 0
   val RIGHT = 1

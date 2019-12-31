@@ -47,7 +47,11 @@ object Grover  extends GroverI {
         val connected = Array(x > 0, x < size - 1, y < size - 1, y > 0)
 
         var value = Array(Complex.zero, Complex.zero, Complex.zero, Complex.zero)
-        if (y == Math.floor(size/2.0) && x == Math.floor(size/2.0)) value = initialVector
+        if (y == Math.floor(size/2.0) && x == Math.floor(size/2.0)
+//            || y == Math.floor(size/2.0) && x == Math.floor(size/2.0) + 1  // more initial points to smooth search area
+//            || y == Math.floor(size/2.0) + 1 && x == Math.floor(size/2.0) + 1  // more initial points to smooth search area
+//            || y == Math.floor(size/2.0) + 1 && x == Math.floor(size/2.0)   // more initial points to smooth search area
+            ) value = initialVector
         val p = (vcount, new VType(value, connected))
 
         vs += p
