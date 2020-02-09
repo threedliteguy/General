@@ -1,3 +1,4 @@
+# License: Any work by author threedlite in this dorectory is Public domain
 # pip install pyspark
 
 from pyspark.ml.clustering import LDA
@@ -40,12 +41,15 @@ def f0(r):
     docs = r['text'].split('Daf ')
     for doc in docs:
         i = doc.find('\n')
-        pid = aid + "-" + doc[:i]
+        n = doc[:i]
+        while len(n)<4:
+            n = '0'+n
+        pid = aid + "-" + n
         txt = doc[i+1:]
         res.append([pid,txt])
     return res 
 documents = documents.rdd.flatMap(f0).toDF(['id','text'])
-#documents.select(['id']).show(10, False)
+#documents.select(['id']).orderBy(['id']).show(1000, False)
 
 
 tokenizer = RegexTokenizer(inputCol="text", outputCol="words", pattern="""\\W""")
@@ -98,7 +102,7 @@ def f2(r):
 final=transformed.rdd.map(f2)
 final=final.toDF(["id","topic","topics"])
 finalwords=final.join(topicwords, on=['topic'], how='left')
-finalwords.select(["id","topic","topics","topic_words"]).collect().sort()
+finalwords=finalwords.select(["id","topic","topics","topic_words"]).orderBy(['id'])
 finalwords.show(100000,False)
 
 
