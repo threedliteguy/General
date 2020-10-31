@@ -1,7 +1,7 @@
 import time
 import os,random
 
-rowcount = 40
+rowcount = 200 
 colcount = 50
 block=1000000
 
@@ -31,7 +31,7 @@ for i in range(rowcount):
   for j in range(block):
     row = str(i*block+j)
     for k in range(colcount):
-      row = row + ',' + str(random.randint(0,100))
+      row = row + ',a' + str(random.randint(0,100))
     rows.append(row)
   rows = '\n'.join(rows)+'\n'
   f.write(rows)
