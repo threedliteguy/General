@@ -11,23 +11,34 @@ struct User {
     status: String 
 }
 
+fn getcon() -> Result<redis::Connection,redis::RedisError> {
+    let client = redis::Client::open("redis://127.0.0.1/")?;
+    client.get_connection()
+}
 
-#[get("/")]
-fn a() -> Json<User> {
-    let _x = fetch_an_integer().ok().unwrap();
-    let u = User { name: "a".to_string(), status: _x };
+fn get(id:String) -> Result<String,redis::RedisError> {
+    let x:Result<String,redis::RedisError> = getcon()?.get(id);
+    x.or(Ok("".to_string()))
+}
+fn set(id:String,val:String) -> Result<(),redis::RedisError> {
+    getcon()?.set(&id,val)
+}
+
+#[get("/r/<id>")]
+fn r(id:String) -> Json<User> {
+    let u = User { name: id.to_string(), status: get(id).unwrap() };
     Json(u)
 }
 
-
-fn fetch_an_integer() -> redis::RedisResult<String> {
-    let client = redis::Client::open("redis://127.0.0.1/")?;
-    let mut con = client.get_connection()?;
-    let _ : () = con.set("my_key", 42)?;
-    con.get("my_key")
+// s/b post
+#[get("/s/<id>?<val>")]
+fn s(id:String, val:String) -> Json<User> {
+    set(id.to_string(),val).unwrap();
+    r(id)
 }
+
 
 #[launch]
 fn rocket() -> _ {
-    rocket::build().mount("/", routes![a])
+    rocket::build().mount("/", routes![r,s])
 }
