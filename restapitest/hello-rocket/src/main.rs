@@ -11,6 +11,7 @@ struct User {
     status: String 
 }
 
+
 fn getcon() -> Result<redis::Connection,redis::RedisError> {
     let client = redis::Client::open("redis://127.0.0.1/")?;
     client.get_connection()
@@ -37,8 +38,18 @@ fn s(id:String, val:String) -> Json<User> {
     r(id)
 }
 
+// curl http://127.0.0.1:8000/ra -X POST -H 'Content-Type: application/json' -d '["1","2"]'
+#[post("/ra",format="json",data="<message>")]
+fn ra(message:Json<Vec<String>>) -> Json<Vec<User>> {
+    let v:Vec<User> = message.to_vec().iter().map(|m| { 
+      let id = m.to_string();
+      let u = User { name: id.to_string(), status: get(id).unwrap() };
+      u
+    }).collect();
+    Json(v)
+}
 
 #[launch]
 fn rocket() -> _ {
-    rocket::build().mount("/", routes![r,s])
+    rocket::build().mount("/", routes![r,s,ra])
 }
