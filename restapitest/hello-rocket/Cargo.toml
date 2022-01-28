@@ -8,6 +8,9 @@ edition = "2021"
 [dependencies]
 serde = "1.0.130"
 redis = "0.21.5"
+r2d2 = "0.8.9"
+r2d2_redis = "0.14.0"
+async-trait = "0.1.52"
 
 [dependencies.rocket]
 version = "0.5.0-rc.1"

@@ -4,6 +4,9 @@ use redis::Commands;
 
 use serde::{Serialize, Deserialize};
 use rocket::serde::json::Json;
+use rocket::State;
+
+pub mod redis_connection;
 
 #[derive(Serialize, Deserialize, Debug)]
 struct User {
@@ -40,10 +43,12 @@ fn s(id:String, val:String) -> Json<User> {
 
 // curl http://127.0.0.1:8000/ra -X POST -H 'Content-Type: application/json' -d '["1","2"]'
 #[post("/ra",format="json",data="<message>")]
-fn ra(message:Json<Vec<String>>) -> Json<Vec<User>> {
-    let v:Vec<User> = message.to_vec().iter().map(|m| { 
-      let id = m.to_string();
-      let u = User { name: id.to_string(), status: get(id).unwrap() };
+fn ra(message:Json<Vec<String>>,pool:&State<redis_connection::MyPool>) -> Json<Vec<User>> {
+    use r2d2_redis::redis::Commands;
+    let mut c = pool.0.get().unwrap();
+    let v:Vec<User> = message.to_vec().iter().map(|id| { 
+      let v = c.get(id.to_string()).unwrap();
+      let u = User { name: id.to_string(), status: v };
       u
     }).collect();
     Json(v)
@@ -52,4 +57,5 @@ fn ra(message:Json<Vec<String>>) -> Json<Vec<User>> {
 #[launch]
 fn rocket() -> _ {
     rocket::build().mount("/", routes![r,s,ra])
+        .manage(redis_connection::init_pool())
 }
