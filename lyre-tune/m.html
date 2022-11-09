@@ -1,0 +1,185 @@
+<html><body>
+<canvas id="myc" width="2400" height="600"></canvas>
+<div id="myd"></div>
+<script>
+const WIDTH=2400;
+const HEIGHT=600;
+
+// Tuning 7 string lyre for Ancient Greek modes by alternating ascending fifths and descending fourths:
+// https://www.reddit.com/r/lyres/comments/kntcxl/method_for_tuning_a_sevenstring_lyre_by_ear_a/
+// This program will help do it visually instead of by ear.
+
+var magnify = 20;
+var num_add_octaves_to_mode_lines = 1;
+
+
+const unison = 1.0;
+const octave = 2.0;
+
+const fifth = 3.0/2.0;
+const fourth = 4.0/3.0;
+const desc_fourth = 3.0/4.0;
+
+const tn = [desc_fourth,fifth];
+
+// Mode definitions
+
+const lydian = [0,1,0,1,0,1];
+const lydian_a_index = 4; 
+
+const phrygian = [1,0,0,1,0,1];
+const phrygian_a_index = 4; 
+
+const dorian = [1,0,1,0,0,1];
+const dorian_a_index = 3; // fourth note, starting with E, is A on the chart
+
+const hypolydian = [1,0,1,0,1,0];
+const hypolydian_a_index = 4; 
+
+const hypophrygian = [1,0,1,0,1,1];
+const hypophrygian_a_index = 2; 
+
+const locrian = [1,0,1,1,0,1];
+const locrian_a_index = 2; 
+
+const mixolydian = [1,1,0,1,0,1];
+const mixolydian_a_index = 2; 
+
+
+ 
+// Select mode:
+
+const mode = dorian;
+const a_index = dorian_a_index;
+
+
+// Compute frequencies
+
+const spacings = [1.0];
+for (let t=0;t<mode.length;t++){
+  spacings.push(spacings[spacings.length-1]*tn[mode[t]]);
+}
+
+console.log(spacings);
+
+
+//var anote = 440; // HZ conventional A above middle C
+var anote = 432; // may be preferred for just intonation
+
+anote = anote * (octave ** num_add_octaves_to_mode_lines);
+console.log('anote = '+anote);
+
+const freqs = [];
+
+const a_adj = spacings[a_index];
+for (let t=0;t<spacings.length;t++){
+    freqs.push(spacings[t] * anote / a_adj);
+}
+
+console.log(freqs);
+
+// Draw:
+
+
+var div = document.getElementById("myd");
+var canvas = document.getElementById("myc");
+var canvasCtx = canvas.getContext("2d");
+
+// Audio:
+// https://developer.mozilla.org/en-US/docs/Web/API/AnalyserNode/getByteFrequencyData
+// https://stackoverflow.com/questions/28329389/is-there-a-way-to-detect-audio-frequency-in-html-5-web-audio-api
+
+
+navigator.mediaDevices.getUserMedia({audio:true}).then(function(localStream) {
+
+  var audioContext = new(window.AudioContext || window.webkitAudioContext)();
+  
+  var sampleRate = audioContext.sampleRate;
+  console.log('sample rate = '+ sampleRate);
+  
+  
+  // https://github.com/hughsk/clamp/blob/master/index.js [MIT license]
+  function clamp(value, min, max) {
+  return min < max
+    ? (value < min ? min : value > max ? max : value)
+    : (value < max ? max : value > min ? min : value)
+  }
+  
+  // https://github.com/Jam3/audio-frequency-to-index/blob/master/index.js [MIT license]
+  function indexToFrequency (index, sampleRate, frequencyBinCount) {
+    return index * sampleRate / (frequencyBinCount * 2);
+  }
+  function frequencyToIndex (frequency, sampleRate, frequencyBinCount) { 
+    var nyquist = sampleRate / 2;
+    var index = Math.round(frequency / nyquist * frequencyBinCount);
+    return clamp(index, 0, frequencyBinCount);
+  }
+
+  var input = audioContext.createMediaStreamSource(localStream);
+  var scriptProcessor = audioContext.createScriptProcessor();
+  
+  var analyser = audioContext.createAnalyser();
+
+//  analyser.fftSize = 256;
+  analyser.fftSize = 16384*2;
+
+  input.connect(analyser);
+  analyser.connect(scriptProcessor);
+  scriptProcessor.connect(audioContext.destination);
+  //scriptProcessor.onaudioprocess = onAudio;
+
+  const frequencyBinCount = analyser.frequencyBinCount;
+  console.log('frequencyBinCount = '+frequencyBinCount);
+  
+  var dataArray = new Uint8Array(frequencyBinCount*2);
+
+  canvasCtx.clearRect(0, 0, WIDTH, HEIGHT);
+  const drawscale = WIDTH/frequencyBinCount * magnify;
+  const barWidth = drawscale ;
+  console.log('barWidth = '+barWidth);
+
+  
+  function draw() {
+    drawVisual = requestAnimationFrame(draw);
+
+    analyser.getByteFrequencyData(dataArray);
+
+    canvasCtx.fillStyle = "rgb(0, 0, 0)";
+    canvasCtx.fillRect(0, 0, WIDTH, HEIGHT);
+    
+    
+    canvasCtx.fillStyle = "rgb(256, 256, 0)";
+    for (let h = 0; h < freqs.length; h++) {
+       canvasCtx.fillRect(drawscale*frequencyToIndex(freqs[h], sampleRate, frequencyBinCount), 0, barWidth*.5, HEIGHT);
+    } 
+    
+    let barHeight;
+    let x = 0;
+    let mi = 0;
+    let mv = 0;
+
+    for (let i = 0; i < frequencyBinCount; i++) {
+      barHeight = dataArray[i];
+      if (barHeight>mv) {mv = barHeight;mi=i;}
+    
+      canvasCtx.fillStyle = `rgb(${barHeight + 100}, 200, 200)`;
+      canvasCtx.fillRect(drawscale*i, HEIGHT - barHeight / 2, barWidth, barHeight / 2);
+
+    }
+    
+  
+    peakhz = Math.round(indexToFrequency(mi, sampleRate, frequencyBinCount));
+    div.innerHTML = `${peakhz}`
+  }
+
+  draw();
+ 
+}).catch(function(){
+  console.log(e);
+});
+ 
+ 
+ 
+</script>
+</body></html>
+
