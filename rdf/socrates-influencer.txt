@@ -1,0 +1,36 @@
+# Student-teacher/influencer relationships, lineage starting with Socrates, located by place of birth.
+#defaultView:Map{"hide":["?line","?cds"],"layer":"?teacher_or_influencerLabel"}
+SELECT  
+(?student as ?writer) (concat('Writer: ',str(?studentLabel)) as ?writerLabel) (?teacher_or_infl as ?teacher_or_influencer)
+(concat('Teacher or Influencer: ',str(?teacher_or_inflLabel)) as ?teacher_or_influencerLabel)  
+?image
+?location (concat('Writer place of birth: ',?spobLabel ) as ?locationLabel)
+?line {
+
+SELECT distinct ?student ?studentLabel ?teacher_or_infl ?teacher_or_inflLabel ?cds ?image (?spob as ?location) ?spobLabel ?line {
+
+   {
+    VALUES ?person {wd:Q913}
+    ?person wdt:P802* ?academyrelated .
+    ?academyrelated wdt:P1066* ?student .
+  } union {
+    VALUES ?person {wd:Q913}
+    ?person wdt:P802* ?academyrelated .
+    ?academyrelated wdt:P737* ?student .
+  }
+ 
+  ?student  wdt:P1066|wdt:P737 ?teacher_or_infl .
+ 
+  ?teacher_or_infl wdt:P19 ?tpob .
+  ?teacher_or_infl wdt:P802 ?student .
+  ?student  wdt:P19 ?spob .
+  ?spob wdt:P625 ?cds.
+                           
+  ?tpob p:P625/psv:P625/wikibase:geoLatitude ?lat1 ; p:P625/psv:P625/wikibase:geoLongitude ?lon1 .
+  ?spob p:P625/psv:P625/wikibase:geoLatitude ?lat2 ; p:P625/psv:P625/wikibase:geoLongitude ?lon2 .
+  BIND(CONCAT('LINESTRING(', STR(?lon1), ' ', STR(?lat1), ',', STR(?lon2), ' ', STR(?lat2), ')') AS ?str) . BIND(STRDT(?str, geo:wktLiteral) AS ?line) .
+ 
+  OPTIONAL { ?student wdt:P18 ?image .}
+  SERVICE wikibase:label { bd:serviceParam wikibase:language "en". }
+}
+ }
