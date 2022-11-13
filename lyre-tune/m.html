@@ -52,19 +52,21 @@ const octave = 2.0;
 
 const fifth = 3.0/2.0;
 const fourth = 4.0/3.0;
+const desc_fifth = 2.0/3.0;
 const desc_fourth = 3.0/4.0;
 
-const tn = [desc_fourth,fifth];
+const tn = [[desc_fourth,fifth],[desc_fifth,fourth]];
+
 
 // Names per above reddit chart.
 const modes = new Map();
-modes.set('lydian', [[0,1,0,1,0,1],4]);
-modes.set('phrygian', [[1,0,0,1,0,1],4]);
-modes.set('dorian', [[1,0,1,0,0,1],4]);
-modes.set('hypolydian', [[1,0,1,0,1,0],4]);
-modes.set('hypophrygian', [[1,0,1,0,1,1],2]);
-modes.set('hypodorian', [[1,0,1,1,0,1],2]);
-modes.set('mixolydian', [[1,1,0,1,0,1],2]);
+modes.set('lydian', [[0,1,0,1,0,1],4,0]);
+modes.set('phrygian', [[1,0,0,1,0,1],4,0]);
+modes.set('dorian', [[1,0,1,0,0,1],4,0]);
+modes.set('hypolydian', [[1,0,1,0,1,0],4,0]);
+modes.set('hypophrygian', [[1,0,1,0,1,1],2,1]);
+modes.set('hypodorian', [[1,0,1,1,0,1],2,1]);
+modes.set('mixolydian', [[1,1,0,1,0,1],2,1]);
 
 var freqs = [];
 
@@ -97,13 +99,14 @@ function changemode() {
  
  const pattern = a[0];
  const a_index = a[1];  // e.g. 3 means A is fourth note, starting with E, on the reddit tuning chart.
+ const type = a[2]; // ascending fourth or fifth
  console.log('pattern = ' + pattern + ' a_index = ' + a_index);
 
  // Compute frequencies
 
  const spacings = [1.0];
  for (let t=0;t<pattern.length;t++){
-   spacings.push(spacings[spacings.length-1]*tn[pattern[t]]);
+   spacings.push(spacings[spacings.length-1]*tn[type][pattern[t]]);
  }
 
  console.log(spacings);
