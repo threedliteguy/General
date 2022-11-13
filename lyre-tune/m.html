@@ -5,13 +5,13 @@
 <br />
 <label for="mode">Mode</label>
 <select name="mode" id="mode" onchange="javascript:changemode();">
-  <option value="lydian">Lydian</option>
-  <option value="phrygian">Phrygian</option>
-  <option selected="selected" value="dorian">Dorian</option>
-  <option value="hypolydian">Hypolydian</option>
-  <option value="hypophrygian">Hypophrygian</option>
-  <option value="locrian">Locrian</option>
-  <option value="myxolydian">Myxolydian</option>
+  <option value="lydian">Lydian (church Ionian, mesopotamian nīd qabli)</option>
+  <option value="phrygian">Phrygian (church Dorian, mesopotamian embūbu)</option>
+  <option selected="selected" value="dorian">Dorian (church Phyrgian, mesopotamian išartu)</option>
+  <option value="hypolydian">Hypolydian (church Lydian, mesopotamian nīš gabarî)</option>
+  <option value="hypophrygian">Hypophrygian (church Mixolydian, mesopotamian pūtu)</option>
+  <option value="hypodorian">Hypodorian/Locrian (church Aeolian, mesopotamian kitmu)</option>
+  <option value="mixolydian">Mixolydian (church Locrian, mesopotamian qablītu)</option>
 </select>
 <label for="octave">Octave</label>
 <select name="octave" id="octave" onchange="javascript:changeoctave();">
@@ -30,6 +30,13 @@ const HEIGHT=600;
 // Tuning 7 string lyre for Ancient Greek modes by alternating ascending fifths and descending fourths:
 // https://www.reddit.com/r/lyres/comments/kntcxl/method_for_tuning_a_sevenstring_lyre_by_ear_a/
 // This program will help do it visually instead of by ear.
+
+// Mesopotamian names:
+// https://en.wikipedia.org/wiki/Music_of_Mesopotamia
+// https://www.flutopedia.com/mesopotamian_flutes.htm
+// https://books.google.com/books?id=eliIDwAAQBAJ&lpg=PA30&ots=41IchPISlq&dq=qabl%C4%ABtu&pg=PA40#v=onepage&q&f=false
+
+
 
 var magnify = 10;
 var num_add_octaves_to_mode_lines = 0;
@@ -55,8 +62,8 @@ modes.set('phrygian', [[1,0,0,1,0,1],4]);
 modes.set('dorian', [[1,0,1,0,0,1],4]);
 modes.set('hypolydian', [[1,0,1,0,1,0],4]);
 modes.set('hypophrygian', [[1,0,1,0,1,1],2]);
-modes.set('locrian', [[1,0,1,1,0,1],2]);
-modes.set('myxolydian', [[1,1,0,1,0,1],2]);
+modes.set('hypodorian', [[1,0,1,1,0,1],2]);
+modes.set('mixolydian', [[1,1,0,1,0,1],2]);
 
 var freqs = [];
 
