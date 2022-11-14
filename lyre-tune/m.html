@@ -167,7 +167,8 @@ function changemode() {
  var relativeto = (a_index + base_note) % 7;  // Can't use modulo on non-sequential scales, so base_note has to be A
 
  console.log(spacings);
- spacings.sort()
+ function s(a, b){return Number(a)-Number(b);}
+ spacings.sort(s)
  console.log(spacings);
 
  adj_base_note_hz = base_note_hz * (octave ** num_add_octaves_to_mode_lines);
@@ -186,7 +187,7 @@ function changemode() {
      freqs.push(f);
  }
  console.log(freqs);
- freqs.sort();
+ freqs.sort(s);
  console.log(freqs);
 
  canvasCtx.clearRect(0, 0, WIDTH, HEIGHT);
