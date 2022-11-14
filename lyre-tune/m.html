@@ -5,14 +5,20 @@
 <br />
 <label for="mode">Mode</label>
 <select name="mode" id="mode" >
-  <option value="lydian">Lydian (church Ionian, mesopotamian nīd qabli)</option>
-  <option value="phrygian">Phrygian (church Dorian, mesopotamian embūbu)</option>
-  <option selected="selected" value="dorian">Dorian (church Phyrgian, mesopotamian išartu)</option>
-  <option value="hypolydian">Hypolydian (church Lydian, mesopotamian nīš gabarî)</option>
-  <option value="hypophrygian">Hypophrygian (church Mixolydian, mesopotamian pūtu)</option>
-  <option value="hypodorian">Hypodorian/Locrian (church Aeolian, mesopotamian kitmu)</option>
-  <option value="mixolydian">Mixolydian (church Locrian, mesopotamian qablītu)</option>
-  <option value="just">Just intonation (5-limit from C, Ptolemy intense diatonic)</option>
+  <option value="just_c">Just intonation, 5-limit (from C, Greek Lydian, church Ionian, Ptolemy intense diatonic)</option>
+  <option value="just_d">Just intonation, 5-limit (from D, Greek Phrygian, church Dorian)</option>
+  <option selected="selected" value="just_e">Just intonation, 5-limit (from E, Greek Dorian, church Phyrgian)</option>
+  <option value="just_f">Just intonation, 5-limit (from F, Greek Hypolydian, church Lydian)</option>
+  <option value="just_g">Just intonation, 5-limit (from G, Greek Hypophrygian, church Mixolydian)</option>
+  <option value="just_a">Just intonation, 5-limit (from A, Greek Hypodorian/Locrian, church Aeolian)</option>
+  <option value="just_b">Just intonation, 5-limit (from B, Greek Mixolydian, church Locrian)</option>
+  <option value="fifths_c">All-fifths Lydian (mesopotamian nīd qabli)</option>
+  <option value="fifths_d">All-fifths Phrygian (mesopotamian embūbu)</option>
+  <option value="fifths_e">All-fifths Dorian (mesopotamian išartu)</option>
+  <option value="fifths_f">All-fifths Hypolydian (mesopotamian nīš gabarî)</option>
+  <option value="fifths_g">All-fifths Hypophrygian (mesopotamian pūtu)</option>
+  <option value="fifths_a">All-fifths Hypodorian/Locrian (mesopotamian kitmu)</option>
+  <option value="fifths_b">All-fifths Mixolydian (mesopotamian qablītu)</option>
   <option value="pythagorean">Pythagorean FCGDAEB</option>
   <option value="pentatonic_c">Pentatonic CDEGAC (Major, gong, Bhupali, Mohanam, MullaitheemPaaNi)</option>
   <option value="pentatonic_d">Pentatonic DEGACD (Suspended, shang, Megh, Madhyamavati, Sendhurutti)</option>
@@ -41,9 +47,11 @@
   <option value="1">1</option>
   <option value="2">2</option>
 </select>
-<br/>
+<br />
 <button onclick='javascript:changemode();'>Update frequencies:</button>
 <label id="freqs"></label>
+<br /><br />
+[Sample Hz values: A4 = 432, 434, 436, 440, 442, 444, or 446 Hz or C4 = 261.63 Hz]
 
 
 <script>
@@ -57,8 +65,10 @@ const HEIGHT=600;
 // https://pages.mtu.edu/~suits/fifths.html
 
 // https://en.wikipedia.org/wiki/Just_intonation
+// http://www.tonalsoft.com/enc/j/just.aspx
 // https://en.wikipedia.org/wiki/Pythagorean_tuning
 // https://en.wikipedia.org/wiki/Pentatonic_scale
+
 
 
 // This program will help do it visually instead of by ear.
@@ -93,18 +103,36 @@ const desc_fourth = 3.0/4.0;
 
 const tn = [[desc_fourth,fifth],[desc_fifth,fourth]];
 
+var just_c = [1.0,9/8,5/4,4/3,3/2,5/3,15/8];
+var justs = [];
+for (let m = 0; m < 7; m++) {
+   var just = [];
+   for (let n = 0; n < 7; n++) {
+     var r = just_c[n];
+     if (n < m) {r = r * 2;}
+     just.push(r);
+   }
+   justs.push(just);
+}
+console.log(justs);
 
 // Names per above reddit chart.
 const modes = new Map();
-modes.set('lydian', [[0,1,0,1,0,1],5,0,0]);
-modes.set('phrygian', [[1,0,0,1,0,1],4,0,0]);
-modes.set('dorian', [[1,0,1,0,0,1],3,0,0]);
-modes.set('hypolydian', [[1,0,1,0,1,0],2,0,0]);
-modes.set('hypophrygian', [[1,0,1,0,1,1],1,1,0]);
-modes.set('hypodorian', [[1,0,1,1,0,1],0,1,0]);
-modes.set('mixolydian', [[1,1,0,1,0,1],6,1,0]);
+modes.set('fifths_c', [[0,1,0,1,0,1],5,0,0]);
+modes.set('fifths_d', [[1,0,0,1,0,1],4,0,0]);
+modes.set('fifths_e', [[1,0,1,0,0,1],3,0,0]);
+modes.set('fifths_f', [[1,0,1,0,1,0],2,0,0]);
+modes.set('fifths_g', [[1,0,1,0,1,1],1,1,0]);
+modes.set('fifths_a', [[1,0,1,1,0,1],0,1,0]);
+modes.set('fifths_b', [[1,1,0,1,0,1],6,1,0]);
 
-modes.set('just', [[1.0,9/8,5/4,4/3,3/2,5/3,15/8],5,0,1]);
+modes.set('just_c', [justs[0],5,0,1]);
+modes.set('just_d', [justs[1],4,0,1]);
+modes.set('just_e', [justs[2],3,0,1]);
+modes.set('just_f', [justs[3],2,0,1]);
+modes.set('just_g', [justs[4],1,0,1]);
+modes.set('just_a', [justs[5],0,0,1]);
+modes.set('just_b', [justs[6],6,0,1]);
 
 modes.set('pythagorean', [[32/27,16/9,4/3,1.0,3/2,9/8,27/16],4,0,2]);
 
