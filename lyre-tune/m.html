@@ -5,20 +5,20 @@
 <br />
 <label for="mode">Mode</label>
 <select name="mode" id="mode" >
-  <option value="just_c">Just intonation, 5-limit (from C, Greek Lydian, church Ionian, Ptolemy intense diatonic)</option>
-  <option value="just_d">Just intonation, 5-limit (from D, Greek Phrygian, church Dorian)</option>
-  <option selected="selected" value="just_e">Just intonation, 5-limit (from E, Greek Dorian, church Phyrgian)</option>
-  <option value="just_f">Just intonation, 5-limit (from F, Greek Hypolydian, church Lydian)</option>
-  <option value="just_g">Just intonation, 5-limit (from G, Greek Hypophrygian, church Mixolydian)</option>
-  <option value="just_a">Just intonation, 5-limit (from A, Greek Hypodorian/Locrian, church Aeolian)</option>
-  <option value="just_b">Just intonation, 5-limit (from B, Greek Mixolydian, church Locrian)</option>
-  <option value="equi_c">Equal tempered, Greek Lydian, church Ionian</option>
-  <option value="equi_d">Equal tempered, Greek Phrygian, church Dorian</option>
-  <option value="equi_e">Equal tempered, Greek Dorian, church Phyrgian</option>
-  <option value="equi_f">Equal tempered, Greek Hypolydian, church Lydian</option>
-  <option value="equi_g">Equal tempered, Greek Hypophrygian, church Mixolydian</option>
-  <option value="equi_a">Equal tempered, Greek Hypodorian/Locrian, church Aeolian</option>
-  <option value="equi_b">Equal tempered, Greek Mixolydian, church Locrian)</option>
+  <option value="just_c">Just intonation, 5-limit (from C, Greek Lydian, modern Ionian, Ptolemy intense diatonic)</option>
+  <option value="just_d">Just intonation, 5-limit (from D, Greek Phrygian, modern Dorian)</option>
+  <option selected="selected" value="just_e">Just intonation, 5-limit (from E, Greek Dorian, modern Phyrgian)</option>
+  <option value="just_f">Just intonation, 5-limit (from F, Greek Hypolydian, modern Lydian)</option>
+  <option value="just_g">Just intonation, 5-limit (from G, Greek Hypophrygian, modern Mixolydian)</option>
+  <option value="just_a">Just intonation, 5-limit (from A, Greek Hypodorian/Locrian, modern Aeolian)</option>
+  <option value="just_b">Just intonation, 5-limit (from B, Greek Mixolydian, modern Locrian)</option>
+  <option value="equi_c">Equal tempered, Greek Lydian, modern Ionian</option>
+  <option value="equi_d">Equal tempered, Greek Phrygian, modern Dorian</option>
+  <option value="equi_e">Equal tempered, Greek Dorian, modern Phyrgian</option>
+  <option value="equi_f">Equal tempered, Greek Hypolydian, modern Lydian</option>
+  <option value="equi_g">Equal tempered, Greek Hypophrygian, modern Mixolydian</option>
+  <option value="equi_a">Equal tempered, Greek Hypodorian/Locrian, modern Aeolian</option>
+  <option value="equi_b">Equal tempered, Greek Mixolydian, modern Locrian)</option>
   <option value="fifths_c">All-fifths Greek Lydian (mesopotamian nīd qabli)</option>
   <option value="fifths_d">All-fifths Greek Phrygian (mesopotamian embūbu)</option>
   <option value="fifths_e">All-fifths Greek Dorian (mesopotamian išartu)</option>
@@ -45,7 +45,7 @@
   <option value="6">G</option>
 </select>
 <label for="basenotehz">to Hz</label>
-<input type="text" name="basenotehz" id="basenotehz" value="432" size=5 ></input>
+<input type="text" name="basenotehz" id="basenotehz" value="440" size=5 ></input>
 <label for="octave">Add octaves</label>
 <select name="octave" id="octave" >
   <option value="-2">-2</option>
@@ -90,10 +90,6 @@ const HEIGHT=600;
 var magnify = 10;
 var num_add_octaves_to_mode_lines = 0;
 
-// 440 HZ is conventional for A above middle C.  432 may be preferred for just intonation. 11 is largest prime factor for 440, while 3 is largest for 432.
-// Standard middle C is 261.63 Hz
-
-var middle_c = 261.63;
 var equitempbase = 2 ** (1/12);
 
 var base_note = 0; 
