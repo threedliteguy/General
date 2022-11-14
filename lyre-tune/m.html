@@ -4,7 +4,7 @@
 <div id="loudestfreq"></div>
 <br />
 <label for="mode">Mode</label>
-<select name="mode" id="mode" onchange="javascript:changemode();">
+<select name="mode" id="mode" >
   <option value="lydian">Lydian (church Ionian, mesopotamian nīd qabli)</option>
   <option value="phrygian">Phrygian (church Dorian, mesopotamian embūbu)</option>
   <option selected="selected" value="dorian">Dorian (church Phyrgian, mesopotamian išartu)</option>
@@ -13,30 +13,37 @@
   <option value="hypodorian">Hypodorian/Locrian (church Aeolian, mesopotamian kitmu)</option>
   <option value="mixolydian">Mixolydian (church Locrian, mesopotamian qablītu)</option>
   <option value="just">Just intonation (5-limit from C, Ptolemy intense diatonic)</option>
+  <option value="pythagorean">Pythagorean FCGDAEB</option>
+  <option value="pentatonic_c">Pentatonic CDEGAC (Major, gong, Bhupali, Mohanam, MullaitheemPaaNi)</option>
+  <option value="pentatonic_d">Pentatonic DEGACD (Suspended, shang, Megh, Madhyamavati, Sendhurutti)</option>
+  <option value="pentatonic_e">Pentatonic EGACDE (Blues minor, jue, Malkauns, Hindolam, Indhalam)</option>
+  <option value="pentatonic_g">Pentatonic GACDEG (Blues major, zhi, Durga, Shuddha Saveri, Konrai)</option>
+  <option value="pentatonic_a">Pentatonic ACDEGA (Minor, yu, Dhani, Udayaravichandrika, Aambal)</option>
 </select>
 
 <label for="basenote">Set note </label>
-<select name="basenote" id="basenote" onchange="javascript:changemode();">
-  <option value="0">A</option>
+<select name="basenote" id="basenote" >
+  <option selected="selected" value="0">A</option>
   <option value="1">B</option>
-  <option selected="selected" value="2">C</option>
+  <option value="2">C</option>
   <option value="3">D</option>
   <option value="4">E</option>
   <option value="5">F</option>
   <option value="6">G</option>
 </select>
 <label for="basenotehz">to Hz</label>
-<input type="text" name="basenotehz" id="basenotehz" value="261.63" size=5 onchange="javascript:changemode();"></input>
-<button>Update Hz</button>
+<input type="text" name="basenotehz" id="basenotehz" value="432" size=5 ></input>
 <label for="octave">Add octaves</label>
-<select name="octave" id="octave" onchange="javascript:changemode();">
+<select name="octave" id="octave" >
   <option value="-2">-2</option>
   <option value="-1">-1</option>
   <option selected="selected" value="0">0</option>
   <option value="1">1</option>
   <option value="2">2</option>
 </select>
-<div id="freqs"></div>
+<br/>
+<button onclick='javascript:changemode();'>Update frequencies:</button>
+<label id="freqs"></label>
 
 
 <script>
@@ -48,6 +55,11 @@ const HEIGHT=600;
 // https://www.reddit.com/r/lyres/comments/kntcxl/method_for_tuning_a_sevenstring_lyre_by_ear_a/
 // https://youtu.be/Yk6bLMe2Uak?t=318
 // https://pages.mtu.edu/~suits/fifths.html
+
+// https://en.wikipedia.org/wiki/Just_intonation
+// https://en.wikipedia.org/wiki/Pythagorean_tuning
+// https://en.wikipedia.org/wiki/Pentatonic_scale
+
 
 // This program will help do it visually instead of by ear.
 
@@ -63,6 +75,8 @@ var num_add_octaves_to_mode_lines = 0;
 
 // 440 HZ is conventional for A above middle C.  432 may be preferred for just intonation. 11 is largest prime factor for 440, while 3 is largest for 432.
 // Standard middle C is 261.63 Hz
+
+var middle_c = 261.63;
 
 var base_note = 0; 
 var base_note_hz = 1;
@@ -89,7 +103,16 @@ modes.set('hypolydian', [[1,0,1,0,1,0],2,0,0]);
 modes.set('hypophrygian', [[1,0,1,0,1,1],1,1,0]);
 modes.set('hypodorian', [[1,0,1,1,0,1],0,1,0]);
 modes.set('mixolydian', [[1,1,0,1,0,1],6,1,0]);
+
 modes.set('just', [[1.0,9/8,5/4,4/3,3/2,5/3,15/8],5,0,1]);
+
+modes.set('pythagorean', [[32/27,16/9,4/3,1.0,3/2,9/8,27/16],4,0,2]);
+
+modes.set('pentatonic_c', [[1.0,27/24,30/24,36/24,40/24,48/24],4,0,2]);
+modes.set('pentatonic_d', [[1.0,27/24,32/24,36/24,42/24,48/24],3,0,2]);
+modes.set('pentatonic_e', [[1.0,18/15,20/15,24/15,27/15,30/15],2,0,2]);
+modes.set('pentatonic_g', [[1.0,27/24,32/24,36/24,40/24,48/24],1,0,2]);
+modes.set('pentatonic_a', [[1.0,36/30,40/30,45/30,54/30,60/30],0,0,2]);
 
 var freqs = [];
 
@@ -117,20 +140,31 @@ function changemode() {
  const pattern = a[0];
  const a_index = a[1];  // what string is A, starting with 0
  const type = a[2]; // ascending fourth or fifth
- const other = a[3]; // other methods
+ const other = a[3]; // kind of pattern: fifths pattern or ratios (sequential or non)
+ 
  console.log('pattern = ' + pattern + ' a_index = ' + a_index + ' type = '+type+' other = '+other);
 
  // Compute frequencies
 
  var spacings = [1.0];
  
- if (other == 1) {
-   spacings = pattern;
- } else {
+ if (other == 0) {
    for (let t=0;t<pattern.length;t++){
      spacings.push(spacings[spacings.length-1]*tn[type][pattern[t]]);
    }
+ } else {
+   spacings = pattern;
  }
+
+ var basenote_element = document.getElementById("basenote");
+ if (other == 2) {
+   base_note = 0;
+   basenote_element.value = base_note;
+   basenote_element.disabled = true;
+ } else {
+   basenote_element.disabled = false;
+ }
+ var relativeto = (a_index + base_note) % 7;  // Can't use modulo on non-sequential scales, so base_note has to be A
 
  console.log(spacings);
  spacings.sort()
@@ -144,9 +178,8 @@ function changemode() {
  console.log('a_index = '+a_index);
  console.log('base_note = '+base_note);
  
- var use_index = (a_index + base_note) % 7;
- console.log('use_index = '+use_index);
- const a_adj = spacings[use_index];
+ console.log('relativeto = '+relativeto);
+ const a_adj = spacings[relativeto];
  for (let t=0;t<spacings.length;t++){
      var f = spacings[t] * adj_base_note_hz / a_adj;
      f = Math.round(f*100)/100; 
