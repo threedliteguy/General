@@ -12,17 +12,29 @@
   <option value="hypophrygian">Hypophrygian (church Mixolydian, mesopotamian pūtu)</option>
   <option value="hypodorian">Hypodorian/Locrian (church Aeolian, mesopotamian kitmu)</option>
   <option value="mixolydian">Mixolydian (church Locrian, mesopotamian qablītu)</option>
+  <option value="just">Just intonation (5-limit from C, Ptolemy intense diatonic)</option>
 </select>
-<label for="octave">Octave</label>
-<select name="octave" id="octave" onchange="javascript:changeoctave();">
+
+<label for="basenote">Set note </label>
+<select name="basenote" id="basenote" onchange="javascript:changemode();">
+  <option value="0">A</option>
+  <option value="1">B</option>
+  <option selected="selected" value="2">C</option>
+  <option value="3">D</option>
+  <option value="4">E</option>
+  <option value="5">F</option>
+  <option value="6">G</option>
+</select>
+<label for="basenotehz">to Hz</label>
+<input type="text" name="basenotehz" id="basenotehz" value="261.63" size=5 onchange="javascript:changemode();"></input>
+<button>Update Hz</button>
+<label for="octave">Add octaves</label>
+<select name="octave" id="octave" onchange="javascript:changemode();">
+  <option value="-2">-2</option>
   <option value="-1">-1</option>
   <option selected="selected" value="0">0</option>
   <option value="1">1</option>
-</select>
-<label for="anote">A note Hz</label>
-<select name="anote" id="anote" onchange="javascript:changeanote();">
-  <option selected="selected" value="432">432</option>
-  <option value="440">440</option>
+  <option value="2">2</option>
 </select>
 <div id="freqs"></div>
 
@@ -35,6 +47,7 @@ const HEIGHT=600;
 // Tuning 7 string lyre for Ancient Greek modes by alternating ascending or descending fifths and fourths:
 // https://www.reddit.com/r/lyres/comments/kntcxl/method_for_tuning_a_sevenstring_lyre_by_ear_a/
 // https://youtu.be/Yk6bLMe2Uak?t=318
+// https://pages.mtu.edu/~suits/fifths.html
 
 // This program will help do it visually instead of by ear.
 
@@ -48,9 +61,12 @@ const HEIGHT=600;
 var magnify = 10;
 var num_add_octaves_to_mode_lines = 0;
 
-//var base_anote = 440; // HZ conventional A above middle C
-var base_anote = 432; // may be preferred for just intonation. 11 is largest prime factor for 440, while 3 is largest for 432.
-var anote = base_anote;
+// 440 HZ is conventional for A above middle C.  432 may be preferred for just intonation. 11 is largest prime factor for 440, while 3 is largest for 432.
+// Standard middle C is 261.63 Hz
+
+var base_note = 0; 
+var base_note_hz = 1;
+var adj_base_note_hz = base_note_hz;
 
 
 const unison = 1.0;
@@ -66,13 +82,14 @@ const tn = [[desc_fourth,fifth],[desc_fifth,fourth]];
 
 // Names per above reddit chart.
 const modes = new Map();
-modes.set('lydian', [[0,1,0,1,0,1],4,0]);
-modes.set('phrygian', [[1,0,0,1,0,1],4,0]);
-modes.set('dorian', [[1,0,1,0,0,1],4,0]);
-modes.set('hypolydian', [[1,0,1,0,1,0],4,0]);
-modes.set('hypophrygian', [[1,0,1,0,1,1],2,1]);
-modes.set('hypodorian', [[1,0,1,1,0,1],2,1]);
-modes.set('mixolydian', [[1,1,0,1,0,1],2,1]);
+modes.set('lydian', [[0,1,0,1,0,1],5,0,0]);
+modes.set('phrygian', [[1,0,0,1,0,1],4,0,0]);
+modes.set('dorian', [[1,0,1,0,0,1],3,0,0]);
+modes.set('hypolydian', [[1,0,1,0,1,0],2,0,0]);
+modes.set('hypophrygian', [[1,0,1,0,1,1],1,1,0]);
+modes.set('hypodorian', [[1,0,1,1,0,1],0,1,0]);
+modes.set('mixolydian', [[1,1,0,1,0,1],6,1,0]);
+modes.set('just', [[1.0,9/8,5/4,4/3,3/2,5/3,15/8],5,0,1]);
 
 var freqs = [];
 
@@ -86,52 +103,52 @@ var divfreqs = document.getElementById("freqs");
 var canvas = document.getElementById("myc");
 var canvasCtx = canvas.getContext("2d");
 
-// Select anote
-function changeanote() {
 
-  base_anote = document.getElementById("anote").value;
-  changemode();
-
-}
-// Select octave
-function changeoctave() {
-
-  num_add_octaves_to_mode_lines = document.getElementById("octave").value;
-  changemode();
-
-}
-
-// Select mode
 function changemode() {
  
- // Mode definitions
+ base_note = Number(document.getElementById("basenote").value);
+ base_note_hz = Number(document.getElementById("basenotehz").value);
+ num_add_octaves_to_mode_lines = document.getElementById("octave").value;
 
  var selectedmode = document.getElementById("mode").value;
  console.log('selectedmode = '+selectedmode)
  var a = modes.get(selectedmode);
  
  const pattern = a[0];
- const a_index = a[1];  // e.g. 3 means A is fourth note, starting with E, on the reddit tuning chart.
+ const a_index = a[1];  // what string is A, starting with 0
  const type = a[2]; // ascending fourth or fifth
- console.log('pattern = ' + pattern + ' a_index = ' + a_index);
+ const other = a[3]; // other methods
+ console.log('pattern = ' + pattern + ' a_index = ' + a_index + ' type = '+type+' other = '+other);
 
  // Compute frequencies
 
- const spacings = [1.0];
- for (let t=0;t<pattern.length;t++){
-   spacings.push(spacings[spacings.length-1]*tn[type][pattern[t]]);
+ var spacings = [1.0];
+ 
+ if (other == 1) {
+   spacings = pattern;
+ } else {
+   for (let t=0;t<pattern.length;t++){
+     spacings.push(spacings[spacings.length-1]*tn[type][pattern[t]]);
+   }
  }
 
  console.log(spacings);
+ spacings.sort()
+ console.log(spacings);
 
-
- anote = base_anote * (octave ** num_add_octaves_to_mode_lines);
- console.log('anote = '+anote);
+ adj_base_note_hz = base_note_hz * (octave ** num_add_octaves_to_mode_lines);
+ console.log('base note hz  = '+base_note_hz);
+ console.log('adj base note hz = '+adj_base_note_hz);
 
  freqs = [];
- const a_adj = spacings[a_index];
+ console.log('a_index = '+a_index);
+ console.log('base_note = '+base_note);
+ 
+ var use_index = (a_index + base_note) % 7;
+ console.log('use_index = '+use_index);
+ const a_adj = spacings[use_index];
  for (let t=0;t<spacings.length;t++){
-     var f = spacings[t] * anote / a_adj;
+     var f = spacings[t] * adj_base_note_hz / a_adj;
      f = Math.round(f*100)/100; 
      freqs.push(f);
  }
@@ -180,13 +197,11 @@ navigator.mediaDevices.getUserMedia({audio:true}).then(function(localStream) {
   
   var analyser = audioContext.createAnalyser();
 
-  //analyser.fftSize = 256;
   analyser.fftSize = 16384*2;
 
   input.connect(analyser);
   analyser.connect(scriptProcessor);
   scriptProcessor.connect(audioContext.destination);
-  //scriptProcessor.onaudioprocess = onAudio;
 
   const frequencyBinCount = analyser.frequencyBinCount;
   console.log('frequencyBinCount = '+frequencyBinCount);
@@ -215,7 +230,7 @@ navigator.mediaDevices.getUserMedia({audio:true}).then(function(localStream) {
        canvasCtx.fillRect(drawscale*frequencyToIndex(freqs[h], sampleRate, frequencyBinCount), 0, barWidth*.5, HEIGHT);
     } 
     canvasCtx.fillStyle = "rgb(256, 256, 256)";
-    canvasCtx.fillRect(drawscale*frequencyToIndex(anote, sampleRate, frequencyBinCount), 0, barWidth*.5, HEIGHT);
+    canvasCtx.fillRect(drawscale*frequencyToIndex(adj_base_note_hz, sampleRate, frequencyBinCount), 0, barWidth*.5, HEIGHT);
     
     let barHeight;
     let x = 0;
