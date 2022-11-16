@@ -1,5 +1,5 @@
 <html><body>
-<canvas id="myc" width="2400" height="600"></canvas>
+<canvas id="myc" width="9000" height="600"></canvas>
 <br />
 <div id="loudestfreq"></div>
 <br />
@@ -48,11 +48,13 @@
 <input type="text" name="basenotehz" id="basenotehz" value="440" size=5 ></input>
 <label for="octave">Add octaves</label>
 <select name="octave" id="octave" >
-  <option value="-2">-2</option>
-  <option value="-1">-1</option>
-  <option selected="selected" value="0">0</option>
-  <option value="1">1</option>
-  <option value="2">2</option>
+  <option value="-2">-3 (C1)</option>
+  <option value="-2">-2 (C2)</option>
+  <option value="-1">-1 (C3)</option>
+  <option selected="selected" value="0">0 (C4)</option>
+  <option value="1">1  (C5)</option>
+  <option value="2">2  (C6)</option>
+  <option value="2">3  (C7)</option>
 </select>
 <br />
 <button onclick='javascript:changemode();'>Update frequencies:</button>
@@ -62,7 +64,7 @@
 
 
 <script>
-const WIDTH=2400;
+const WIDTH=8000;
 const HEIGHT=600;
 
 
@@ -87,7 +89,7 @@ const HEIGHT=600;
 
 
 
-var magnify = 10;
+var magnify = 8;
 var num_add_octaves_to_mode_lines = 0;
 
 var equitempbase = 2 ** (1/12);
@@ -313,7 +315,7 @@ navigator.mediaDevices.getUserMedia({audio:true}).then(function(localStream) {
     analyser.getByteFrequencyData(dataArray);
 
     canvasCtx.fillStyle = "rgb(0, 0, 0)";
-    canvasCtx.fillRect(0, 0, WIDTH, HEIGHT);
+    canvasCtx.fillRect(0, 0, WIDTH*magnify, HEIGHT);
     
     canvasCtx.fillStyle = "rgb(0, 0, 200)";
     for (let h = 0; h < grid.length; h++) {
