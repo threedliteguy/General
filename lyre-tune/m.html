@@ -69,9 +69,13 @@ Serving from an http url (insecure context) will not work due to browser securit
 <label for="octave">Strings</label>
 <select name="strings" id="strings" >
   <option selected="selected" value="7">7</option>
+  <option value="8">8</option>
   <option value="9">9</option>
+  <option value="10">10</option>
   <option value="11">11</option>
+  <option value="12">12</option>
   <option value="13">13</option>
+  <option value="24">24</option>
   </select>
 <br />
 <button onclick='javascript:changemode();'>Update frequencies:</button>
@@ -166,7 +170,6 @@ function changemode() {
    var just = [];
    for (let n = 0; n < 7; n++) {
      var r = just_c[n];
-     if (n < m) {r = r * 2;}
      just.push(r);
    }
    justs.push(just);
@@ -215,13 +218,13 @@ function changemode() {
  modes.set('fifths_a', [[1,0,1,1,0,1],0,1,0]);
  modes.set('fifths_b', [[1,1,0,1,0,1],6,1,0]); 
 
- modes.set('just_c', [justs[0],5,0,1]);
- modes.set('just_d', [justs[1],4,0,1]);
- modes.set('just_e', [justs[2],3,0,1]);
- modes.set('just_f', [justs[3],2,0,1]);
- modes.set('just_g', [justs[4],1,0,1]);
- modes.set('just_a', [justs[5],0,0,1]);
- modes.set('just_b', [justs[6],6,0,1]);
+ modes.set('just_c', [justs[0],5,0,2]);
+ modes.set('just_d', [justs[1],4,0,2]);
+ modes.set('just_e', [justs[2],3,0,2]);
+ modes.set('just_f', [justs[3],2,0,2]);
+ modes.set('just_g', [justs[4],1,0,2]);
+ modes.set('just_a', [justs[5],0,0,2]);
+ modes.set('just_b', [justs[6],6,0,2]);
 
  modes.set('equi_c', [equimodes[0],5,0,2]);
  modes.set('equi_d', [equimodes[1],4,0,2]);
