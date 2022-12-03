@@ -73,13 +73,13 @@ Serving from an http url (insecure context) will not work due to browser securit
   <option value="equi_g">Equal tempered (from G, Greek Hypophrygian, modern Mixolydian)</option>
   <option value="equi_a">Equal tempered (from A, Greek Hypodorian/Locrian, modern Aeolian)</option>
   <option value="equi_b">Equal tempered (from B, Greek Mixolydian, modern Locrian)</option>
-  <option value="fifths_c">All-fifths Greek Lydian (mesopotamian nīd qabli)</option>
-  <option value="fifths_d">All-fifths Greek Phrygian (mesopotamian embūbu)</option>
-  <option value="fifths_e">All-fifths Greek Dorian (mesopotamian išartu)</option>
-  <option value="fifths_f">All-fifths Greek Hypolydian (mesopotamian nīš gabarî)</option>
-  <option value="fifths_g">All-fifths Greek Hypophrygian (mesopotamian pūtu)</option>
-  <option value="fifths_a">All-fifths Greek Hypodorian/Locrian (mesopotamian kitmu)</option>
-  <option value="fifths_b">All-fifths Greek Mixolydian (mesopotamian qablītu)</option>
+  <option value="fifths_c">Fifths-fourths Greek Lydian (mesopotamian nīd qabli)</option>
+  <option value="fifths_d">Fifths-fourths Greek Phrygian (mesopotamian embūbu)</option>
+  <option value="fifths_e">Fifths-fourths Greek Dorian (mesopotamian išartu)</option>
+  <option value="fifths_f">Fifths-fourths Greek Hypolydian (mesopotamian nīš gabarî)</option>
+  <option value="fifths_g">Fifths-fourths Greek Hypophrygian (mesopotamian pūtu)</option>
+  <option value="fifths_a">Fifths-fourths Greek Hypodorian/Locrian (mesopotamian kitmu)</option>
+  <option value="fifths_b">Fifths-fourths Greek Mixolydian (mesopotamian qablītu)</option>
   <option value="pythagorean">Pythagorean AbEbBbFCGDAEBF#C#G#</option>
   <option value="pentatonic_c">Pentatonic CDEGAC (Major, gong, Bhupali, Mohanam, MullaitheemPaaNi)</option>
   <option value="pentatonic_d">Pentatonic DEGACD (Suspended, shang, Megh, Madhyamavati, Sendhurutti)</option>
@@ -305,7 +305,7 @@ function changemode() {
  var spacings = [1.0];
  
  if (other == 0) {
-   // All-fifths
+   // fifths-fourths
    for (let t=0;t<pattern.length;t++){
      spacings.push(spacings[spacings.length-1]*tn[type][pattern[t]]);
    }
