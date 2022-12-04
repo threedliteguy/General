@@ -80,6 +80,7 @@ Serving from an http url (insecure context) will not work due to browser securit
   <option value="fifths_g">Fifths-fourths Greek Hypophrygian (mesopotamian pūtu)</option>
   <option value="fifths_a">Fifths-fourths Greek Hypodorian/Locrian (mesopotamian kitmu)</option>
   <option value="fifths_b">Fifths-fourths Greek Mixolydian (mesopotamian qablītu)</option>
+  <option value="fifths_g_aristoxenus">Fifths-fourths Greek Aristoxenus GABCDEF#</option>
   <option value="pythagorean">Pythagorean AbEbBbFCGDAEBF#C#G#</option>
   <option value="pentatonic_c">Pentatonic CDEGAC (Major, gong, Bhupali, Mohanam, MullaitheemPaaNi)</option>
   <option value="pentatonic_d">Pentatonic DEGACD (Suspended, shang, Megh, Madhyamavati, Sendhurutti)</option>
@@ -157,6 +158,7 @@ var num_add_octaves_to_mode_lines = 0;
 var equitempbase = 2 ** (1/12);
 
 var standard_a4 = 440;
+var standard_c4 = 261.63;
 var high_limit_hz = 0;
 var base_note = 0; 
 var base_note_hz = 1;
@@ -265,6 +267,8 @@ function changemode() {
  modes.set('fifths_a', [[1,0,1,1,0,1],0,1,0]);
  modes.set('fifths_b', [[1,1,0,1,0,1],6,1,0]); 
 
+ modes.set('fifths_g_aristoxenus', [[0,1,0,1,0,1],1,0,0]); // results in GABCDEF#
+
  modes.set('just_c', [justs[0],5,0,1]);
  modes.set('just_d', [justs[1],4,0,1]);
  modes.set('just_e', [justs[2],3,0,1]);
@@ -314,6 +318,7 @@ function changemode() {
  }
 
  var basenote_element = document.getElementById("basenote");
+ var basenotehz_element = document.getElementById("basenotehz");
  var strings_element = document.getElementById("strings");
  basenote_element.disabled = false;
  strings_element.disabled = false;
@@ -338,6 +343,16 @@ function changemode() {
    strings_element.value = strings;
    strings_element.disabled = true;
    relativeto = 0;
+ }
+ if (selectedmode == 'fifths_g_aristoxenus') {
+   if (base_note == 0) {
+      base_note_hz = standard_c4;
+      basenotehz_element.value = base_note_hz;
+   }
+   base_note = 2;
+   basenote_element.value = base_note;
+   basenote_element.disabled = true;
+   relativeto = 3;	
  }
  
 
