@@ -1,0 +1,521 @@
+<!-- 
+
+(c) 2022 Dan Meany   
+License: MIT (free open source)  
+
+Note: This file should be run as a locally saved file, or else served from an https url.  
+Serving from an http url (insecure context) will not work due to browser security restrictions.
+
+-->
+<html>
+<head>
+<link rel="stylesheet" href="m.css">
+</head>
+<body>
+<canvas id="myc" width="9000" height="600"></canvas>
+<br />
+<div id="loudestfreq"></div>
+<br />
+<label for="octave">Number of strings:</label>
+<select name="strings" id="strings" >
+  <option selected="selected" value="7">7</option>
+  <option value="8">8</option>
+  <option value="9">9</option>
+  <option value="10">10</option>
+  <option value="11">11</option>
+  <option value="12">12</option>
+  <option value="13">13</option>
+  <option value="24">24</option>
+</select>
+<label for="highlimit">Highest string capable note limit:</label><!-- Values fixed based on standard A4 -->
+<select name="highlimit" id="highlimit" >
+  <option value="-14">A2</option>
+  <option value="-13">B2</option>
+  <option value="-12">C3</option>
+  <option value="-11">D3</option>
+  <option value="-10">E3</option>
+  <option value="-9">F3</option>
+  <option value="-8">G3</option>
+  <option value="-7">A3</option>
+  <option value="-6">B3</option>
+  <option value="-5">C4</option>
+  <option value="-4">D4</option>
+  <option value="-3">E4</option>
+  <option value="-2">F4</option>
+  <option value="-1">G4</option>
+  <option value="0">A4</option>
+  <option value="1">B4</option>
+  <option selected="selected" value="2">C5</option>
+  <option value="3">D5</option>
+  <option value="4">E5</option>
+  <option value="5">F5</option>
+  <option value="6">G5</option>
+  <option value="7">A5</option>
+  <option value="8">B5</option>
+  <option value="9">C6</option>
+  <option value="10">D6</option>
+  <option value="11">E6</option>
+  <option value="12">F6</option>
+  <option value="13">G6</option>
+  <option value="14">A6</option>
+  <option value="15">B6</option>
+</select>
+<br /><br />
+
+<label for="first_note">First Note</label>
+<select name="first_note" id="first_note" >
+<option selected="selected" value="2">C</option>
+<option value="3">D</option>
+<option value="4">E</option>
+<option value="5">F</option>
+<option value="6">G</option>
+<option value="0">A</option>
+<option value="1">B</option>
+</select>
+<label for="first_note_sharp"></label>
+<select name="first_note_sharp" id="first_note_sharp" >
+<option value="-1"><i>Flat</i></option>
+<option selected="selected" value="0">Natural</option>
+<option value="1">Sharp</option>
+</select>
+<label for="octave">Add octaves</label>
+<select name="octave" id="octave" >
+  <option value="3">3</option>
+  <option value="2">2</option>
+  <option value="1">1</option>
+  <option selected="selected" value="0">0</option>
+  <option value="-1">-1</option>
+  <option value="-2">-2</option>
+  <option value="-3">-3</option>
+</select>
+
+<br /><br />
+<br /><br />
+<label for="type">Type</label>
+<select name="type" id="type" onchange='changetype();'>
+  <option value="genres">Genres</option>
+  <option selected="selected" value="modes">Modes</option>
+</select>
+<br /><br />
+
+<script>
+function changetype() {
+  var type = document.getElementById("type").value;
+  if (type == "genres") {
+    document.getElementById("div_species").style.display="none";
+    document.getElementById("div_genus").style.display="block";
+  } else {
+    document.getElementById("div_species").style.display="block";
+    document.getElementById("div_genus").style.display="none";
+  }
+}
+</script>
+<div id="div_species" style="display:block">
+<label for="species">Species</label>
+<select name="species" id="species" >
+  <option value="lydian">Greek Lydian, modern Ionian, Mesopotamian nīd qabli</option>
+  <option value="phrygian">Greek Phrygian, modern Dorian, Mesopotamian embūbu</option>
+  <option value="dorian">Greek Dorian, modern Phyrgian, Mesopotamian išartu</option>
+  <option value="hypolydian">Greek Hypolydian, modern Lydian, Mesopotamian nīš gabarî</option>
+  <option value="hypophrygian">Greek Hypophrygian, modern Mixolydian, Mesopotamian pūtu</option>
+  <option value="hypodorian">Greek Hypodorian/Locrian, modern Aeolian, Mesopotamian kitmu</option>
+  <option value="mixolydian">Greek Mixolydian, modern Locrian, Mesopotamian qablītu</option>
+</select>
+</div>
+<div id="div_genus" style="display:none">
+<label for="genus">Genus</label>
+<select name="genus" id="genus" >
+<option selected="selected" value="diatonic">Diatonic</option>
+<option value="chromatic">Chromatic</option>
+<option value="enharmonic">Enharmonic</option>
+</select>
+</div>
+<br /><br />
+<label for="method">Intonation</label>
+<select name="method" id="method" >
+<option selected="selected" value="equal">Equal</option>
+<option value="just">Just</option>
+<option value="just">Fifths</option>
+<option value="pentatonic">Pentatonic</option>
+<option value="pythagorean">Pythagorean</option>
+</select>
+
+<br /><br />
+<br /><br />
+<button onclick='javascript:changemode();'>Update frequencies:</button>
+<label id="freqs"></label>
+<br /><br />
+
+<script>
+const WIDTH=8000;
+const HEIGHT=600;
+
+
+// Tuning 7 string lyre for Ancient Greek modes by alternating ascending or descending fifths and fourths:
+// https://www.reddit.com/r/lyres/comments/kntcxl/method_for_tuning_a_sevenstring_lyre_by_ear_a/
+// https://youtu.be/Yk6bLMe2Uak?t=318
+// https://pages.mtu.edu/~suits/fifths.html
+
+// https://en.wikipedia.org/wiki/Just_intonation
+// http://www.tonalsoft.com/enc/j/just.aspx
+// https://en.wikipedia.org/wiki/Pythagorean_tuning
+// https://en.wikipedia.org/wiki/Pentatonic_scale
+
+
+
+// This program will help do it visually instead of by ear.
+
+// Mesopotamian names:
+// https://en.wikipedia.org/wiki/Music_of_Mesopotamia
+// https://www.flutopedia.com/mesopotamian_flutes.htm
+// https://books.google.com/books?id=eliIDwAAQBAJ&lpg=PA30&ots=41IchPISlq&dq=qabl%C4%ABtu&pg=PA40#v=onepage&q&f=false
+
+
+
+var divloudestfreq = document.getElementById("loudestfreq");
+var divfreqs = document.getElementById("freqs");
+var canvas = document.getElementById("myc");
+var canvasCtx = canvas.getContext("2d");
+var freqs = [];
+
+var magnify = 5;
+var num_add_octaves_to_mode_lines = 0;
+
+var equitempbase = 2 ** (1/12);
+
+var standard_a4 = 440;
+var standard_c4 = 261.63;
+var high_limit_hz = 0;
+var base_note = 2; 
+var base_note_hz = standard_c4;
+var adj_base_note_hz = base_note_hz;
+var strings = 1;
+
+const unison = 1.0;
+const octave = 2.0;
+
+const fifth = 3.0/2.0;
+const fourth = 4.0/3.0;
+const desc_fifth = 2.0/3.0;
+const desc_fourth = 3.0/4.0;
+const desc_octave = 1.0/2.0;
+
+const tn = [[desc_fourth,fifth,desc_octave],[desc_fifth,fourth]];
+
+var grid = [];
+
+// f.length must span exactly a complete octave and be able to be shifted up an octave for this to work
+function extend(frequencies_set, strings) {
+  for (n = 0; n < frequencies_set.length; n++) {
+    f = frequencies_set[n];
+    var b = f.length;
+    for (let i = b; i < strings; i++) {
+        f.push(f[i % b]*(octave**Math.floor(i/b)));
+    }
+    frequencies_set[n] = f;
+  }
+  return frequencies_set;
+}
+
+
+
+function changemode() {
+
+ num_add_octaves_to_mode_lines = document.getElementById("octave").value;
+ strings = document.getElementById("strings").value;
+
+ var selectedmode = "equi_c";  //document.getElementById("mode").value;
+ console.log('selectedmode = '+selectedmode)
+
+
+ var just_c = [1.0,9/8,5/4,4/3,3/2,5/3,15/8];
+ var justs = [];
+ for (let m = 0; m < 7; m++) {
+   var just = [];
+   for (let n = 0; n < 7; n++) {
+     var r = just_c[n];
+     just.push(r);
+   }
+   justs.push(just);
+ }
+ justs = extend(justs,strings);
+ console.log('justs = '+justs);
+
+ // ratios for equal tempered
+ var semis = [2,1,2,2,1,2,2]; // starting at A 
+ var equiratios = [1.0];
+ var semisup = 0;
+ for (let n = 0; n < 7*2; n++) {
+     semisup = semisup + semis[n % 7];
+     equiratios.push(equitempbase ** (semisup));
+ }
+ console.log('equiratios = '+equiratios);
+
+
+ var high_limit_selection = Number(document.getElementById("highlimit").value); 
+ var high_limit_octave = Math.floor(high_limit_selection / 7.0);
+ console.log('high_limit_octave = '+high_limit_octave);
+ var high_limit_note = (high_limit_selection+7*7) % 7; 
+ console.log('high_limit_note = '+high_limit_note);
+ high_limit_hz =  standard_a4 * equiratios[high_limit_note] * (octave ** high_limit_octave);
+ console.log('high_limit_hz = '+high_limit_hz);
+
+
+ var equimodes = [];
+ for (let m = 0; m < 7; m++) {
+   var equi = [];
+   for (let n = 0; n < 7; n++) {
+     equi.push(equiratios[2+n+m]);  // start at C
+   }
+   equimodes.push(equi);
+ }
+ equimodes = extend(equimodes,strings);
+ console.log('equimodes = '+equimodes);
+
+ 
+ grid = [];
+ var e_base = equiratios;
+ console.log("e_base",e_base);
+ for (let n=0; n<8; n++) {
+     for (let m=0;m<7;m++) {
+        var f = Math.pow(octave,n-4) * e_base[m] * standard_a4;
+        console.log("n m f",n,m,f);
+        grid.push(f);
+     }
+ }
+ console.log("grid",grid);
+
+ var pents = [];
+ pents.push([1.0,27/24,30/24,36/24,40/24]);
+ pents.push([1.0,27/24,32/24,36/24,42/24]);
+ pents.push([1.0,18/15,20/15,24/15,27/15]);
+ pents.push([1.0,27/24,32/24,36/24,40/24]);
+ pents.push([1.0,36/30,40/30,45/30,54/30]);
+ pents = extend(pents,strings);
+ console.log('pents = '+pents);
+
+ var pyth = [1024/729,256/243,128/81,32/27,16/9,4/3,1.0,3/2,9/8,27/16,81/64,243/128,729/512];
+
+ // Names per above reddit chart.
+ const modes = new Map();
+ modes.set('fifths_c', [[0,1,0,1,0,1],5,0,0]);
+ modes.set('fifths_d', [[1,0,0,1,0,1],4,0,0]);
+ modes.set('fifths_e', [[1,0,1,0,0,1],3,0,0]);
+ modes.set('fifths_f', [[1,0,1,0,1,0],2,0,0]);
+ modes.set('fifths_g', [[1,0,1,0,1,1],1,1,0]);
+ modes.set('fifths_a', [[1,0,1,1,0,1],0,1,0]);
+ modes.set('fifths_b', [[1,1,0,1,0,1],6,1,0]); 
+
+ modes.set('fifths_g_aristoxenus', [[0,1,0,1,0,1],1,0,0]); // results in GABCDEF#
+ modes.set('fifths_g_aristoxenus_ext', [[0,1,0,1,0,1,2,1,0,1,0,1,0],3,0,0]); // results in F# G G# A A# B C (comma) C# D D# E F F#
+
+ modes.set('just_c', [justs[0],5,0,1]);
+ modes.set('just_d', [justs[1],4,0,1]);
+ modes.set('just_e', [justs[2],3,0,1]);
+ modes.set('just_f', [justs[3],2,0,1]);
+ modes.set('just_g', [justs[4],1,0,1]);
+ modes.set('just_a', [justs[5],0,0,1]);
+ modes.set('just_b', [justs[6],6,0,1]);
+
+ modes.set('equi_c', [equimodes[0],5,0,1]);
+ modes.set('equi_d', [equimodes[1],4,0,1]);
+ modes.set('equi_e', [equimodes[2],3,0,1]);
+ modes.set('equi_f', [equimodes[3],2,0,1]);
+ modes.set('equi_g', [equimodes[4],1,0,1]);
+ modes.set('equi_a', [equimodes[5],0,0,1]);
+ modes.set('equi_b', [equimodes[6],6,0,1]);
+
+ modes.set('pentatonic_c', [pents[0],4,0,2]);
+ modes.set('pentatonic_d', [pents[1],3,0,2]);
+ modes.set('pentatonic_e', [pents[2],2,0,2]);
+ modes.set('pentatonic_g', [pents[3],1,0,2]);
+ modes.set('pentatonic_a', [pents[4],0,0,2]);
+
+ modes.set('pythagorean', [pyth,7,0,3]);
+
+
+ 
+ var a = modes.get(selectedmode);
+ 
+ const pattern = a[0];
+ const a_index = a[1];  // what string is A, starting with 0
+ const type = a[2]; // ascending fourth or fifth
+ const other = a[3]; // kind of pattern: fifths pattern or ratios (sequential or non)
+ 
+ console.log('pattern = ' + pattern + ' a_index = ' + a_index + ' type = '+type+' other = '+other);
+
+ // Compute frequencies
+
+ var spacings = [1.0];
+ 
+ if (other == 0) {
+   // fifths-fourths
+   for (let t=0;t<pattern.length;t++){
+     spacings.push(spacings[spacings.length-1]*tn[type][pattern[t]]);
+   }
+ } else {
+   spacings = pattern;
+ }
+
+ var strings_element = document.getElementById("strings");
+ strings_element.disabled = false;
+ var relativeto = (a_index + base_note) % 7;  // Can't use modulo on non-sequential scales, so base_note has to be A for those
+ 
+ if (other == 2) {
+   relativeto = 0;
+ }
+ if (other == 3) {
+   strings = 13;
+   strings_element.value = strings;
+   strings_element.disabled = true;
+   relativeto = 0;
+ }
+ if (selectedmode == 'fifths_g_aristoxenus') {
+   relativeto = 3;	
+ }
+ if (selectedmode == 'fifths_g_aristoxenus_ext') {
+   relativeto = 6;	
+ }
+ 
+
+ console.log(spacings);
+ function s(a, b){return Number(a)-Number(b);}
+ spacings.sort(s)
+ console.log(spacings);
+
+ adj_base_note_hz = base_note_hz * (octave ** num_add_octaves_to_mode_lines);
+ console.log('base note hz  = '+base_note_hz);
+ console.log('adj base note hz = '+adj_base_note_hz);
+
+ freqs = [];
+ console.log('a_index = '+a_index);
+ console.log('base_note = '+base_note);
+ 
+ console.log('relativeto = '+relativeto);
+ const a_adj = spacings[relativeto];
+ for (let t=0;t<spacings.length;t++){
+     var f = spacings[t] * adj_base_note_hz / a_adj;
+     f = Math.round(f*100)/100; 
+     freqs.push(f);
+ }
+ console.log(freqs);
+ freqs.sort(s);
+ console.log(freqs);
+
+ canvasCtx.clearRect(0, 0, WIDTH, HEIGHT);
+ divfreqs.innerHTML = `${freqs}`
+
+}
+
+
+// Audio:
+// https://developer.mozilla.org/en-US/docs/Web/API/AnalyserNode/getByteFrequencyData
+// https://stackoverflow.com/questions/28329389/is-there-a-way-to-detect-audio-frequency-in-html-5-web-audio-api
+
+
+navigator.mediaDevices.getUserMedia({audio:true}).then(function(localStream) {
+
+  var audioContext = new(window.AudioContext || window.webkitAudioContext)();
+  
+  var sampleRate = audioContext.sampleRate;
+  console.log('sample rate = '+ sampleRate);
+  
+  
+  // https://github.com/hughsk/clamp/blob/master/index.js [MIT license]
+  function clamp(value, min, max) {
+  return min < max
+    ? (value < min ? min : value > max ? max : value)
+    : (value < max ? max : value > min ? min : value)
+  }
+  
+  // https://github.com/Jam3/audio-frequency-to-index/blob/master/index.js [MIT license]
+  function indexToFrequency (index, sampleRate, frequencyBinCount) {
+    return index * sampleRate / (frequencyBinCount * 2);
+  }
+  function frequencyToIndex (frequency, sampleRate, frequencyBinCount) { 
+    var nyquist = sampleRate / 2;
+    var index = Math.round(frequency / nyquist * frequencyBinCount);
+    return clamp(index, 0, frequencyBinCount);
+  }
+
+  var input = audioContext.createMediaStreamSource(localStream);
+  var scriptProcessor = audioContext.createScriptProcessor();
+  
+  var analyser = audioContext.createAnalyser();
+
+  analyser.fftSize = 16384*2;
+
+  input.connect(analyser);
+  analyser.connect(scriptProcessor);
+  scriptProcessor.connect(audioContext.destination);
+
+  const frequencyBinCount = analyser.frequencyBinCount;
+  console.log('frequencyBinCount = '+frequencyBinCount);
+  
+  var dataArray = new Uint8Array(frequencyBinCount*2);
+
+  const drawscale = WIDTH/frequencyBinCount * magnify;
+  const barWidth = drawscale ;
+  console.log('barWidth = '+barWidth);
+
+  
+  function draw() {
+    drawVisual = requestAnimationFrame(draw);
+
+    analyser.getByteFrequencyData(dataArray);
+
+    canvasCtx.fillStyle = "rgb(0, 0, 0)";
+    canvasCtx.fillRect(0, 0, WIDTH*magnify, HEIGHT);
+
+    // over limit area
+    canvasCtx.fillStyle = "rgb(128, 128, 128)";
+    if (freqs[freqs.length-1] > high_limit_hz) canvasCtx.fillStyle = "rgb(128, 0, 0)";  // warn over string limit
+    var start_limit = drawscale*frequencyToIndex(high_limit_hz, sampleRate, frequencyBinCount)+barWidth*.5;
+    canvasCtx.fillRect(start_limit, 0, WIDTH*magnify - start_limit, HEIGHT);
+    
+    // grid
+    canvasCtx.fillStyle = "rgb(0, 0, 200)";
+    for (let h = 0; h < grid.length; h++) {
+       canvasCtx.fillRect(drawscale*frequencyToIndex(grid[h], sampleRate, frequencyBinCount), 0, barWidth*.25, HEIGHT);
+    } 
+    // strings
+    canvasCtx.fillStyle = "rgb(256, 256, 0)";
+    for (let h = 0; h < freqs.length; h++) {
+       canvasCtx.fillRect(drawscale*frequencyToIndex(freqs[h], sampleRate, frequencyBinCount), 0, barWidth*.5, HEIGHT);
+    } 
+    // base note
+    canvasCtx.fillStyle = "rgb(256, 256, 256)";
+    canvasCtx.fillRect(drawscale*frequencyToIndex(adj_base_note_hz, sampleRate, frequencyBinCount), 0, barWidth*.5, HEIGHT);
+    
+
+    
+    let barHeight;
+    let x = 0;
+    let mi = 0;
+    let mv = 0;
+
+    for (let i = 0; i < frequencyBinCount; i++) {
+    
+      barHeight = dataArray[i];
+      if (barHeight>mv) {mv = barHeight;mi=i;}
+    
+      canvasCtx.fillStyle = `rgb(${barHeight + 100}, 200, 200)`;
+      canvasCtx.fillRect(drawscale*i, HEIGHT - barHeight , barWidth, barHeight );
+
+    }
+    
+  
+    peakhz = Math.round(indexToFrequency(mi, sampleRate, frequencyBinCount));
+    divloudestfreq.innerHTML = `${peakhz}`
+  }
+
+  changemode();
+  draw();
+ 
+});
+ 
+ 
+ 
+</script>
+</body></html>
+
