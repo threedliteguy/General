@@ -85,7 +85,7 @@ Serving from an http url (insecure context) will not work due to browser securit
   <option value="fifths_a">Fifths-fourths Greek Hypodorian/Locrian (mesopotamian kitmu)</option>
   <option value="fifths_b">Fifths-fourths Greek Mixolydian (mesopotamian qablītu)</option>
   <option value="fifths_g_aristoxenus">Fifths-fourths Greek Aristoxenus GABCDEF#</option>
-  <option value="fifths_g_aristoxenus_ext">Fifths-fourths Greek Aristoxenus extended for 13 strings F# G G# A A# B C C# D D# E F F#</option>
+  <option value="fifths_g_aristoxenus_ext">Fifths-fourths Greek Aristoxenus extended for 13 strings F# G G# A A# B C (comma) C# D D# E F F#</option>
   <option value="pythagorean">Pythagorean AbEbBbFCGDAEBF#C#G#</option>
   <option value="pentatonic_c">Pentatonic CDEGAC (Major, gong, Bhupali, Mohanam, MullaitheemPaaNi)</option>
   <option value="pentatonic_d">Pentatonic DEGACD (Suspended, shang, Megh, Madhyamavati, Sendhurutti)</option>
@@ -274,7 +274,7 @@ function changemode() {
  modes.set('fifths_b', [[1,1,0,1,0,1],6,1,0]); 
 
  modes.set('fifths_g_aristoxenus', [[0,1,0,1,0,1],1,0,0]); // results in GABCDEF#
- modes.set('fifths_g_aristoxenus_ext', [[0,1,0,1,0,1,2,1,0,1,0,1],3,0,0]); // results in F# G G# A A# B C C# D D# E F F#
+ modes.set('fifths_g_aristoxenus_ext', [[0,1,0,1,0,1,2,1,0,1,0,1,0],3,0,0]); // results in F# G G# A A# B C (comma) C# D D# E F F#
 
  modes.set('just_c', [justs[0],5,0,1]);
  modes.set('just_d', [justs[1],4,0,1]);
