@@ -72,12 +72,7 @@ Serving from an http url (insecure context) will not work due to browser securit
 <option value="A">A</option>
 <option value="B">B</option>
 </select>
-<label for="first_note_sharp"></label>
-<select name="first_note_sharp" id="first_note_sharp" >
-<option value="b"><i>Flat</i></option>
-<option selected="selected" value="">Natural</option>
-<option value="#">Sharp</option>
-</select>
+
 <label for="octave">Add octaves</label>
 <select name="octave" id="octave" >
   <option value="3">3</option>
@@ -178,7 +173,8 @@ var freqs = [];
 var magnify = 5;
 var num_add_octaves_to_mode_lines = 0;
 
-var equitempbase = 2 ** (1/12);
+var TET_12 = 2 ** (1/12);
+var TET_24 = 2 ** (1/24);
 
 var standard_a4 = 440;
 var standard_c4 = 261.63;
@@ -189,7 +185,7 @@ const unison = 1.0;
 const octave = 2.0;
 
 
-// f.length must span exactly a complete octave and be able to be shifted up an octave for this to work
+// f.length must span exactly a complete octave and be able to be shifted up an octave for this to work (e.g. no Pythagorean comma)
 function extend(frequencies_set, strings) {
   for (n = 0; n < frequencies_set.length; n++) {
     f = frequencies_set[n];
@@ -206,15 +202,15 @@ function extend(frequencies_set, strings) {
 
 function changemode() {
 
- num_add_octaves_to_mode_lines = document.getElementById("octave").value;
+ num_add_octaves_to_mode_lines = Number(document.getElementById("octave").value) - 1;
  strings = Number(document.getElementById("strings").value);
 
  var scale_type = document.getElementById("type").value;
- var selectedscale = (scale_type=="genres") ? document.getElementById("genus").value : document.getElementById("species").value ;
+ var selectedscale = (scale_type == "genres") ? document.getElementById("genus").value : document.getElementById("species").value ;
  console.log('selectedscale = '+selectedscale);
  var first_note = document.getElementById("first_note").value;
- var first_note_sharp = document.getElementById("first_note_sharp").value ;
- var first = first_note + first_note_sharp;
+ var first_note_accidental = "";
+ var first = first_note + first_note_accidental;
  console.log('first = '+first);
  var scale_data = source_tables.filter(function (t) { return t[0] == selectedscale; })[0];
  console.log('scale_data = '+scale_data);
@@ -222,65 +218,63 @@ function changemode() {
  console.log('scale = '+scale);
 
 
- // TODO
- // Ratios for just
- var justratios = [1.0,0,9/8,0,5/4,0,4/3,0,3/2,0,5/3,0,15/8,0]; // TODO need semitone ratios for just
- console.log('justratios = '+justratios);
- // TODO remove
+
+ // TODO see below ---------
  // Ratios for equal tempered
  var semis = [2,1,2,2,1,2,2]; // starting at A 
  var equiratios = [1.0];
  var semisup = 0;
  for (let n = 0; n < 7*2; n++) {
      semisup = semisup + semis[n % 7];
-     equiratios.push(equitempbase ** (semisup));
+     equiratios.push(TET_12 ** (semisup));
  }
  console.log('equiratios = '+equiratios);
- 
- var intonation = document.getElementById("intonation").value;
- var ratios = intonation == "equal" ? equiratios : justratios;
- console.log('selected ratios = '+ratios);
-
- // Handle high limit indicator
- 
+ // Handle high limit indicator 
  var high_limit_selection = Number(document.getElementById("highlimit").value); 
  var high_limit_octave = Math.floor(high_limit_selection / 7.0);
  console.log('high_limit_octave = '+high_limit_octave);
  var high_limit_note = (high_limit_selection+7*7) % 7; 
  console.log('high_limit_note = '+high_limit_note);
- high_limit_hz = standard_a4 * ratios[high_limit_note] * (octave ** high_limit_octave);
+ high_limit_hz = standard_a4 * equiratios[high_limit_note] * (octave ** high_limit_octave);
  console.log('high_limit_hz = '+high_limit_hz);
+ // TODO fix above code for high limit to same ratio array  ---------
 
 
- // TODO fix above code for high limit to same array
- equiratios = [];
- for (let n = 0; n < 12; n++) {
-   equiratios.push(equitempbase ** n);
+
+ // Quarter tone equal temperment
+ tet_24_ratios = [];
+ for (let n = 0; n < 24; n++) {
+   tet_24_ratios.push(TET_24 ** n);
  } 
- ratios = equiratios;
+
+ // Ratios for just // TODO
+ var justratios = [1.0,0,9/8,0,5/4,0,4/3,0,3/2,0,5/3,0,15/8,0]; // TODO need how to get semitone/quarter tone ratios for just
+ console.log('justratios = '+justratios);
+ 
+ var intonation = document.getElementById("intonation").value;
+ var ratios = intonation == "equal" ? tet_24_ratios : justratios;
+ console.log('selected ratios = '+ratios);
 
 
  // Compute frequencies
 
  function frequency_of_note(note, ratios, current_octave) {
     var n = note.substring(0,1);
-    var semis_from_a = "A BC D EF G".indexOf(n);
+    var semitones_from_a = "A BC D EF G".indexOf(n);
+    var quarter_tones_from_a = semitones_from_a * 2;
     var s = note.substring(1);
-    if (s.startsWith("b")) semis_from_a--;
-    if (s.startsWith("#")) semis_from_a++;
+    if (s.startsWith("#")) quarter_tones_from_a = quarter_tones_from_a + 2;
+    if (s.startsWith("b")) quarter_tones_from_a = quarter_tones_from_a - 2;
+    if (s.endsWith("*")) quarter_tones_from_a = quarter_tones_from_a + 1; 
     var use_octave = current_octave;
-    if (semis_from_a < 0) { semis_from_a = 12 + semis_from_a; use_octave = current_octave - 1;} // A-flat
-    // TODO Can we add interpolate the ratios for quartertones like this, or should it be harmonic mean or log or something?
-    var r = ratios[semis_from_a];
-    var r1 = ratios[semis_from_a+1];
-    if (s.endsWith("*")) r=(r+r1)/2;  // TODO
+    if (quarter_tones_from_a < 0) { quarter_tones_from_a = 24 + quarter_tones_from_a; use_octave = current_octave - 1;} // e.g. A-flat
+    var r = ratios[quarter_tones_from_a];
+   
     var f = standard_a4 * r * (octave ** use_octave);
     console.log("frequency_of_note",note,current_octave,f);
     return f;
  }
  
- // TODO extend freqs for different number of strings
-
  freqs = [];
  var scale_notes = scale.split(" ");
  console.log(scale_notes);
