@@ -64,19 +64,19 @@ Serving from an http url (insecure context) will not work due to browser securit
 
 <label for="first_note">First Note</label>
 <select name="first_note" id="first_note" >
-<option selected="selected" value="2">C</option>
-<option value="3">D</option>
-<option value="4">E</option>
-<option value="5">F</option>
-<option value="6">G</option>
-<option value="0">A</option>
-<option value="1">B</option>
+<option selected="selected" value="C">C</option>
+<option value="D">D</option>
+<option value="E">E</option>
+<option value="F">F</option>
+<option value="G">G</option>
+<option value="A">A</option>
+<option value="B">B</option>
 </select>
 <label for="first_note_sharp"></label>
 <select name="first_note_sharp" id="first_note_sharp" >
-<option value="-1"><i>Flat</i></option>
-<option selected="selected" value="0">Natural</option>
-<option value="1">Sharp</option>
+<option value="b"><i>Flat</i></option>
+<option selected="selected" value="">Natural</option>
+<option value="#">Sharp</option>
 </select>
 <label for="octave">Add octaves</label>
 <select name="octave" id="octave" >
@@ -113,13 +113,13 @@ function changetype() {
 <div id="div_species" style="display:block">
 <label for="species">Species</label>
 <select name="species" id="species" >
-  <option value="lydian">Greek Lydian, modern Ionian, Mesopotamian nīd qabli</option>
-  <option value="phrygian">Greek Phrygian, modern Dorian, Mesopotamian embūbu</option>
-  <option value="dorian">Greek Dorian, modern Phyrgian, Mesopotamian išartu</option>
-  <option value="hypolydian">Greek Hypolydian, modern Lydian, Mesopotamian nīš gabarî</option>
-  <option value="hypophrygian">Greek Hypophrygian, modern Mixolydian, Mesopotamian pūtu</option>
-  <option value="hypodorian">Greek Hypodorian/Locrian, modern Aeolian, Mesopotamian kitmu</option>
-  <option value="mixolydian">Greek Mixolydian, modern Locrian, Mesopotamian qablītu</option>
+  <option value="mixolydios">Greek Mixolydios, modern Locrian, Mesopotamian qablītu</option>
+  <option value="hypodorios">Greek Hypodorios/Locrian, modern Aeolian, Mesopotamian kitmu</option>
+  <option value="lydios">Greek Lydios, modern Ionian, Mesopotamian nīd qabli</option>
+  <option value="phrygios">Greek Phrygios, modern Dorian, Mesopotamian embūbu</option>
+  <option value="dorios">Greek Dorios, modern Phyrgian, Mesopotamian išartu</option>
+  <option value="hypolydios">Greek Hypolydios, modern Lydian, Mesopotamian nīš gabarî</option>
+  <option value="hypophrygios">Greek Hypophrygios, modern Mixolydian, Mesopotamian pūtu</option>
 </select>
 </div>
 <div id="div_genus" style="display:none">
@@ -131,14 +131,10 @@ function changetype() {
 </select>
 </div>
 <br /><br />
-<label for="method">Intonation</label>
-<select name="method" id="method" >
+<label for="intonation">Intonation</label>
+<select name="intonation" id="intonation" >
 <option selected="selected" value="equal">Equal</option>
-<option value="well">Well</option>
-<option value="just">Just</option>
-<option value="fifths">Fifths</option>
-<option value="pentatonic">Pentatonic</option>
-<option value="pythagorean">Pythagorean</option>
+<!--<option value="just">Just</option>-->
 </select>
 
 <br /><br />
@@ -187,23 +183,11 @@ var equitempbase = 2 ** (1/12);
 var standard_a4 = 440;
 var standard_c4 = 261.63;
 var high_limit_hz = 0;
-var base_note = 2; 
-var base_note_hz = standard_c4;
-var adj_base_note_hz = base_note_hz;
 var strings = 1;
 
 const unison = 1.0;
 const octave = 2.0;
 
-const fifth = 3.0/2.0;
-const fourth = 4.0/3.0;
-const desc_fifth = 2.0/3.0;
-const desc_fourth = 3.0/4.0;
-const desc_octave = 1.0/2.0;
-
-const tn = [[desc_fourth,fifth,desc_octave],[desc_fifth,fourth]];
-
-var grid = [];
 
 // f.length must span exactly a complete octave and be able to be shifted up an octave for this to work
 function extend(frequencies_set, strings) {
@@ -223,26 +207,27 @@ function extend(frequencies_set, strings) {
 function changemode() {
 
  num_add_octaves_to_mode_lines = document.getElementById("octave").value;
- strings = document.getElementById("strings").value;
+ strings = Number(document.getElementById("strings").value);
 
- var selectedmode = "equi_c";  //document.getElementById("mode").value;
- console.log('selectedmode = '+selectedmode)
+ var scale_type = document.getElementById("type").value;
+ var selectedscale = (scale_type=="genres") ? document.getElementById("genus").value : document.getElementById("species").value ;
+ console.log('selectedscale = '+selectedscale);
+ var first_note = document.getElementById("first_note").value;
+ var first_note_sharp = document.getElementById("first_note_sharp").value ;
+ var first = first_note + first_note_sharp;
+ console.log('first = '+first);
+ var scale_data = source_tables.filter(function (t) { return t[0] == selectedscale; })[0];
+ console.log('scale_data = '+scale_data);
+ var scale = scale_data[1].filter(function (t) { return t.split(" ")[0] == first; })[0];
+ console.log('scale = '+scale);
 
 
- var just_c = [1.0,9/8,5/4,4/3,3/2,5/3,15/8];
- var justs = [];
- for (let m = 0; m < 7; m++) {
-   var just = [];
-   for (let n = 0; n < 7; n++) {
-     var r = just_c[n];
-     just.push(r);
-   }
-   justs.push(just);
- }
- justs = extend(justs,strings);
- console.log('justs = '+justs);
-
- // ratios for equal tempered
+ // TODO
+ // Ratios for just
+ var justratios = [1.0,0,9/8,0,5/4,0,4/3,0,3/2,0,5/3,0,15/8,0]; // TODO need semitone ratios for just
+ console.log('justratios = '+justratios);
+ // TODO remove
+ // Ratios for equal tempered
  var semis = [2,1,2,2,1,2,2]; // starting at A 
  var equiratios = [1.0];
  var semisup = 0;
@@ -251,162 +236,168 @@ function changemode() {
      equiratios.push(equitempbase ** (semisup));
  }
  console.log('equiratios = '+equiratios);
+ 
+ var intonation = document.getElementById("intonation").value;
+ var ratios = intonation == "equal" ? equiratios : justratios;
+ console.log('selected ratios = '+ratios);
 
-
+ // Handle high limit indicator
+ 
  var high_limit_selection = Number(document.getElementById("highlimit").value); 
  var high_limit_octave = Math.floor(high_limit_selection / 7.0);
  console.log('high_limit_octave = '+high_limit_octave);
  var high_limit_note = (high_limit_selection+7*7) % 7; 
  console.log('high_limit_note = '+high_limit_note);
- high_limit_hz =  standard_a4 * equiratios[high_limit_note] * (octave ** high_limit_octave);
+ high_limit_hz = standard_a4 * ratios[high_limit_note] * (octave ** high_limit_octave);
  console.log('high_limit_hz = '+high_limit_hz);
 
 
- var equimodes = [];
- for (let m = 0; m < 7; m++) {
-   var equi = [];
-   for (let n = 0; n < 7; n++) {
-     equi.push(equiratios[2+n+m]);  // start at C
-   }
-   equimodes.push(equi);
- }
- equimodes = extend(equimodes,strings);
- console.log('equimodes = '+equimodes);
+ // TODO fix above code for high limit to same array
+ equiratios = [];
+ for (let n = 0; n < 12; n++) {
+   equiratios.push(equitempbase ** n);
+ } 
+ ratios = equiratios;
 
- 
- grid = [];
- var e_base = equiratios;
- console.log("e_base",e_base);
- for (let n=0; n<8; n++) {
-     for (let m=0;m<7;m++) {
-        var f = Math.pow(octave,n-4) * e_base[m] * standard_a4;
-        console.log("n m f",n,m,f);
-        grid.push(f);
-     }
- }
- console.log("grid",grid);
-
- var pents = [];
- pents.push([1.0,27/24,30/24,36/24,40/24]);
- pents.push([1.0,27/24,32/24,36/24,42/24]);
- pents.push([1.0,18/15,20/15,24/15,27/15]);
- pents.push([1.0,27/24,32/24,36/24,40/24]);
- pents.push([1.0,36/30,40/30,45/30,54/30]);
- pents = extend(pents,strings);
- console.log('pents = '+pents);
-
- var pyth = [1024/729,256/243,128/81,32/27,16/9,4/3,1.0,3/2,9/8,27/16,81/64,243/128,729/512];
-
- // Names per above reddit chart.
- const modes = new Map();
- modes.set('fifths_c', [[0,1,0,1,0,1],5,0,0]);
- modes.set('fifths_d', [[1,0,0,1,0,1],4,0,0]);
- modes.set('fifths_e', [[1,0,1,0,0,1],3,0,0]);
- modes.set('fifths_f', [[1,0,1,0,1,0],2,0,0]);
- modes.set('fifths_g', [[1,0,1,0,1,1],1,1,0]);
- modes.set('fifths_a', [[1,0,1,1,0,1],0,1,0]);
- modes.set('fifths_b', [[1,1,0,1,0,1],6,1,0]); 
-
- modes.set('fifths_g_aristoxenus', [[0,1,0,1,0,1],1,0,0]); // results in GABCDEF#
- modes.set('fifths_g_aristoxenus_ext', [[0,1,0,1,0,1,2,1,0,1,0,1,0],3,0,0]); // results in F# G G# A A# B C (comma) C# D D# E F F#
-
- modes.set('just_c', [justs[0],5,0,1]);
- modes.set('just_d', [justs[1],4,0,1]);
- modes.set('just_e', [justs[2],3,0,1]);
- modes.set('just_f', [justs[3],2,0,1]);
- modes.set('just_g', [justs[4],1,0,1]);
- modes.set('just_a', [justs[5],0,0,1]);
- modes.set('just_b', [justs[6],6,0,1]);
-
- modes.set('equi_c', [equimodes[0],5,0,1]);
- modes.set('equi_d', [equimodes[1],4,0,1]);
- modes.set('equi_e', [equimodes[2],3,0,1]);
- modes.set('equi_f', [equimodes[3],2,0,1]);
- modes.set('equi_g', [equimodes[4],1,0,1]);
- modes.set('equi_a', [equimodes[5],0,0,1]);
- modes.set('equi_b', [equimodes[6],6,0,1]);
-
- modes.set('pentatonic_c', [pents[0],4,0,2]);
- modes.set('pentatonic_d', [pents[1],3,0,2]);
- modes.set('pentatonic_e', [pents[2],2,0,2]);
- modes.set('pentatonic_g', [pents[3],1,0,2]);
- modes.set('pentatonic_a', [pents[4],0,0,2]);
-
- modes.set('pythagorean', [pyth,7,0,3]);
-
-
- 
- var a = modes.get(selectedmode);
- 
- const pattern = a[0];
- const a_index = a[1];  // what string is A, starting with 0
- const type = a[2]; // ascending fourth or fifth
- const other = a[3]; // kind of pattern: fifths pattern or ratios (sequential or non)
- 
- console.log('pattern = ' + pattern + ' a_index = ' + a_index + ' type = '+type+' other = '+other);
 
  // Compute frequencies
 
- var spacings = [1.0];
- 
- if (other == 0) {
-   // fifths-fourths
-   for (let t=0;t<pattern.length;t++){
-     spacings.push(spacings[spacings.length-1]*tn[type][pattern[t]]);
-   }
- } else {
-   spacings = pattern;
- }
-
- var strings_element = document.getElementById("strings");
- strings_element.disabled = false;
- var relativeto = (a_index + base_note) % 7;  // Can't use modulo on non-sequential scales, so base_note has to be A for those
- 
- if (other == 2) {
-   relativeto = 0;
- }
- if (other == 3) {
-   strings = 13;
-   strings_element.value = strings;
-   strings_element.disabled = true;
-   relativeto = 0;
- }
- if (selectedmode == 'fifths_g_aristoxenus') {
-   relativeto = 3;	
- }
- if (selectedmode == 'fifths_g_aristoxenus_ext') {
-   relativeto = 6;	
+ function frequency_of_note(note, ratios, current_octave) {
+    var n = note.substring(0,1);
+    var semis_from_a = "A BC D EF G".indexOf(n);
+    var s = note.substring(1);
+    if (s.startsWith("b")) semis_from_a--;
+    if (s.startsWith("#")) semis_from_a++;
+    var use_octave = current_octave;
+    if (semis_from_a < 0) { semis_from_a = 12 + semis_from_a; use_octave = current_octave - 1;} // A-flat
+    // TODO Can we add interpolate the ratios for quartertones like this, or should it be harmonic mean or log or something?
+    var r = ratios[semis_from_a];
+    var r1 = ratios[semis_from_a+1];
+    if (s.endsWith("*")) r=(r+r1)/2;  // TODO
+    var f = standard_a4 * r * (octave ** use_octave);
+    console.log("frequency_of_note",note,current_octave,f);
+    return f;
  }
  
-
- console.log(spacings);
- function s(a, b){return Number(a)-Number(b);}
- spacings.sort(s)
- console.log(spacings);
-
- adj_base_note_hz = base_note_hz * (octave ** num_add_octaves_to_mode_lines);
- console.log('base note hz  = '+base_note_hz);
- console.log('adj base note hz = '+adj_base_note_hz);
+ // TODO extend freqs for different number of strings
 
  freqs = [];
- console.log('a_index = '+a_index);
- console.log('base_note = '+base_note);
- 
- console.log('relativeto = '+relativeto);
- const a_adj = spacings[relativeto];
- for (let t=0;t<spacings.length;t++){
-     var f = spacings[t] * adj_base_note_hz / a_adj;
-     f = Math.round(f*100)/100; 
-     freqs.push(f);
+ var scale_notes = scale.split(" ");
+ console.log(scale_notes);
+ var current_octave = num_add_octaves_to_mode_lines;
+ for (let i = 0; i < scale_notes.length; i++) {
+    var note = scale_notes[i];
+    if (i>0 && note.substring(0,1) < scale_notes[i-1].substring(0,1)) current_octave++;
+    var f = frequency_of_note(note, ratios, current_octave);
+    freqs.push(f);
  }
  console.log(freqs);
- freqs.sort(s);
+ freqs = freqs.slice(0,strings);
  console.log(freqs);
 
  canvasCtx.clearRect(0, 0, WIDTH, HEIGHT);
  divfreqs.innerHTML = `${freqs}`
 
 }
+
+
+// Source tables from Nikolaos Koumartzis
+var source_tables = [
+["diatonic", [
+"C Db Eb F Gb Ab Bb B Db Eb E F# G# A B C# D E F# G A B C D",
+"D Eb F G Ab Bb C Db Eb F Gb Ab Bb B Db Eb E F# G# A B C# D E",
+"E F G A Bb C D Eb F G Ab Bb C Db Eb F Gb Ab Bb B Db Eb E F#",
+"F Gb Ab Bb B Db Eb E F# G# A B C# D E F# G A B C D E F G",
+"G Ab Bb C Db Eb F Gb Ab Bb B Db Eb E F# G# A B C# D E F# G A",
+"A Bb C D Eb F G Ab Bb C Db Eb F Gb Ab Bb B Db Eb E F# G A B",
+"B C D E F G A Bb C D Eb F G Ab Bb C Db Eb F Gb Ab Bb B Db"
+]],
+["chromatic", [
+"C C# D F F# G Bb B C Eb E F Ab A Bb Db D D# F# G G# B C C#",
+"D D# E G G# A C C# D F F# G Bb B C Eb E F Ab A Bb Db D D#",
+"E F F# A Bb B D D# E G G# A C C# D F F# G Bb B C Eb E F",
+"F F# G Bb B C Eb E F Ab A Bb B D D# E G G# A C C# D F F#",
+"G G# A C C# D F F# G Bb B C Eb E F Ab A Bb Db D D# F# G G#",
+"A A# B D D# E G G# A C C# D F F# G Bb B C Eb E F Ab A Bb",
+"B C C# E F F# A Bb B D D# E G G# A C C# D F F# G Bb B C"
+]],
+["enharmonic", [
+"C C* C# F F* F# A# A#* B D# D#* Ε G# G#* A C# C#* D F# F#* G B B* C",
+"D D* D#* G G* G#* C C* C# F F* F# A# A#* B D# D#* Ε G# G#* A C# C#* D",
+"E E* F A A* A# D D* D#* G G* G#* C C* C# F F* F# A# A#* B D# D#* Ε",
+"F F* F# A# A#* B D# D#* E G# G#* A C# C#* D F# F#* G B B* C E E* F",
+"G G* G#* C C* C# F F* F# A# A#* B D# D#* Ε G# G#* A C# C#* D F# F#* G",
+"A A* A# D D* D#* G G* G#* C C* C# F F* F# A# A#* B D# D#* Ε G# G#* A",
+"B B* C E E* F A A* A# D D* D#* G G* G#* C C* C# F F* F# A# A#* B"
+]],
+["mixolydios", [
+"B C D E F G A B C D E F G A B C D E F G A B C D",
+"C Db Eb F Gb Ab Bb C Db Eb F Gb Ab Bb C Db Eb F Gb Ab Bb C Db Eb",
+"D Eb F G Ab Bb C D Eb F G Ab Bb C D Eb F G Ab Bb C D Eb F",
+"E F G A Bb C D E F G A Bb C D E F G A Bb C D E F G",
+"F Gb Ab Bb Cb Db Eb F Gb Ab Bb Cb Db Eb F Gb Ab Bb Cb Db Eb F Gb Ab",
+"G Ab Bb C Db Eb F G Ab Bb C Db Eb F G Ab Bb C D Eb F G Ab Bb",
+"A Bb C D Eb F G A Bb C D Eb F G A Bb C D Eb F G A Bb C"
+]],
+["hypodorios", [
+"A B C D E F G A B C D E F G A B C D E F G A B C",
+"B C# D E F# G A B C# D E F# G A B C# D E F# B C# D",
+"C D Eb F G Ab Bb C D Eb F G Ab Bb C D Eb F G Ab Bb C D Eb",
+"D E F G A Bb C D E F G A Bb C D E F G A Bb C D E F",
+"E F# G A B C D E F# G A B C D E F# G A B C D E F# G",
+"F G Ab Bb C Db Eb F G Ab Bb C Db Eb F G Ab Bb C Db Eb F G Ab",
+"G A Bb C D Eb F G A Bb C D Eb F G A Bb C D Eb F G A Bb"
+]],
+["lydios", [
+"C D E F G A B C D E F G A B C D E F G A B C D E",
+"D E F# G A B C# D E F# G A B C# D E F# G A B C D E F#",
+"E F# G# A B C# D# E F# G# A B C# D# E F# G# A B C# D# E F# G#",
+"F G A Bb C D E F G A Bb C D E F G A Bb C D E F G A",
+"G A B C D E F# G A B C D E F# G A B C D E F# G A B",
+"A B C# D E F# G# A B C# D E F# G# A B C# D E F# G# A B C#",
+"B C# D# E F# G# A# B C# D# E F# G# A# B C# D# E F# G# A# B C# D#"
+]],
+["phrygios", [
+"D E F G A B C D E F G A B C D E F G A B C D E F",
+"E F# G A B C# D E F# G A B C# D E F# G A B C# D E F# G",
+"F G Ab Bb C D Eb F G Ab Bb C D Eb F G Ab Bb C D Eb F G Ab",
+"G A Bb C D E F G A Bb C D E F G A Bb C D E F G A Bb",
+"A B C D E F# G A B C D E F# G A B C D E F# G A B C",
+"B C# D E F# G# A B C# D E F# G# A B C# D E F# G# A B C# D",
+"C D Eb F G A Bb C D Eb F G A Bb C D Eb F G A Bb C D Eb"
+]],
+["dorios", [
+"E F G A B C D E F G A B C D E F G A B C D E F G",
+"F Gb Ab Bb C Db Eb F Gb Ab Bb C Db Eb F Gb Ab Bb C Db Eb F Gb Ab",
+"G Ab Bb C D Eb F G Ab Bb C D Eb F G Ab Bb C D Eb F G Ab Bb",
+"A Bb C D E F G A Bb C D E F G A Bb C D E F G A Bb C",
+"B C D E F# G A B C D E F# G A B C D E F# G A B C D",
+"C Db Eb F G Ab Bb C Db Eb F G Ab Bb C Db Eb F G Ab Bb C Db Eb",
+"D Eb F G A Bb C D Eb F G A Bb C D Eb F G A Bb C D Eb F"
+]],
+["hypolydios", [
+"F G A B C D E F G A B C D E F G A B C D E F G A",
+"G A B C# D E F# G A B C# D E F# G A B C# D E F# G A B",
+"A B C# D# E F# G# A B C# D# E F# G# A B C# D# E F# G# A B C#",
+"B C# D# E# F# G# A# B C# D# E# F# G# A# B C# D# E# F# G# A# B C# D#",
+"C D E F# G A B C D E F# G A B C D E F# G A B C D E",
+"D E F# G# A B C# D E F# G# A B C# D E F# G# A B C# D E F#",
+"E F# G# A# B C# D# E F# G# A# B C# D# E F# G# A# B C# D# E F# G#"
+]],
+["hypophrygios", [
+"G A B C D E F G A B C D E F G A B C D E F G A B",
+"A B C# D E F# G A B C# D E F# G A B C# D E F# G A B C#",
+"B C# D# E F# G# A B C# D# E F# G# A B C# D# E F# G# A B C# D#",
+"C D E F G A Bb C D E F G A Bb C D E F G A Bb C D E",
+"D E F# G A B C D E F# G A B C D E F# G A B C D E F#",
+"E F# G# A B C# D E F# G# A B C# D E F# G# A B C# D E F# G#",
+"F G A Bb C D Eb F G A Bb C D Eb F G A Bb C D Eb F G A"
+]]
+]
+;
+
+
+
 
 
 // Audio:
@@ -474,20 +465,12 @@ navigator.mediaDevices.getUserMedia({audio:true}).then(function(localStream) {
     var start_limit = drawscale*frequencyToIndex(high_limit_hz, sampleRate, frequencyBinCount)+barWidth*.5;
     canvasCtx.fillRect(start_limit, 0, WIDTH*magnify - start_limit, HEIGHT);
     
-    // grid
-    canvasCtx.fillStyle = "rgb(0, 0, 200)";
-    for (let h = 0; h < grid.length; h++) {
-       canvasCtx.fillRect(drawscale*frequencyToIndex(grid[h], sampleRate, frequencyBinCount), 0, barWidth*.25, HEIGHT);
-    } 
     // strings
     canvasCtx.fillStyle = "rgb(256, 256, 0)";
     for (let h = 0; h < freqs.length; h++) {
        canvasCtx.fillRect(drawscale*frequencyToIndex(freqs[h], sampleRate, frequencyBinCount), 0, barWidth*.5, HEIGHT);
     } 
-    // base note
-    canvasCtx.fillStyle = "rgb(256, 256, 256)";
-    canvasCtx.fillRect(drawscale*frequencyToIndex(adj_base_note_hz, sampleRate, frequencyBinCount), 0, barWidth*.5, HEIGHT);
-    
+   
 
     
     let barHeight;
