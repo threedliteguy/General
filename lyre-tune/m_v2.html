@@ -16,7 +16,7 @@ Serving from an http url (insecure context) will not work due to browser securit
 <br />
 <div id="loudestfreq"></div>
 <br /><strong><label for="octave">How many strings does your lyre have?</label></strong>
-<select name="strings" id="strings" >
+<select name="strings" id="strings" onchange="set_first_from_strings();">
   <option selected="selected" value="7">7</option>
   <option value="8">8</option>
   <option value="9">9</option>
@@ -26,6 +26,12 @@ Serving from an http url (insecure context) will not work due to browser securit
   <option value="13">13</option>
   <option value="24">24</option>
 </select>
+<script>
+function set_first_from_strings() {
+   fn = Number(document.getElementById("strings").value);
+   document.getElementById("first_note").value = "GFEDCBA".charAt(fn % 7);
+}
+</script>
 <br />
 <label for="highlimit">&nbsp;&nbsp;&nbsp;What is the upper limit for your highest string?</label><!-- Values fixed based on standard A4 -->
 <select name="highlimit" id="highlimit" >
@@ -74,13 +80,13 @@ Serving from an http url (insecure context) will not work due to browser securit
 <br />
 <label for="octave">&nbsp;&nbsp;&nbsp;Need to change an octave?</label>
 <select name="octave" id="octave" >
-  <option value="2">+3 octaves</option>
-  <option value="1">+2 octaves</option>
-  <option value="0">+1 octaves</option>
-  <option selected="selected" value="-1">No</option>
-  <option value="-2">-1 octaves</option>
-  <option value="-3">-2 octaves</option>
-  <option value="-4">-3 octaves</option>
+  <option value="3">+3 octaves</option>
+  <option value="2">+2 octaves</option>
+  <option value="1">+1 octaves</option>
+  <option selected="selected" value="0">No</option>
+  <option value="-1">-1 octaves</option>
+  <option value="-2">-2 octaves</option>
+  <option value="-3">-3 octaves</option>
 </select>
 <br /><br />
 <hr />
@@ -201,7 +207,8 @@ function extend(frequencies_set, strings) {
 
 function changemode() {
 
- num_add_octaves_to_mode_lines = Number(document.getElementById("octave").value) - 1;
+ var initial_octave_offset = -2;
+ num_add_octaves_to_mode_lines = Number(document.getElementById("octave").value) + initial_octave_offset;
  strings = Number(document.getElementById("strings").value);
 
  var scale_type = document.getElementById("type").value;
