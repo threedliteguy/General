@@ -15,8 +15,7 @@ Serving from an http url (insecure context) will not work due to browser securit
 <canvas id="myc" width="9000" height="600"></canvas>
 <br />
 <div id="loudestfreq"></div>
-<br />
-<label for="octave">Number of strings:</label>
+<br /><strong><label for="octave">How many strings does your lyre have?</label></strong>
 <select name="strings" id="strings" >
   <option selected="selected" value="7">7</option>
   <option value="8">8</option>
@@ -27,7 +26,8 @@ Serving from an http url (insecure context) will not work due to browser securit
   <option value="13">13</option>
   <option value="24">24</option>
 </select>
-<label for="highlimit">Highest string capable note limit:</label><!-- Values fixed based on standard A4 -->
+<br />
+<label for="highlimit">&nbsp;&nbsp;&nbsp;What is the upper limit for your highest string?</label><!-- Values fixed based on standard A4 -->
 <select name="highlimit" id="highlimit" >
   <option value="-14">A2</option>
   <option value="-13">B2</option>
@@ -43,9 +43,9 @@ Serving from an http url (insecure context) will not work due to browser securit
   <option value="-3">E4</option>
   <option value="-2">F4</option>
   <option value="-1">G4</option>
-  <option value="0">A4</option>
+  <option selected="selected" value="0">A4</option>
   <option value="1">B4</option>
-  <option selected="selected" value="2">C5</option>
+  <option value="2">C5</option>
   <option value="3">D5</option>
   <option value="4">E5</option>
   <option value="5">F5</option>
@@ -61,35 +61,34 @@ Serving from an http url (insecure context) will not work due to browser securit
   <option value="15">B6</option>
 </select>
 <br /><br />
-
-<label for="first_note">First Note</label>
+<strong><label for="first_note">What is your 1st string note?</label></strong>
 <select name="first_note" id="first_note" >
-<option selected="selected" value="C">C</option>
+<option value="C">C</option>
 <option value="D">D</option>
 <option value="E">E</option>
 <option value="F">F</option>
-<option value="G">G</option>
+<option selected="selected" value="G">G</option>
 <option value="A">A</option>
 <option value="B">B</option>
 </select>
-
-<label for="octave">Add octaves</label>
+<br />
+<label for="octave">&nbsp;&nbsp;&nbsp;Need to change an octave?</label>
 <select name="octave" id="octave" >
-  <option value="3">3</option>
-  <option value="2">2</option>
-  <option value="1">1</option>
-  <option selected="selected" value="0">0</option>
-  <option value="-1">-1</option>
-  <option value="-2">-2</option>
-  <option value="-3">-3</option>
+  <option value="2">+3 octaves</option>
+  <option value="1">+2 octaves</option>
+  <option value="0">+1 octaves</option>
+  <option selected="selected" value="-1">No</option>
+  <option value="-2">-1 octaves</option>
+  <option value="-3">-2 octaves</option>
+  <option value="-4">-3 octaves</option>
 </select>
-
 <br /><br />
-<br /><br />
-<label for="type">Type</label>
+<hr />
+<br />
+<strong><label for="type">Tune using</label></strong>
 <select name="type" id="type" onchange='changetype();'>
-  <option value="genres">Genres</option>
-  <option selected="selected" value="modes">Modes</option>
+  <option value="genres">Ancient Greek Genres</option>
+  <option selected="selected" value="modes">Ancient Greek Modes</option>
 </select>
 <br /><br />
 
@@ -106,34 +105,34 @@ function changetype() {
 }
 </script>
 <div id="div_species" style="display:block">
-<label for="species">Species</label>
+<strong><label for="species">Mode</label></strong>
 <select name="species" id="species" >
-  <option value="mixolydios">Greek Mixolydios, modern Locrian, Mesopotamian qablītu</option>
-  <option value="hypodorios">Greek Hypodorios/Locrian, modern Aeolian, Mesopotamian kitmu</option>
-  <option value="lydios">Greek Lydios, modern Ionian, Mesopotamian nīd qabli</option>
-  <option value="phrygios">Greek Phrygios, modern Dorian, Mesopotamian embūbu</option>
-  <option value="dorios">Greek Dorios, modern Phyrgian, Mesopotamian išartu</option>
-  <option value="hypolydios">Greek Hypolydios, modern Lydian, Mesopotamian nīš gabarî</option>
-  <option value="hypophrygios">Greek Hypophrygios, modern Mixolydian, Mesopotamian pūtu</option>
+  <option value="mixolydios">Ancient Greek Mixolydios (modern Locrian)</option><!-- Mesopotamian qablītu -->
+  <option value="hypodorios">Ancient Greek Hypodorios/Locrian (modern Aeolian)</option><!--  Mesopotamian kitmu -->
+  <option value="lydios">Ancient Greek Lydios (modern Ionian)</option><!--  Mesopotamian nīd qabli -->
+  <option value="phrygios">Ancient Greek Phrygios (modern Dorian)</option><!--  Mesopotamian embūbu -->
+  <option value="dorios">Ancient Greek Dorios (modern Phyrgian)</option><!--  Mesopotamian išartu -->
+  <option value="hypolydios">Ancient Greek Hypolydios (modern Lydian)</option><!--  Mesopotamian nīš gabarî -->
+  <option value="hypophrygios">Ancient Greek Hypophrygios (modern Mixolydian)</option><!-- Mesopotamian pūtu  -->
 </select>
 </div>
 <div id="div_genus" style="display:none">
 <label for="genus">Genus</label>
 <select name="genus" id="genus" >
-<option selected="selected" value="diatonic">Diatonic</option>
-<option value="chromatic">Chromatic</option>
-<option value="enharmonic">Enharmonic</option>
+<option selected="selected" value="diatonic">Diatonic genre</option>
+<option value="chromatic">Chromatic genre</option>
+<option value="enharmonic">Enharmonic genre</option>
 </select>
 </div>
-<br /><br />
-<label for="intonation">Intonation</label>
+<br />
+<strong><label for="intonation">Just or Equal Intonation?</label></strong>
 <select name="intonation" id="intonation" >
 <option selected="selected" value="equal">Equal</option>
 <!--<option value="just">Just</option>-->
 </select>
-
 <br /><br />
-<br /><br />
+<hr />
+<br />
 <button onclick='javascript:changemode();'>Update frequencies:</button>
 <label id="freqs"></label>
 <br /><br />
@@ -290,7 +289,7 @@ function changemode() {
  console.log(freqs);
 
  canvasCtx.clearRect(0, 0, WIDTH, HEIGHT);
- divfreqs.innerHTML = `${freqs}`
+ divfreqs.innerHTML = `${scale_notes.slice(0,strings)}`
 
 }
 
