@@ -30,6 +30,8 @@ Serving from an http url (insecure context) will not work due to browser securit
 function set_first_from_strings() {
    fn = Number(document.getElementById("strings").value);
    document.getElementById("first_note").value = "GFEDCBA".charAt(fn % 7);
+   document.getElementById("species").value = stringToModesObj[fn];
+
 }
 </script>
 <br />
@@ -146,6 +148,9 @@ function changetype() {
 <script>
 const WIDTH=8000;
 const HEIGHT=600;
+
+const stringToModesObj = {7: "hypophrygios", 8 : "hypolydios", 9 : "dorios", 
+    10 : "phrygios", 11 : "lydios", 12 : "mixolydios", 13 : "hypodorios", 24 : "hypodorios" };
 
 
 // Tuning 7 string lyre for Ancient Greek modes by alternating ascending or descending fifths and fourths:
@@ -283,20 +288,27 @@ function changemode() {
  
  freqs = [];
  var scale_notes = scale.split(" ");
+ var notes_with_octaves = [];
  console.log(scale_notes);
  var current_octave = num_add_octaves_to_mode_lines;
  for (let i = 0; i < scale_notes.length; i++) {
     var note = scale_notes[i];
-    if (i>0 && note.substring(0,1) < scale_notes[i-1].substring(0,1)) current_octave++;
+    var base_note = note.substring(0,1);
+    var accidental = note.substring(1);
+    if (i>0 && base_note < scale_notes[i-1].substring(0,1)) current_octave++;
     var f = frequency_of_note(note, ratios, current_octave);
     freqs.push(f);
+    var c_based_octave = current_octave+5;
+    if (base_note < "C") c_based_octave--;
+    notes_with_octaves.push(base_note + c_based_octave + accidental);
  }
  console.log(freqs);
  freqs = freqs.slice(0,strings);
  console.log(freqs);
+ notes_with_octaves = notes_with_octaves.slice(0,strings);
 
  canvasCtx.clearRect(0, 0, WIDTH, HEIGHT);
- divfreqs.innerHTML = `${scale_notes.slice(0,strings)}`
+ divfreqs.innerHTML = `${notes_with_octaves.join(', ')}`
 
 }
 
