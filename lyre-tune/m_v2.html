@@ -136,7 +136,7 @@ function changetype() {
 <strong><label for="intonation">Just or Equal Intonation?</label></strong>
 <select name="intonation" id="intonation" >
 <option selected="selected" value="equal">Equal</option>
-<!--<option value="just">Just</option>-->
+<option value="just">Just</option>
 </select>
 <br /><br />
 <hr />
@@ -185,6 +185,10 @@ var num_add_octaves_to_mode_lines = 0;
 
 var TET_12 = 2 ** (1/12);
 var TET_24 = 2 ** (1/24);
+
+//                           C (C*) Db Db* D   D*  Eb  Eb* E   E*  F   F*  F#  F#* G   (G*) Ab  Ab* A   A*  Bb  Bb*  B    B* 
+var SHRUTI_22_CENTS_PLUS2 = [0, 22, 90,112,182,204,294,316,386,408,498,520,590,612,702,722, 792,814,884,906,996,1018,1088,1110];
+var SHRUTI_24_A_INDEX = 19;
 
 var standard_a4 = 440;
 var standard_c4 = 261.63;
@@ -257,10 +261,13 @@ function changemode() {
  for (let n = 0; n < 24; n++) {
    tet_24_ratios.push(TET_24 ** n);
  } 
-
- // Ratios for just // TODO
- var justratios = [1.0,0,9/8,0,5/4,0,4/3,0,3/2,0,5/3,0,15/8,0]; // TODO need how to get semitone/quarter tone ratios for just
+ console.log('tet_24_ratios = '+tet_24_ratios);
+ justratios = [];
+ for (let n = 0; n < 24; n++) {
+   justratios.push(2 ** (SHRUTI_22_CENTS_PLUS2[n]/1200)); 
+ }  
  console.log('justratios = '+justratios);
+ 
  
  var intonation = document.getElementById("intonation").value;
  var ratios = intonation == "equal" ? tet_24_ratios : justratios;
