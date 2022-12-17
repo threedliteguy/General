@@ -97,6 +97,7 @@ function set_first_from_strings() {
 <select name="type" id="type" onchange='changetype();'>
   <option value="genres">Ancient Greek Genres</option>
   <option selected="selected" value="modes">Ancient Greek Modes</option>
+  <option value="pentatonic">Pentatonic</option>
 </select>
 <br /><br />
 
@@ -106,8 +107,11 @@ function changetype() {
   if (type == "genres") {
     document.getElementById("div_species").style.display="none";
     document.getElementById("div_genus").style.display="block";
-  } else {
+  } else if (type == "modes") {
     document.getElementById("div_species").style.display="block";
+    document.getElementById("div_genus").style.display="none";
+  } else {
+    document.getElementById("div_species").style.display="none";
     document.getElementById("div_genus").style.display="none";
   }
 }
@@ -125,7 +129,7 @@ function changetype() {
 </select>
 </div>
 <div id="div_genus" style="display:none">
-<label for="genus">Genus</label>
+<strong><label for="genus">Genus</label></strong>
 <select name="genus" id="genus" >
 <option selected="selected" value="diatonic">Diatonic genre</option>
 <option value="chromatic">Chromatic genre</option>
@@ -222,9 +226,11 @@ function changemode() {
 
  var scale_type = document.getElementById("type").value;
  var selectedscale = (scale_type == "genres") ? document.getElementById("genus").value : document.getElementById("species").value ;
+ if (scale_type == "pentatonic") selectedscale = "pentatonic";
  console.log('selectedscale = '+selectedscale);
  var first_note = document.getElementById("first_note").value;
  var first_note_accidental = "";
+ if (scale_type == "pentatonic" && first_note == "B") first_note_accidental = "b";
  var first = first_note + first_note_accidental;
  console.log('first = '+first);
  var scale_data = source_tables.filter(function (t) { return t[0] == selectedscale; })[0];
@@ -411,6 +417,15 @@ var source_tables = [
 "D E F# G A B C D E F# G A B C D E F# G A B C D E F#",
 "E F# G# A B C# D E F# G# A B C# D E F# G# A B C# D E F# G#",
 "F G A Bb C D Eb F G A Bb C D Eb F G A Bb C D Eb F G A"
+]],
+["pentatonic", [
+"F G Bb C D F G Bb C D F G Bb C D F G Bb C D F G Bb C",
+"G A C D E G A C D E G A C D E G A C D E G A C D",
+"A C D E G A C D E G A C D E G A C D E G A C D E",
+"Bb C D F G Bb C D F G Bb C D F G Bb C D F G Bb C D F",
+"C D E G A C D E G A C D E G A C D E G A C D E G",
+"D E G A C D E G A C D E G A C D E G A C D E G A",
+"E G A C D E G A C D E G A C D E G A C D E G A C"
 ]]
 ]
 ;
