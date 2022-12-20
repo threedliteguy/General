@@ -226,27 +226,42 @@ function extend(frequencies_set, strings) {
   return frequencies_set;
 }
 
+// jquery
+function isNumeric(n) {
+  return !isNaN(parseFloat(n)) && isFinite(n);
+}
 
 function get_quartertones_from_a(note) {
     var n = note.substring(0,1);
     var semitones_from_a = "A BC D EF G".indexOf(n);
     var quarter_tones_from_a = semitones_from_a * 2;
     var s = note.substring(1);
+    var o = 0;
+    if (isNumeric(s.substring(0,1))) { o = Number(s.substring(0,1)); s = s.substring(1); } // Handle if they sent octave
     if (s.startsWith("#")) quarter_tones_from_a = quarter_tones_from_a + 2;
     if (s.startsWith("b")) quarter_tones_from_a = quarter_tones_from_a - 2;
     if (s.endsWith("*")) quarter_tones_from_a = quarter_tones_from_a + 1; 
-    return quarter_tones_from_a;
+    return [quarter_tones_from_a, o];
 }
 
 function transpose(note_a, note_b, note) {
-   var a = get_quartertones_from_a(note_a);
-   var b = get_quartertones_from_a(note_b);
-   var n = get_quartertones_from_a(note);
+   var a = get_quartertones_from_a(note_a)[0];
+   var b = get_quartertones_from_a(note_b)[0];
+   var na = get_quartertones_from_a(note);
+   var n = na[0];
    var n = n + b - a;
-   var o = 0;
-   if (n < 0) { n = n + 24; o = -1; }
-   if (n >= 24) { n = n - 24; o = 1; }
+   var o = na[1];
+   if (n < 0) { n = n + 24; o = o-1; }
+   if (n >= 24) { n = n - 24; o = o+1; }
    var r = ["A","A*","A#","A#*","B","B*","C","C*","C#","C#*","D","D*","D#","D#*","E","E*","F","F*","F#","F#*","G","G*","G#","G#*"][n];
+   if (o > 0) {
+     var fn = r.substring(0,1)
+     if (fn < "C" && note >= "C") o--;
+     if (fn >= "C" && note < "C") o++;
+     if (o>0) {
+       r = fn+o+r.substring(1);
+     }
+   }
    return [r,o]; 
  }
 
@@ -256,9 +271,13 @@ function rescale() {
       var a = document.getElementById("from_note").value;
       var b = document.getElementById("to_note").value;
       var c = document.getElementById("notes_to_rescale").value;
-      c = c.split(" ").filter(function (t) { return t != "" ; });
+      c = c.split(" ").map(function (t) { return t.replace(',','') ; });
       for (let i = 0; i < c.length;i++) {
-         r = r + transpose(a,b,c[i])[0] + " ";
+         if (c[i] == "") { 
+            r = r + " "; 
+         } else {
+            r = r + transpose(a,b,c[i])[0] + " "; 
+         }
       } 
    } catch (error) {
       console.log(error);
@@ -269,7 +288,7 @@ function rescale() {
 }
 
 function frequency_of_note(note, ratios, current_octave) {
-    var quarter_tones_from_a = get_quartertones_from_a(note);
+    var quarter_tones_from_a = get_quartertones_from_a(note)[0];
     var use_octave = current_octave;
     if (quarter_tones_from_a < 0) { quarter_tones_from_a = 24 + quarter_tones_from_a; use_octave = current_octave - 1;} // e.g. A-flat
     var r = ratios[quarter_tones_from_a];
