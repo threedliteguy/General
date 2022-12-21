@@ -273,32 +273,40 @@ function transpose(note_a, note_b, note) {
 function fit() {
    var c = document.getElementById("notes_to_rescale").value;
    c = c.split(" ").filter(function (t) { return t != "" ; }).map(function (t) { return t.replace(',','') ; });
-   var nfit = -1;
-   for (let i = 0; i < 24; i++) {
-       var a = "A3";
+   var unique = [];
+   for (let i = 0; i < c.length; i++) { if (unique.indexOf(c[i]) == -1) unique.push(c[i]); }
+   unique.sort();
+   var afit = "";
+   var bfit = "";
+   var tryn = ["A","G"];
+   for (let t=0;t<tryn.length;t++) {
+    for (let i = 0; i < 24; i++) {
+       var a = tryn[t];
        var b = full_scale[i];
        var mismatch = 0;
        for (let i = 0; i < c.length;i++) {
          nn = transpose(a,b,c[i]);
-         n = nn[0];  //nn[0].substring(0,1)+nn[1]+nn[0].substring(1)
+         n = nn[0];  
          console.log(n);
          if (notes_with_octaves.indexOf(n) == -1) mismatch++;
        }
        console.log(b,mismatch);
        if (mismatch == 0) {
-           nfit = i;
+           afit = a;
+           bfit = b;
            break;
        }
+    }
+    if (afit != "") break;
    }
-   if (nfit > -1) {
-      var to_note = full_scale[nfit];
-      document.getElementById("from_note").value = "A";
-      document.getElementById("to_note").value = to_note;
+   if (afit != "") {
+      document.getElementById("from_note").value = afit;
+      document.getElementById("to_note").value = bfit;
       rescale();
    } else {
-      document.getElementById("from_note").value = "A";
-      document.getElementById("to_note").value = " ";
-      document.getElementById("rescaled_notes").innerHTML = "No fit.";
+      document.getElementById("from_note").value = "";
+      document.getElementById("to_note").value = "";
+      document.getElementById("rescaled_notes").innerHTML = "No fit for "+(""+unique).replaceAll(',',', ');
    }
 }
 
