@@ -148,14 +148,15 @@ function changetype() {
 <br />
 <button onclick='javascript:changemode();'>Update frequencies:</button>
 <label id="freqs"></label>
-<br /><br />
-<button onclick='javascript:document.getElementById("div_rescale").style.display="block";rescale();'>Advanced</button>
+<br /><br /><hr />
+<button onclick='javascript:document.getElementById("div_rescale").style.display="block";'>Advanced</button>
 <div id="div_rescale" style="display:none">
 <br />
-<strong><label>Rescale</label></strong><br /><br />
 <label>From note </label><input maxlength="4" size="4" name="from_note" id="from_note" value="A#"></input> 
-<label>To note </label><input maxlength="4" size="4" name="to_note" id="to_note" value="C"></input><br />
-<label>Notes to rescale: </label><input size="80" name="notes_to_rescale" id="notes_to_rescale" value="F# Eb"></input><br />
+<label>To note </label><input maxlength="4" size="4" name="to_note" id="to_note" value="C"></input>
+<br />
+<label>Notes to rescale: </label><input size="80" name="notes_to_rescale" id="notes_to_rescale" value="F4# E4b"></input><br />
+<button onclick='javascript:rescale();'>Rescale</button><button onclick='javascript:fit();'>Fit</button><br />
 Rescaled notes: <label id="rescaled_notes"></label>
 <br /><br />
 </div>
@@ -212,6 +213,8 @@ var strings = 1;
 const unison = 1.0;
 const octave = 2.0;
 
+var notes_with_octaves = [];
+
 
 // f.length must span exactly a complete octave and be able to be shifted up an octave for this to work (e.g. no Pythagorean comma)
 function extend(frequencies_set, strings) {
@@ -244,6 +247,8 @@ function get_quartertones_from_a(note) {
     return [quarter_tones_from_a, o];
 }
 
+var full_scale = ["A","A*","A#","A#*","B","B*","C","C*","C#","C#*","D","D*","D#","D#*","E","E*","F","F*","F#","F#*","G","G*","G#","G#*"];
+
 function transpose(note_a, note_b, note) {
    var a = get_quartertones_from_a(note_a)[0];
    var b = get_quartertones_from_a(note_b)[0];
@@ -253,7 +258,7 @@ function transpose(note_a, note_b, note) {
    var o = na[1];
    if (n < 0) { n = n + 24; o = o-1; }
    if (n >= 24) { n = n - 24; o = o+1; }
-   var r = ["A","A*","A#","A#*","B","B*","C","C*","C#","C#*","D","D*","D#","D#*","E","E*","F","F*","F#","F#*","G","G*","G#","G#*"][n];
+   var r = full_scale[n];
    if (o > 0) {
      var fn = r.substring(0,1)
      if (fn < "C" && note >= "C") o--;
@@ -263,13 +268,45 @@ function transpose(note_a, note_b, note) {
      }
    }
    return [r,o]; 
- }
+}
+ 
+function fit() {
+   var c = document.getElementById("notes_to_rescale").value;
+   c = c.split(" ").filter(function (t) { return t != "" ; }).map(function (t) { return t.replace(',','') ; });
+   var nfit = -1;
+   for (let i = 0; i < 24; i++) {
+       var a = "A3";
+       var b = full_scale[i];
+       var mismatch = 0;
+       for (let i = 0; i < c.length;i++) {
+         nn = transpose(a,b,c[i]);
+         n = nn[0];  //nn[0].substring(0,1)+nn[1]+nn[0].substring(1)
+         console.log(n);
+         if (notes_with_octaves.indexOf(n) == -1) mismatch++;
+       }
+       console.log(b,mismatch);
+       if (mismatch == 0) {
+           nfit = i;
+           break;
+       }
+   }
+   if (nfit > -1) {
+      var to_note = full_scale[nfit];
+      document.getElementById("from_note").value = "A";
+      document.getElementById("to_note").value = to_note;
+      rescale();
+   } else {
+      document.getElementById("from_note").value = "A";
+      document.getElementById("to_note").value = " ";
+      document.getElementById("rescaled_notes").innerHTML = "No fit.";
+   }
+}
 
 function rescale() {
    var r = "";
    try {
-      var a = document.getElementById("from_note").value;
-      var b = document.getElementById("to_note").value;
+      var a = document.getElementById("from_note").value.trim();
+      var b = document.getElementById("to_note").value.trim();
       var c = document.getElementById("notes_to_rescale").value;
       c = c.split(" ").map(function (t) { return t.replace(',','') ; });
       for (let i = 0; i < c.length;i++) {
@@ -360,10 +397,9 @@ function changemode() {
  console.log('selected ratios = '+ratios);
 
  // Compute frequencies 
- 
+ notes_with_octaves = [];
  freqs = [];
  var scale_notes = scale.split(" ");
- var notes_with_octaves = [];
  console.log(scale_notes);
  var current_octave = num_add_octaves_to_mode_lines;
  for (let i = 0; i < scale_notes.length; i++) {
