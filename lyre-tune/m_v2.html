@@ -619,6 +619,7 @@ var source_tables = [
 ;
 
 
+var sustain = Array.from({length: 100}, (v, i) => 0);
 
 
 
@@ -671,7 +672,7 @@ navigator.mediaDevices.getUserMedia({audio:true}).then(function(localStream) {
   const drawscale = WIDTH/frequencyBinCount * magnify;
   const barWidth = drawscale ;
   console.log('barWidth = '+barWidth);
-
+  
   
   function draw() {
     drawVisual = requestAnimationFrame(draw);
@@ -713,7 +714,9 @@ navigator.mediaDevices.getUserMedia({audio:true}).then(function(localStream) {
     
     canvasCtx.fillStyle = "rgb(0, 256, 0)";
     for (let h = 0; h < freqs.length; h++) {
-       if (Math.abs(freqs[h] - peakhz) < 1.5) {
+       var hit = 0;
+       if (Math.abs(freqs[h] - peakhz) < 1.5)  { hit = 1; sustain[h] = (new Date()).getTime(); }
+       if (hit == 1 || (new Date()).getTime() - sustain[h] < 3000) {
           canvasCtx.fillRect(drawscale*frequencyToIndex(freqs[h], sampleRate, frequencyBinCount), 0, barWidth*.8, HEIGHT);
        }
     } 
