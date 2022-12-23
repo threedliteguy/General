@@ -686,7 +686,8 @@ navigator.mediaDevices.getUserMedia({audio:true}).then(function(localStream) {
     // over limit area
     canvasCtx.fillStyle = "rgb(128, 128, 128)";
     if (freqs[freqs.length-1] > high_limit_hz) canvasCtx.fillStyle = "rgb(128, 0, 0)";  // warn over string limit
-    var start_limit = drawscale*frequencyToIndex(high_limit_hz, sampleRate, frequencyBinCount)+barWidth*.5;
+    var indexlimit = frequencyToIndex(high_limit_hz, sampleRate, frequencyBinCount);
+    var start_limit = drawscale*indexlimit+barWidth*.5;
     canvasCtx.fillRect(start_limit, 0, WIDTH*magnify - start_limit, HEIGHT-BASE);
     
     // strings
@@ -722,7 +723,7 @@ navigator.mediaDevices.getUserMedia({audio:true}).then(function(localStream) {
       
       // Find peak 
       barHeight = dataArray[i];
-      if (barHeight>mv) {mv = barHeight; mi=i;}
+      if (barHeight>mv && i<= indexlimit) {mv = barHeight; mi=i;}
 
       // Spectrum lines    
       canvasCtx.fillStyle = `rgb(${barHeight + 100}, 200, 200)`;
