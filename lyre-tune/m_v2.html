@@ -736,7 +736,7 @@ navigator.mediaDevices.getUserMedia({audio:true}).then(function(localStream) {
     canvasCtx.fillStyle = "rgb(0, 256, 0)";
     for (let h = 0; h < freqs.length; h++) {
        var hit = 0;
-       if (Math.abs(freqs[h] - peakhz) < 1.5 && dataArray[i] > 20)  { 
+       if (Math.abs(freqs[h] - peakhz) < 1.5 && dataArray[h] > 20)  { 
       	 hit = 1; sustain[h] = (new Date()).getTime(); 
        }
        if (hit == 1 || (new Date()).getTime() - sustain[h] < 3000) {
