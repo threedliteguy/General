@@ -672,7 +672,7 @@ navigator.mediaDevices.getUserMedia({audio:true}).then(function(localStream) {
   const drawscale = WIDTH/frequencyBinCount * magnify;
   const barWidth = drawscale ;
   console.log('barWidth = '+barWidth);
-  
+  const BASE = 60;
   
   function draw() {
     drawVisual = requestAnimationFrame(draw);
@@ -681,17 +681,37 @@ navigator.mediaDevices.getUserMedia({audio:true}).then(function(localStream) {
 
     canvasCtx.fillStyle = "rgb(0, 0, 0)";
     canvasCtx.fillRect(0, 0, WIDTH*magnify, HEIGHT);
+    
 
     // over limit area
     canvasCtx.fillStyle = "rgb(128, 128, 128)";
     if (freqs[freqs.length-1] > high_limit_hz) canvasCtx.fillStyle = "rgb(128, 0, 0)";  // warn over string limit
     var start_limit = drawscale*frequencyToIndex(high_limit_hz, sampleRate, frequencyBinCount)+barWidth*.5;
-    canvasCtx.fillRect(start_limit, 0, WIDTH*magnify - start_limit, HEIGHT);
+    canvasCtx.fillRect(start_limit, 0, WIDTH*magnify - start_limit, HEIGHT-BASE);
     
     // strings
     canvasCtx.fillStyle = "rgb(256, 256, 0)";
+    x = [];
     for (let h = 0; h < freqs.length; h++) {
-       canvasCtx.fillRect(drawscale*frequencyToIndex(freqs[h], sampleRate, frequencyBinCount), 0, barWidth*.5, HEIGHT);
+       x.push( drawscale*frequencyToIndex(freqs[h], sampleRate, frequencyBinCount) );
+    }
+    for (let h = 0; h < freqs.length; h++) {
+       x0 = h == 0 ? 0 : x[h-1];
+       x1 = x[h];
+       x2 = h == freqs.length-1 ? WIDTH : x[h+1];
+       canvasCtx.fillRect(x1, 0, barWidth*.5, HEIGHT-BASE);
+       dx = Math.round(Math.min(x1-x0,x2-x1));
+       y = HEIGHT-BASE/2;
+       canvasCtx.font = "20px Arial";
+       if (dx < 40) {
+          y = HEIGHT-BASE/4 - (h%2)*(5+BASE/4);
+       }
+       if (dx < 40) {
+          pt = Math.round((dx+7)*0.8);
+          if (pt > 20) pt = 20;
+          canvasCtx.font = pt+"px Arial";
+       }
+       canvasCtx.fillText(notes_with_octaves[h], x1-10, y); 
     } 
    
     let barHeight;
@@ -706,18 +726,21 @@ navigator.mediaDevices.getUserMedia({audio:true}).then(function(localStream) {
 
       // Spectrum lines    
       canvasCtx.fillStyle = `rgb(${barHeight + 100}, 200, 200)`;
-      canvasCtx.fillRect(drawscale*i, HEIGHT - barHeight , barWidth, barHeight );
+      canvasCtx.fillRect(drawscale*i, HEIGHT - barHeight - BASE, barWidth, barHeight);
 
     }
     
     peakhz = indexToFrequency(mi, sampleRate, frequencyBinCount);
     
+    // Hits
     canvasCtx.fillStyle = "rgb(0, 256, 0)";
     for (let h = 0; h < freqs.length; h++) {
        var hit = 0;
-       if (Math.abs(freqs[h] - peakhz) < 1.5)  { hit = 1; sustain[h] = (new Date()).getTime(); }
+       if (Math.abs(freqs[h] - peakhz) < 1.5 && dataArray[i] > 20)  { 
+      	 hit = 1; sustain[h] = (new Date()).getTime(); 
+       }
        if (hit == 1 || (new Date()).getTime() - sustain[h] < 3000) {
-          canvasCtx.fillRect(drawscale*frequencyToIndex(freqs[h], sampleRate, frequencyBinCount), 0, barWidth*.8, HEIGHT);
+          canvasCtx.fillRect(x[h], 0, barWidth*.8, HEIGHT-BASE);
        }
     } 
   
