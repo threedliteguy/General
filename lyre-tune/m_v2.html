@@ -149,7 +149,7 @@ function changetype() {
 <button onclick='javascript:changemode();'>Update frequencies:</button>
 <label id="freqs"></label>
 <br /><br /><hr />
-<button onclick='javascript:document.getElementById("div_rescale").style.display="block";'>Advanced</button>
+<button onclick='javascript:document.getElementById("div_rescale").style.display="block";'>Advanced</button><br />
 <div id="div_rescale" style="display:none">
 <strong><label for="first_note_granularity">First note options:</label></strong>
 <select name="first_note_granularity" id="first_note_granularity" onchange="javascript:set_first_note_options();">
@@ -220,7 +220,8 @@ function set_first_note_options() {
   }
 }
 </script>
-<br />
+<br /><br />
+<strong>Rescale Tool</strong>
 <label>From note </label><input maxlength="4" size="4" name="from_note" id="from_note" value="A#"></input> 
 <label>To note </label><input maxlength="4" size="4" name="to_note" id="to_note" value="C"></input>
 <br />
