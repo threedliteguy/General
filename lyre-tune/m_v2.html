@@ -691,7 +691,7 @@ navigator.mediaDevices.getUserMedia({audio:true}).then(function(localStream) {
       if (dataArray[i]>mv && i <= indexlimit) {mv = dataArray[i]; mi=i;}
     }    
     peakhz = indexToFrequency(mi, sampleRate, frequencyBinCount);
-    divloudestfreq.innerHTML = `${Math.round(peakhz)}`;
+    divloudestfreq.innerHTML = `${Math.round(peakhz)} Hz`;
     
     // Hits
     for (let h = 0; h < freqs.length; h++) {
