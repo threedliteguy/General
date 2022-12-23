@@ -681,22 +681,39 @@ navigator.mediaDevices.getUserMedia({audio:true}).then(function(localStream) {
 
     canvasCtx.fillStyle = "rgb(0, 0, 0)";
     canvasCtx.fillRect(0, 0, WIDTH*magnify, HEIGHT);
-    
 
-    // over limit area
+    var indexlimit = frequencyToIndex(high_limit_hz, sampleRate, frequencyBinCount);
+    
+    // Find peak 
+    let mi = 0;
+    let mv = 0;
+    for (let i = 0; i < frequencyBinCount; i++) {
+      if (dataArray[i]>mv && i <= indexlimit) {mv = dataArray[i]; mi=i;}
+    }    
+    peakhz = indexToFrequency(mi, sampleRate, frequencyBinCount);
+    divloudestfreq.innerHTML = `${Math.round(peakhz)}`;
+    
+    // Hits
+    for (let h = 0; h < freqs.length; h++) {
+       if (Math.abs(freqs[h] - peakhz) < 1.5 && dataArray[h] > 20)  { 
+      	 sustain[h] = (new Date()).getTime(); 
+       }
+    } 
+  
+    // Over limit area
     canvasCtx.fillStyle = "rgb(128, 128, 128)";
     if (freqs[freqs.length-1] > high_limit_hz) canvasCtx.fillStyle = "rgb(128, 0, 0)";  // warn over string limit
-    var indexlimit = frequencyToIndex(high_limit_hz, sampleRate, frequencyBinCount);
     var start_limit = drawscale*indexlimit+barWidth*.5;
     canvasCtx.fillRect(start_limit, 0, WIDTH*magnify - start_limit, HEIGHT-BASE);
     
-    // strings
-    canvasCtx.fillStyle = "rgb(256, 256, 0)";
+    // Strings
     x = [];
     for (let h = 0; h < freqs.length; h++) {
        x.push( drawscale*frequencyToIndex(freqs[h], sampleRate, frequencyBinCount) );
     }
     for (let h = 0; h < freqs.length; h++) {
+       canvasCtx.fillStyle = "rgb(256, 256, 0)";
+       if ((new Date()).getTime() - sustain[h] < 3000) canvasCtx.fillStyle = "rgb(0, 256, 0)";
        x0 = h == 0 ? 0 : x[h-1];
        x1 = x[h];
        x2 = h == freqs.length-1 ? WIDTH : x[h+1];
@@ -714,38 +731,16 @@ navigator.mediaDevices.getUserMedia({audio:true}).then(function(localStream) {
        }
        canvasCtx.fillText(notes_with_octaves[h], x1-10, y); 
     } 
-   
-    let barHeight;
-    let mi = 0;
-    let mv = 0;
 
+    // Spectrum lines       
     for (let i = 0; i < frequencyBinCount; i++) {
       
-      // Find peak 
       barHeight = dataArray[i];
-      if (barHeight>mv && i<= indexlimit) {mv = barHeight; mi=i;}
-
-      // Spectrum lines    
       canvasCtx.fillStyle = `rgb(${barHeight + 100}, 200, 200)`;
       canvasCtx.fillRect(drawscale*i, HEIGHT - barHeight - BASE, barWidth, barHeight);
 
     }
-    
-    peakhz = indexToFrequency(mi, sampleRate, frequencyBinCount);
-    
-    // Hits
-    canvasCtx.fillStyle = "rgb(0, 256, 0)";
-    for (let h = 0; h < freqs.length; h++) {
-       var hit = 0;
-       if (Math.abs(freqs[h] - peakhz) < 1.5 && dataArray[h] > 20)  { 
-      	 hit = 1; sustain[h] = (new Date()).getTime(); 
-       }
-       if (hit == 1 || (new Date()).getTime() - sustain[h] < 3000) {
-          canvasCtx.fillRect(x[h], 0, barWidth*.8, HEIGHT-BASE);
-       }
-    } 
-  
-    divloudestfreq.innerHTML = `${Math.round(peakhz)}`;
+
     
   }
 
