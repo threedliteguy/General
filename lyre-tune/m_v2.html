@@ -142,6 +142,8 @@ function changetype() {
 <select name="intonation" id="intonation" >
 <option selected="selected" value="equal">Equal</option>
 <option value="just">Just</option>
+<option value="mean">Meantone</option>
+<option value="well">Well</option>
 </select>
 <br /><br />
 <hr />
@@ -270,10 +272,24 @@ var num_add_octaves_to_mode_lines = 0;
 
 var TET_12 = 2 ** (1/12);
 var TET_24 = 2 ** (1/24);
+var RT_2_2 = 2 ** (1/2);
+var RT_4_2 = 2 ** (1/4);
+var RT_4_8 = 8 ** (1/4);
+
 
 //                           C (C*) Db Db* D   D*  Eb  Eb* E   E*  F   F*  F#  F#* G   (G*) Ab  Ab* A   A*  Bb  Bb*  B    B* 
 var SHRUTI_22_CENTS_PLUS2 = [0, 22, 90,112,182,204,294,316,386,408,498,520,590,612,702,722, 792,814,884,906,996,1018,1088,1110];
 var SHRUTI_24_A_INDEX = 19;
+
+// https://en.wikipedia.org/wiki/Quarter-comma_meantone (Chromatic)
+//                                   C  C#     D      Eb      E     F       F#     G      G#      A     Bb     B
+var QUARTER_COMMA_MEANTONE_RATIOS = [1.0,1.0449,1.1180,1.1963,1.2500,1.3375,1.3975,1.4953,1.5625,1.6719,1.7889,1.8692];
+
+// Well temperment (Werckmeister)  https://en.wikipedia.org/wiki/Werckmeister_temperament 
+//                 C  C#     D      Eb      E     F       F#     G      G#      A     Bb     B
+var WELL_RATIOS = [1.0,256/243,64/81*RT_2_2,32/27,256/243*RT_4_2,4/3,1024/729,8/9*RT_4_8,128/81,1024/729*RT_4_2,16/9,128/81*RT_4_2];
+
+
 
 var standard_a4 = 440;
 var standard_c4 = 261.63;
@@ -482,9 +498,28 @@ function changemode() {
  }  
  console.log('justratios = '+justratios);
  
+ // Since we dont have quartertones for mean and well temperments yet, they will not support enharmonic genre.
+ mean = [];
+ for (let n = 0; n < 12; n++) {
+   r = QUARTER_COMMA_MEANTONE_RATIOS[n];
+   mean.push(r); 
+   mean.push(r); 
+ }  
+ console.log('mean = '+mean);
+ well = [];
+ for (let n = 0; n < 12; n++) {
+   r = WELL_RATIOS[n];
+   well.push(r); 
+   well.push(r); 
+ }  
+ console.log('well = '+well);
+ 
  
  var intonation = document.getElementById("intonation").value;
- var ratios = intonation == "equal" ? tet_24_ratios : justratios;
+ var ratios = tet_24_ratios; // equal 
+ if (intonation == "just") ratios = justratios;
+ if (intonation == "mean") ratios = mean;
+ if (intonation == "well") ratios = well;
  console.log('selected ratios = '+ratios);
 
  // Compute frequencies 
