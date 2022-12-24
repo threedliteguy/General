@@ -727,14 +727,19 @@ navigator.mediaDevices.getUserMedia({audio:true}).then(function(localStream) {
       if (dataArray[i]>mv && i <= indexlimit) {mv = dataArray[i]; mi=i;}
     }    
     peakhz = indexToFrequency(mi, sampleRate, frequencyBinCount);
-    divloudestfreq.innerHTML = `${Math.round(peakhz)} Hz`;
     
     // Hits
+    var target = 0;
     for (let h = 0; h < freqs.length; h++) {
-       if (Math.abs(freqs[h] - peakhz) < 1.5 && dataArray[h] > 20)  { 
+       df = Math.abs(freqs[h] - peakhz);
+       if (df < 1.5 && dataArray[h] > 20)  { 
       	 sustain[h] = (new Date()).getTime(); 
        }
+       if (df < 3) target = freqs[h];
     } 
+    var msg = Math.round(peakhz)+" Hz ";
+    if (target > 0) msg = msg + "&nbsp;&nbsp;&nbsp;&nbsp; ("+Math.round(target)+" Target Hz)";
+    divloudestfreq.innerHTML = msg;
   
     // Over limit area
     canvasCtx.fillStyle = "rgb(128, 128, 128)";
