@@ -730,15 +730,17 @@ navigator.mediaDevices.getUserMedia({audio:true}).then(function(localStream) {
     
     // Hits
     var target = 0;
+    var db = 0;
     for (let h = 0; h < freqs.length; h++) {
        df = Math.abs(freqs[h] - peakhz);
-       if (df < 1.5 && dataArray[h] > 20)  { 
+       fdb = dataArray[h];
+       if (df < 1.5 && fdb > 18)  { 
       	 sustain[h] = (new Date()).getTime(); 
        }
-       if (df < 3) target = freqs[h];
+       if (df < 3) {target = freqs[h];db=fdb;}
     } 
-    var msg = Math.round(peakhz)+" Hz ";
-    if (target > 0) msg = msg + "&nbsp;&nbsp;&nbsp;&nbsp; ("+Math.round(target)+" Target Hz)";
+    var msg = Math.round(peakhz)+" Hz &nbsp; "+db+" volume ";
+    if (target > 0) msg = msg + " &nbsp;&nbsp;&nbsp;&nbsp; ("+Math.round(target)+" Target Hz)";
     divloudestfreq.innerHTML = msg;
   
     // Over limit area
