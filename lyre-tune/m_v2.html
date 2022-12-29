@@ -142,8 +142,8 @@ function changetype() {
 <select name="intonation" id="intonation" >
 <option selected="selected" value="equal">Equal</option>
 <option value="just">Just</option>
-<option value="mean">Meantone</option>
-<option value="well">Well</option>
+<!--<option value="mean">Meantone</option>
+<option value="well">Well</option>-->
 </select>
 <br /><br />
 <hr />
@@ -151,7 +151,7 @@ function changetype() {
 <button onclick='javascript:changemode();'>Update frequencies:</button>
 <label id="freqs"></label>
 <br /><br /><hr />
-<button onclick='javascript:document.getElementById("div_rescale").style.display="block";'>Advanced</button><br />
+<button onclick='javascript:advanced();'>Advanced</button><br />
 <div id="div_rescale" style="display:none">
 <strong><label for="first_note_granularity">First note options:</label></strong>
 <select name="first_note_granularity" id="first_note_granularity" onchange="javascript:set_first_note_options();">
@@ -160,6 +160,15 @@ function changetype() {
 <option value="quartertone">Quartertone</option>
 </select>
 <script>
+var show_advanced = false;
+function advanced() {
+   show_advanced = !show_advanced;
+   if (show_advanced) {
+     document.getElementById("div_rescale").style.display="block";
+   } else {
+     document.getElementById("div_rescale").style.display="none";
+   }
+}
 function set_first_note_options() {
   var granularity = document.getElementById("first_note_granularity").value;
   var op = document.getElementById("first_note");
@@ -748,7 +757,7 @@ navigator.mediaDevices.getUserMedia({audio:true}).then(function(localStream) {
     canvasCtx.fillStyle = "rgb(128, 128, 128)";
     if (freqs[freqs.length-1] > high_limit_hz) canvasCtx.fillStyle = "rgb(128, 0, 0)";  // warn over string limit
     var start_limit = drawscale*indexlimit+barWidth*.5;
-    canvasCtx.fillRect(start_limit, 0, WIDTH*magnify - start_limit, HEIGHT-BASE);
+    canvasCtx.fillRect(start_limit, BASE, WIDTH*magnify - start_limit, HEIGHT-BASE);
     
     // Strings
     x = [];
@@ -761,12 +770,12 @@ navigator.mediaDevices.getUserMedia({audio:true}).then(function(localStream) {
        x0 = h == 0 ? 0 : x[h-1];
        x1 = x[h];
        x2 = h == freqs.length-1 ? WIDTH : x[h+1];
-       canvasCtx.fillRect(x1, 0, barWidth*.5, HEIGHT-BASE);
+       canvasCtx.fillRect(x1, BASE, barWidth*.5, HEIGHT-BASE*2);
        dx = Math.round(Math.min(x1-x0,x2-x1));
        y = HEIGHT-BASE/2;
        canvasCtx.font = "20px Arial";
-       if (dx < 40) {
-          y = HEIGHT-BASE/4 - (h%2)*(5+BASE/4);
+       if (dx < 40 && h%2 == 0) {
+          y = BASE/1.5;
        }
        if (dx < 40) {
           pt = Math.round((dx+7)*0.8);
