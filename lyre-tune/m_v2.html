@@ -739,9 +739,6 @@ navigator.mediaDevices.getUserMedia({audio:true}).then(function(localStream) {
 
     analyser.getByteFrequencyData(dataArray);
 
-    canvasCtx.fillStyle = "rgb(0, 0, 0)";
-    canvasCtx.fillRect(0, 0, WIDTH*magnify, HEIGHT);
-
     var indexlimit = frequencyToIndex(high_limit_hz, sampleRate, frequencyBinCount);
     
     // Find peak 
@@ -758,6 +755,11 @@ navigator.mediaDevices.getUserMedia({audio:true}).then(function(localStream) {
        x.push( drawscale*frequencyToIndex(freqs[h], sampleRate, frequencyBinCount) );
     }
     xofs = -(x[0] - 100);
+    xlim = x[x.length-1] + 100 + xofs;
+
+    canvasCtx.fillStyle = "rgb(0, 0, 0)";
+    canvasCtx.fillRect(0, 0, Math.min(WIDTH*magnify,xlim), HEIGHT);
+
     
     // Hits
     var target = 0;
@@ -779,7 +781,7 @@ navigator.mediaDevices.getUserMedia({audio:true}).then(function(localStream) {
     canvasCtx.fillStyle = "rgb(128, 128, 128)";
     if (freqs[freqs.length-1] > high_limit_hz) canvasCtx.fillStyle = "rgb(128, 0, 0)";  // warn over string limit
     var start_limit = drawscale*indexlimit+barWidth*.5;
-    canvasCtx.fillRect(xofs + start_limit, BASE, WIDTH*magnify - start_limit, HEIGHT-BASE);
+    canvasCtx.fillRect(xofs + start_limit, 0, Math.min(WIDTH*magnify, xlim) - start_limit - xofs, HEIGHT);
     
     // Strings
     for (let h = 0; h < freqs.length; h++) {
@@ -806,9 +808,13 @@ navigator.mediaDevices.getUserMedia({audio:true}).then(function(localStream) {
     // Spectrum lines       
     for (let i = 0; i < frequencyBinCount; i++) {
       
-      barHeight = dataArray[i];
-      canvasCtx.fillStyle = `rgb(${barHeight + 100}, 200, 200)`;
-      canvasCtx.fillRect(xofs + drawscale*i, HEIGHT - barHeight - BASE, barWidth, barHeight);
+      sx = xofs + drawscale*i;
+      if (sx <= xlim) {
+         barHeight = dataArray[i];
+        canvasCtx.fillStyle = `rgb(${barHeight + 100}, 200, 200)`;
+        canvasCtx.fillRect(sx, HEIGHT - barHeight - BASE, barWidth, barHeight);
+      }
+
 
     }
 
