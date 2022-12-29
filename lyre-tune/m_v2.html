@@ -778,10 +778,11 @@ navigator.mediaDevices.getUserMedia({audio:true}).then(function(localStream) {
     divloudestfreq.innerHTML = msg;
   
     // Over limit area
-    canvasCtx.fillStyle = "rgb(128, 128, 128)";
-    if (freqs[freqs.length-1] > high_limit_hz) canvasCtx.fillStyle = "rgb(128, 0, 0)";  // warn over string limit
-    var start_limit = drawscale*indexlimit+barWidth*.5;
-    canvasCtx.fillRect(xofs + start_limit, 0, Math.min(WIDTH*magnify, xlim) - start_limit - xofs, HEIGHT);
+    if (freqs[freqs.length-1] > high_limit_hz) {
+       canvasCtx.fillStyle = "rgb(128, 0, 0)";  // warn over string limit
+       var start_limit = drawscale*indexlimit+barWidth*.5;
+       canvasCtx.fillRect(xofs + start_limit, 0, Math.min(WIDTH*magnify, xlim) - start_limit - xofs, HEIGHT);
+    }
     
     // Strings
     for (let h = 0; h < freqs.length; h++) {
