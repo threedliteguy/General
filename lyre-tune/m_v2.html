@@ -159,7 +159,21 @@ function changetype() {
 <option value="semitone">Semitone</option>
 <option value="quartertone">Quartertone</option>
 </select>
+<strong><label for="tolerance">Tolerance:</label></strong>
+<select name="tolerance" id="tolerance" onchange="javascript:set_tolerance();">
+<option value="0">0 Hz</option>
+<option value="0.5">0.5 Hz</option>
+<option value="1.0">1 Hz</option>
+<option selected="selected" value="1.5">1.5 Hz</option>
+<option value="2.0">2 Hz</option>
+<option value="3.0">3 Hz</option>
+<option value="4.0">4 Hz</option>
+<option value="5.0">5 Hz</option>
+</select>
 <script>
+function set_tolerance() {
+  tolerance = Number(document.getElementById("tolerance"));
+}
 var show_advanced = false;
 function advanced() {
    show_advanced = !show_advanced;
@@ -718,6 +732,7 @@ navigator.mediaDevices.getUserMedia({audio:true}).then(function(localStream) {
   const barWidth = drawscale ;
   console.log('barWidth = '+barWidth);
   const BASE = 60;
+  var tolerance = 1.5;
   
   function draw() {
     drawVisual = requestAnimationFrame(draw);
@@ -742,7 +757,7 @@ navigator.mediaDevices.getUserMedia({audio:true}).then(function(localStream) {
     for (let h = 0; h < freqs.length; h++) {
        x.push( drawscale*frequencyToIndex(freqs[h], sampleRate, frequencyBinCount) );
     }
-    xofs = -(x[0] - 30);
+    xofs = -(x[0] - 100);
     
     // Hits
     var target = 0;
@@ -750,7 +765,7 @@ navigator.mediaDevices.getUserMedia({audio:true}).then(function(localStream) {
     for (let h = 0; h < freqs.length; h++) {
        df = Math.abs(freqs[h] - peakhz);
        fdb = dataArray[h];
-       if (df < 1.5 && fdb > 10)  { 
+       if (df < tolerance && fdb > 10)  { 
       	 sustain[h] = (new Date()).getTime(); 
        }
        if (df < 3) {target = freqs[h];db=fdb;}
