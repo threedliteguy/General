@@ -781,7 +781,7 @@ navigator.mediaDevices.getUserMedia({audio:true}).then(function(localStream) {
     if (freqs[freqs.length-1] > high_limit_hz) {
        canvasCtx.fillStyle = "rgb(128, 0, 0)";  // warn over string limit
        var start_limit = drawscale*indexlimit+barWidth*.5;
-       canvasCtx.fillRect(xofs + start_limit, 0, Math.min(WIDTH*magnify, xlim) - start_limit - xofs, HEIGHT);
+       canvasCtx.fillRect(xofs + start_limit, 0, Math.min(WIDTH*magnify, xlim) - start_limit - xofs, HEIGHT-BASE);
     }
     
     // Strings
@@ -791,12 +791,12 @@ navigator.mediaDevices.getUserMedia({audio:true}).then(function(localStream) {
        x0 = h == 0 ? 0 : x[h-1];
        x1 = x[h];
        x2 = h == freqs.length-1 ? WIDTH : x[h+1];
-       canvasCtx.fillRect(xofs + x1, BASE, barWidth*.5, HEIGHT-BASE*2);
+       canvasCtx.fillRect(xofs + x1, 0, barWidth*.5, HEIGHT-BASE);
        dx = Math.round(Math.min(x1-x0,x2-x1));
-       y = HEIGHT-BASE/2;
        canvasCtx.font = "20px Arial";
-       if (dx < 40 && h%2 == 0) {
-          y = BASE/1.5;
+       y = HEIGHT-BASE*0.33;
+       if (h%2 == 0) {
+          y = HEIGHT-BASE*0.66;
        }
        if (dx < 40) {
           pt = Math.round((dx+7)*0.8);
