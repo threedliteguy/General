@@ -1,6 +1,6 @@
 <!-- 
 
-(c) 2022 Dan Meany   
+(c) 2022 Dan Meany, Nikolaos Koumartzis
 License: MIT (free open source)  
 
 Note: This file should be run as a locally saved file, or else served from an https url.  
@@ -35,40 +35,6 @@ function set_first_from_strings() {
 }
 </script>
 <br />
-<label for="highlimit">&nbsp;&nbsp;&nbsp;What is the upper limit for your highest string?</label><!-- Values fixed based on standard A4 -->
-<select name="highlimit" id="highlimit" >
-  <option value="-14">A2</option>
-  <option value="-13">B2</option>
-  <option value="-12">C3</option>
-  <option value="-11">D3</option>
-  <option value="-10">E3</option>
-  <option value="-9">F3</option>
-  <option value="-8">G3</option>
-  <option value="-7">A3</option>
-  <option value="-6">B3</option>
-  <option value="-5">C4</option>
-  <option value="-4">D4</option>
-  <option value="-3">E4</option>
-  <option value="-2">F4</option>
-  <option value="-1">G4</option>
-  <option selected="selected" value="0">A4</option>
-  <option value="1">B4</option>
-  <option value="2">C5</option>
-  <option value="3">D5</option>
-  <option value="4">E5</option>
-  <option value="5">F5</option>
-  <option value="6">G5</option>
-  <option value="7">A5</option>
-  <option value="8">B5</option>
-  <option value="9">C6</option>
-  <option value="10">D6</option>
-  <option value="11">E6</option>
-  <option value="12">F6</option>
-  <option value="13">G6</option>
-  <option value="14">A6</option>
-  <option value="15">B6</option>
-</select>
-<br /><br />
 <strong><label for="first_note">What is your 1st string note?</label></strong>
 <select name="first_note" id="first_note" >
 <option value="C">C</option>
@@ -80,17 +46,7 @@ function set_first_from_strings() {
 <option value="B">B</option>
 </select>
 <br />
-<label for="octave">&nbsp;&nbsp;&nbsp;Need to change an octave?</label>
-<select name="octave" id="octave" >
-  <option value="3">+3 octaves</option>
-  <option value="2">+2 octaves</option>
-  <option value="1">+1 octaves</option>
-  <option selected="selected" value="0">No</option>
-  <option value="-1">-1 octaves</option>
-  <option value="-2">-2 octaves</option>
-  <option value="-3">-3 octaves</option>
-</select>
-<br /><br />
+<br />
 <hr />
 <br />
 <strong><label for="type">Tune using</label></strong>
@@ -99,7 +55,7 @@ function set_first_from_strings() {
   <option selected="selected" value="modes">Ancient Greek Modes</option>
   <option value="pentatonic">Pentatonic</option>
 </select>
-<br /><br />
+<br />
 
 
 <script>
@@ -118,48 +74,54 @@ function changetype() {
 }
 </script>
 <div id="div_species" style="display:block">
-<strong><label for="species">Mode</label></strong>
+<strong><label for="species">What Mode?</label></strong>
 <select name="species" id="species" >
-  <option value="mixolydios">Ancient Greek Mixolydios (modern Locrian)</option><!-- Mesopotamian qablītu -->
-  <option value="hypodorios">Ancient Greek Hypodorios/Locrian (modern Aeolian)</option><!--  Mesopotamian kitmu -->
-  <option value="lydios">Ancient Greek Lydios (modern Ionian)</option><!--  Mesopotamian nīd qabli -->
-  <option value="phrygios">Ancient Greek Phrygios (modern Dorian)</option><!--  Mesopotamian embūbu -->
-  <option value="dorios">Ancient Greek Dorios (modern Phyrgian)</option><!--  Mesopotamian išartu -->
-  <option value="hypolydios">Ancient Greek Hypolydios (modern Lydian)</option><!--  Mesopotamian nīš gabarî -->
-  <option selected="selected" value="hypophrygios">Ancient Greek Hypophrygios (modern Mixolydian)</option><!-- Mesopotamian pūtu  -->
+  <option value="mixolydios">Mixolydios (modern Locrian)</option><!-- Mesopotamian qablitu -->
+  <option value="hypodorios">Hypodorios/Locrian (modern Aeolian)</option><!--  Mesopotamian kitmu -->
+  <option value="lydios">Lydios (modern Ionian)</option><!--  Mesopotamian nid qabli -->
+  <option value="phrygios">Phrygios (modern Dorian)</option><!--  Mesopotamian embubu -->
+  <option value="dorios">Dorios (modern Phyrgian)</option><!--  Mesopotamian isartu -->
+  <option value="hypolydios">Hypolydios (modern Lydian)</option><!--  Mesopotamian nis gabari -->
+  <option selected="selected" value="hypophrygios">Hypophrygios (modern Mixolydian)</option><!-- Mesopotamian putu  -->
 </select>
 </div>
 <div id="div_genus" style="display:none">
-<strong><label for="genus">Genus</label></strong>
+<strong><label for="genus">What Genus?</label></strong>
 <select name="genus" id="genus" >
 <option selected="selected" value="diatonic">Diatonic genre</option>
 <option value="chromatic">Chromatic genre</option>
 <option value="enharmonic">Enharmonic genre</option>
 </select>
 </div>
-<br />
-<strong><label for="intonation">Just or Equal Intonation?</label></strong>
+<strong><label for="intonation">What Temperament?</label></strong>
 <select name="intonation" id="intonation" >
-<option selected="selected" value="equal">Equal</option>
-<option value="just">Just</option>
-<!--<option value="mean">Meantone</option>
-<option value="well">Well</option>-->
+<option selected="selected" value="equal">Equal Temperament</option>
+<option value="just">Just Intonation</option>
+<option value="mean">Meantone Temperament</option>
+<option value="well">Well Temperament</option>
 </select>
-<br /><br />
-<hr />
 <br />
-<button onclick='javascript:changemode();'>Update frequencies:</button>
+<br />
+<button onclick='javascript:changemode();'>Click here to Update</button>
 <label id="freqs"></label>
-<br /><br /><hr />
-<button onclick='javascript:advanced();'>Advanced</button><br />
+<br /><br />
+
+<hr />
+<br/ >
+<button onclick='javascript:advanced();'>Advanced options</button>
+<br />
+<br />
 <div id="div_rescale" style="display:none">
-<strong><label for="first_note_granularity">First note options:</label></strong>
+
+<label for="first_note_granularity">Options for the first note:</label>
 <select name="first_note_granularity" id="first_note_granularity" onchange="javascript:set_first_note_options();">
-<option selected="selected" value="tone">Tone</option>
-<option value="semitone">Semitone</option>
-<option value="quartertone">Quartertone</option>
+<option selected="selected" value="tone">Only Tones</option>
+<option value="semitone">Tones & Semitones</option>
+<option value="quartertone">Tones, Semitones, and Quartertones</option>
 </select>
-<strong><label for="tolerance">Tolerance:</label></strong>
+<br/>
+
+<label for="tolerance">Tolerance:</label>
 <select name="tolerance" id="tolerance" onchange="javascript:set_tolerance();">
 <option value="0">0 Hz</option>
 <option value="0.5">0.5 Hz</option>
@@ -207,7 +169,7 @@ function set_first_note_options() {
 <option value="F">F</option>
 <option value="F#">F#</option>
 <option value="Gb">Gb</option>
-<option value="G">G</option>
+<option selected="selected" value="G">G</option>
 <option value="G#">G#</option>
 <option value="Ab">Ab</option>
 <option value="A">A</option>
@@ -231,7 +193,7 @@ function set_first_note_options() {
 <option value="F*">F*</option>
 <option value="F#">F#</option>
 <option value="F#*">F#*</option>
-<option value="G">G</option>
+<option selected="selected" value="G">G</option>
 <option value="G*">G*</option>
 <option value="G#">G#</option>
 <option value="G#*">G#*</option>
@@ -245,7 +207,55 @@ function set_first_note_options() {
   }
 }
 </script>
+
+<br />
+<label for="highlimit">What is the upper limit for your highest string?</label><!-- Values fixed based on standard A4 -->
+<select name="highlimit" id="highlimit" >
+  <option value="-14">A2</option>
+  <option value="-13">B2</option>
+  <option value="-12">C3</option>
+  <option value="-11">D3</option>
+  <option value="-10">E3</option>
+  <option value="-9">F3</option>
+  <option value="-8">G3</option>
+  <option value="-7">A3</option>
+  <option value="-6">B3</option>
+  <option value="-5">C4</option>
+  <option value="-4">D4</option>
+  <option value="-3">E4</option>
+  <option value="-2">F4</option>
+  <option value="-1">G4</option>
+  <option selected="selected" value="0">A4</option>
+  <option value="1">B4</option>
+  <option value="2">C5</option>
+  <option value="3">D5</option>
+  <option value="4">E5</option>
+  <option value="5">F5</option>
+  <option value="6">G5</option>
+  <option value="7">A5</option>
+  <option value="8">B5</option>
+  <option value="9">C6</option>
+  <option value="10">D6</option>
+  <option value="11">E6</option>
+  <option value="12">F6</option>
+  <option value="13">G6</option>
+  <option value="14">A6</option>
+  <option value="15">B6</option>
+</select>
+<br />
+<label for="octave">Need to change an octave?</label>
+<select name="octave" id="octave" >
+  <option value="3">+3 octaves</option>
+  <option value="2">+2 octaves</option>
+  <option value="1">+1 octaves</option>
+  <option selected="selected" value="0">No</option>
+  <option value="-1">-1 octaves</option>
+  <option value="-2">-2 octaves</option>
+  <option value="-3">-3 octaves</option>
+</select>
 <br /><br />
+
+<!--
 <strong>Rescale Tool</strong>
 <label>From note </label><input maxlength="4" size="4" name="from_note" id="from_note" value="A#"></input> 
 <label>To note </label><input maxlength="4" size="4" name="to_note" id="to_note" value="C"></input>
@@ -254,6 +264,8 @@ function set_first_note_options() {
 <button onclick='javascript:rescale();'>Rescale</button><button onclick='javascript:fit();'>Fit</button><br />
 Rescaled notes: <label id="rescaled_notes"></label>
 <br /><br />
+-->
+
 </div>
 <script>
 const WIDTH=8000;
@@ -594,12 +606,12 @@ var source_tables = [
 "B C C# E F F# A Bb B D D# E G G# A C C# D F F# G Bb B C"
 ]],
 ["enharmonic", [
-"C C* C# F F* F# A# A#* B D# D#* Ε G# G#* A C# C#* D F# F#* G B B* C",
-"D D* D#* G G* G#* C C* C# F F* F# A# A#* B D# D#* Ε G# G#* A C# C#* D",
-"E E* F A A* A# D D* D#* G G* G#* C C* C# F F* F# A# A#* B D# D#* Ε",
+"C C* C# F F* F# A# A#* B D# D#* E G# G#* A C# C#* D F# F#* G B B* C",
+"D D* D#* G G* G#* C C* C# F F* F# A# A#* B D# D#* E G# G#* A C# C#* D",
+"E E* F A A* A# D D* D#* G G* G#* C C* C# F F* F# A# A#* B D# D#* E",
 "F F* F# A# A#* B D# D#* E G# G#* A C# C#* D F# F#* G B B* C E E* F",
-"G G* G#* C C* C# F F* F# A# A#* B D# D#* Ε G# G#* A C# C#* D F# F#* G",
-"A A* A# D D* D#* G G* G#* C C* C# F F* F# A# A#* B D# D#* Ε G# G#* A",
+"G G* G#* C C* C# F F* F# A# A#* B D# D#* E G# G#* A C# C#* D F# F#* G",
+"A A* A# D D* D#* G G* G#* C C* C# F F* F# A# A#* B D# D#* E G# G#* A",
 "B B* C E E* F A A* A# D D* D#* G G* G#* C C* C# F F* F# A# A#* B"
 ]],
 ["mixolydios", [
