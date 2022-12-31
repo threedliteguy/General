@@ -270,6 +270,16 @@ function set_zoom() {
   zoom = Number(document.getElementById("zoom").value);
 }
 </script>
+<br /><label for="full">Show full spectrum</label>
+<select name="full" id="full" onchange="javascript:set_full();">
+  <option selected="selected" value="0">No</option>
+  <option value="1">Yes</option>
+</select>
+<script>
+function set_full() {
+  show_full = Number(document.getElementById("full").value);
+}
+</script>
 <br /><br />
 
 <!--
@@ -354,7 +364,7 @@ const octave = 2.0;
 var notes_with_octaves = [];
 var zoom = 1;
 var tolerance = 1.5;
-
+var show_full = 0;
 
 
 // f.length must span exactly a complete octave and be able to be shifted up an octave for this to work (e.g. no Pythagorean comma)
@@ -786,8 +796,13 @@ navigator.mediaDevices.getUserMedia({audio:true}).then(function(localStream) {
     for (let h = 0; h < freqs.length; h++) {
        x.push( drawscale*frequencyToIndex(freqs[h], sampleRate, frequencyBinCount) );
     }
-    xofs = -(x[0] - 100);
-    xlim = x[x.length-1] + 100 + xofs;
+    
+    xofs = 0;
+    xlim = WIDTH;
+    if (show_full == 0) {
+      xofs = -(x[0] - 100);
+      xlim = x[x.length-1] + 100 + xofs;
+    } 
 
     canvasCtx.clearRect(0, 0, WIDTH, HEIGHT);
     canvasCtx.fillStyle = "rgb(0, 0, 0)";
