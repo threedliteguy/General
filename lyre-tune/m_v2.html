@@ -135,7 +135,7 @@ function changetype() {
 <div class="tooltip">[?]<span class="tooltiptext">&nbsp;&nbsp;Tolerance sets the range of frequencies that will cause the note to turn green.&nbsp;&nbsp;</span></div> 
 <script>
 function set_tolerance() {
-  tolerance = Number(document.getElementById("tolerance"));
+  tolerance = Number(document.getElementById("tolerance").value);
 }
 var show_advanced = false;
 function advanced() {
@@ -254,6 +254,22 @@ function set_first_note_options() {
   <option value="-2">-2 octaves</option>
   <option value="-3">-3 octaves</option>
 </select>
+<br />
+<label for="zoom">Zoom level</label>
+<select name="zoom" id="zoom" onchange="javascript:set_zoom();">
+  <option value="4">+3</option>
+  <option value="2">+2</option>
+  <option value="1.5">+1</option>
+  <option selected="selected" value="1">No</option>
+  <option value="0.75">-1</option>
+  <option value="0.5">-2</option>
+  <option value="0.25">-3</option>
+</select>
+<script>
+function set_zoom() {
+  zoom = Number(document.getElementById("zoom").value);
+}
+</script>
 <br /><br />
 
 <!--
@@ -336,6 +352,9 @@ const unison = 1.0;
 const octave = 2.0;
 
 var notes_with_octaves = [];
+var zoom = 1;
+var tolerance = 1.5;
+
 
 
 // f.length must span exactly a complete octave and be able to be shifted up an octave for this to work (e.g. no Pythagorean comma)
@@ -500,7 +519,6 @@ function changemode() {
 
 
 
- // TODO see below ---------
  // Ratios for equal tempered
  var semis = [2,1,2,2,1,2,2]; // starting at A 
  var equiratios = [1.0];
@@ -518,7 +536,6 @@ function changemode() {
  console.log('high_limit_note = '+high_limit_note);
  high_limit_hz = standard_a4 * equiratios[high_limit_note] * (octave ** high_limit_octave);
  console.log('high_limit_hz = '+high_limit_hz);
- // TODO fix above code for high limit to same ratio array  ---------
 
 
 
@@ -535,6 +552,7 @@ function changemode() {
  console.log('justratios = '+justratios);
  
  // Since we dont have quartertones for mean and well temperments yet, they will not support enharmonic genre.
+ // One option may be to use a program like Scala program to generate quartertones for these temperments, and then specify in cents instead of ratios.
  mean = [];
  for (let n = 0; n < 12; n++) {
    r = QUARTER_COMMA_MEANTONE_RATIOS[n];
@@ -694,7 +712,6 @@ var source_tables = [
 var sustain = Array.from({length: 100}, (v, i) => 0);
 
 
-
 // Audio:
 // https://developer.mozilla.org/en-US/docs/Web/API/AnalyserNode/getByteFrequencyData
 // https://stackoverflow.com/questions/28329389/is-there-a-way-to-detect-audio-frequency-in-html-5-web-audio-api
@@ -741,11 +758,7 @@ navigator.mediaDevices.getUserMedia({audio:true}).then(function(localStream) {
   
   var dataArray = new Uint8Array(frequencyBinCount*2);
 
-  const drawscale = WIDTH/frequencyBinCount * magnify;
-  const barWidth = drawscale ;
-  console.log('barWidth = '+barWidth);
   const BASE = 60;
-  var tolerance = 1.5;
   
   function draw() {
     drawVisual = requestAnimationFrame(draw);
@@ -753,7 +766,8 @@ navigator.mediaDevices.getUserMedia({audio:true}).then(function(localStream) {
     analyser.getByteFrequencyData(dataArray);
 
     var indexlimit = frequencyToIndex(high_limit_hz, sampleRate, frequencyBinCount);
-    
+
+
     // Find peak 
     let mi = 0;
     let mv = 0;
@@ -761,6 +775,11 @@ navigator.mediaDevices.getUserMedia({audio:true}).then(function(localStream) {
       if (dataArray[i]>mv && i <= indexlimit) {mv = dataArray[i]; mi=i;}
     }    
     peakhz = indexToFrequency(mi, sampleRate, frequencyBinCount);
+
+
+    var adj_magnify = magnify * zoom;
+    var drawscale = WIDTH/frequencyBinCount * adj_magnify;
+    var barWidth = drawscale ;
     
     // String locations
     x = [];
@@ -770,6 +789,7 @@ navigator.mediaDevices.getUserMedia({audio:true}).then(function(localStream) {
     xofs = -(x[0] - 100);
     xlim = x[x.length-1] + 100 + xofs;
 
+    canvasCtx.clearRect(0, 0, WIDTH, HEIGHT);
     canvasCtx.fillStyle = "rgb(0, 0, 0)";
     canvasCtx.fillRect(0, 0, Math.min(WIDTH*magnify,xlim), HEIGHT);
 
@@ -794,7 +814,7 @@ navigator.mediaDevices.getUserMedia({audio:true}).then(function(localStream) {
     if (freqs[freqs.length-1] > high_limit_hz) {
        canvasCtx.fillStyle = "rgb(128, 0, 0)";  // warn over string limit
        var start_limit = drawscale*indexlimit+barWidth*.5;
-       canvasCtx.fillRect(xofs + start_limit, 0, Math.min(WIDTH*magnify, xlim) - start_limit - xofs, HEIGHT-BASE);
+       canvasCtx.fillRect(xofs + start_limit, 0, Math.min(WIDTH*adj_magnify, xlim) - start_limit - xofs, HEIGHT-BASE);
     }
     
     // Strings
@@ -825,8 +845,8 @@ navigator.mediaDevices.getUserMedia({audio:true}).then(function(localStream) {
       sx = xofs + drawscale*i;
       if (sx <= xlim) {
          barHeight = dataArray[i];
-        canvasCtx.fillStyle = `rgb(${barHeight + 100}, 200, 200)`;
-        canvasCtx.fillRect(sx, HEIGHT - barHeight - BASE, barWidth, barHeight);
+         canvasCtx.fillStyle = `rgb(${barHeight + 100}, 200, 200)`;
+         canvasCtx.fillRect(sx, HEIGHT - barHeight - BASE, barWidth, barHeight);
       }
 
 
