@@ -806,8 +806,8 @@ navigator.mediaDevices.getUserMedia({audio:true}).then(function(localStream) {
     }    
     peakhz = indexToFrequency(mi, sampleRate, frequencyBinCount);
 
-
-    var adj_magnify = magnify * zoom;
+    var base_zoom = freqs.length/7 * 200/(freqs[freqs.length-1]-freqs[0]);
+    var adj_magnify = magnify * zoom * base_zoom;
     var drawscale = WIDTH/frequencyBinCount * adj_magnify;
     var barWidth = drawscale ;
     
