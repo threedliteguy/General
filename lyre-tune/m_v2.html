@@ -60,6 +60,7 @@ function set_first_from_strings() {
 
 <script>
 function changetype() {
+  document.getElementById("intonation").value = "equal";
   var type = document.getElementById("type").value;
   if (type == "genres") {
     document.getElementById("div_species").style.display="none";
@@ -87,11 +88,30 @@ function changetype() {
 </div>
 <div id="div_genus" style="display:none">
 <strong><label for="genus">What Genus?</label></strong>
-<select name="genus" id="genus" >
+<select name="genus" id="genus" onchange="javascript:change_genus();">
 <option selected="selected" value="diatonic">Diatonic genre</option>
 <option value="chromatic">Chromatic genre</option>
 <option value="enharmonic">Enharmonic genre</option>
 </select>
+<script>
+function change_genus() {
+  genus = document.getElementById("genus").value;
+  intonation_ele = document.getElementById("intonation");
+  if (genus == "enharmonic") {
+    intonation_ele.innerHTML = `
+<option selected="selected" value="equal">Equal Temperament</option>
+<option value="just">Just Intonation</option>
+`;
+  } else {
+    intonation_ele.innerHTML = `
+<option value="equal">Equal Temperament</option>
+<option value="just">Just Intonation</option>
+<option value="mean">Meantone Temperament</option>
+<option value="well">Well Temperament</option>
+`;
+  }
+}
+</script>
 </div>
 <strong><label for="intonation">What Temperament?</label></strong>
 <select name="intonation" id="intonation" >
