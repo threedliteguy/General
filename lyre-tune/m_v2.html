@@ -347,6 +347,10 @@ var divloudestfreq = document.getElementById("loudestfreq");
 var divfreqs = document.getElementById("freqs");
 var canvas = document.getElementById("myc");
 var canvasCtx = canvas.getContext("2d");
+canvasCtx.clearRect(0, 0, WIDTH, HEIGHT);
+canvasCtx.font = "16px Arial";
+canvasCtx.fillText("Microphone access needed.", 100, 100); 
+
 var freqs = [];
 
 var magnify = 5;
