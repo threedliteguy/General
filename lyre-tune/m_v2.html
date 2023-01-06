@@ -12,6 +12,7 @@ Serving from an http url (insecure context) will not work due to browser securit
 <link rel="stylesheet" href="m.css">
 </head>
 <body>
+<div name="headline" id="headline" />
 <canvas id="myc" width="9000" height="600"></canvas>
 <br />
 <div id="loudestfreq"></div>
@@ -231,7 +232,7 @@ function set_first_note_options() {
 
 <br />
 <label for="highlimit">What is the upper limit for your highest string?</label><!-- Values fixed based on standard A4 -->
-<select name="highlimit" id="highlimit" >
+<select name="highlimit" id="highlimit" onchange="javascript:changemode();">
   <option value="-14">A2</option>
   <option value="-13">B2</option>
   <option value="-12">C3</option>
@@ -265,7 +266,7 @@ function set_first_note_options() {
 </select>
 <br />
 <label for="octave">Need to change an octave?</label>
-<select name="octave" id="octave" >
+<select name="octave" id="octave"  onchange="javascript:changemode();">
   <option value="3">+3 octaves</option>
   <option value="2">+2 octaves</option>
   <option value="1">+1 octaves</option>
