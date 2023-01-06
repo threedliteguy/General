@@ -32,12 +32,12 @@ function set_first_from_strings() {
    fn = Number(document.getElementById("strings").value);
    document.getElementById("first_note").value = "GFEDCBA".charAt(fn % 7);
    document.getElementById("species").value = stringToModesObj[fn];
-
+   changemode();
 }
 </script>
 <br />
 <strong><label for="first_note">What is your 1st string note?</label></strong>
-<select name="first_note" id="first_note" >
+<select name="first_note" id="first_note"  onchange="javascript:changemode();">
 <option value="C">C</option>
 <option value="D">D</option>
 <option value="E">E</option>
@@ -73,11 +73,12 @@ function changetype() {
     document.getElementById("div_species").style.display="none";
     document.getElementById("div_genus").style.display="none";
   }
+  changemode();
 }
 </script>
 <div id="div_species" style="display:block">
 <strong><label for="species">What Mode?</label></strong>
-<select name="species" id="species" >
+<select name="species" id="species"  onchange="javascript:changemode();">
   <option value="mixolydios">Mixolydios (modern Locrian)</option><!-- Mesopotamian qablitu -->
   <option value="hypodorios">Hypodorios/Locrian (modern Aeolian)</option><!--  Mesopotamian kitmu -->
   <option value="lydios">Lydios (modern Ionian)</option><!--  Mesopotamian nid qabli -->
@@ -111,11 +112,12 @@ function change_genus() {
 <option value="well">Well Temperament</option>
 `;
   }
+  changemode();
 }
 </script>
 </div>
 <strong><label for="intonation">What Temperament?</label></strong>
-<select name="intonation" id="intonation" >
+<select name="intonation" id="intonation"  onchange="javascript:changemode();">
 <option selected="selected" value="equal">Equal Temperament</option>
 <option value="just">Just Intonation</option>
 <option value="mean">Meantone Temperament</option>
@@ -123,7 +125,7 @@ function change_genus() {
 </select>
 <br />
 <br />
-<button onclick='javascript:changemode();'>Click here to Update</button>
+
 <label id="freqs"></label>
 <br /><br />
 
