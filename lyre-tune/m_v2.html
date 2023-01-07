@@ -17,7 +17,8 @@ Serving from an http url (insecure context) will not work due to browser securit
 <span name="headline" id="headline" ></span>
 <center><canvas id="myc" width="9000" height="600"></canvas></center>
 <br />
-<div id="loudestfreq"></div>
+<center><div id="loudestfreq"></div></center>
+<center>
 <br /><strong><label for="octave">How many strings does your lyre have?</label></strong>
 <select name="strings" id="strings" onchange="set_first_from_strings();">
   <option selected="selected" value="7">7</option>
@@ -320,7 +321,8 @@ Rescaled notes: <label id="rescaled_notes"></label>
 
 </div>
 <script>
-const WIDTH=8000;
+const BASE_WIDTH=8000;
+var WIDTH=BASE_WIDTH;
 const HEIGHT=600;
 
 const stringToModesObj = {7: "hypophrygios", 8 : "hypolydios", 9 : "dorios", 
@@ -831,7 +833,8 @@ navigator.mediaDevices.getUserMedia({audio:true}).then(function(localStream) {
     if (show_full == 0) {
       xofs = -(x[0] - 100);
       xlim = x[x.length-1] + 100 + xofs;
-    } 
+    }
+    canvas.width=xlim;
 
     canvasCtx.clearRect(0, 0, WIDTH, HEIGHT);
     canvasCtx.fillStyle = "rgb(0, 0, 0)";
@@ -849,8 +852,8 @@ navigator.mediaDevices.getUserMedia({audio:true}).then(function(localStream) {
        }
        if (df < 3) {target = freqs[h];db=fdb;}
     } 
-    var msg = Math.round(peakhz)+" Hz &nbsp; ";
-    if (target > 0) msg = msg + " &nbsp;&nbsp;&nbsp;&nbsp; ("+Math.round(target)+" Target Hz) ";
+    var msg = Math.round(peakhz)+" Hz <br /> &nbsp;";
+    if (target > 0) msg = msg + " "+Math.round(target)+" Target Hz ";
     //msg = msg + " &nbsp;&nbsp;&nbsp;&nbsp; " + db +" volume ";
     divloudestfreq.innerHTML = msg;
   
@@ -907,5 +910,6 @@ navigator.mediaDevices.getUserMedia({audio:true}).then(function(localStream) {
  
  
 </script>
+</center>
 </body></html>
 
