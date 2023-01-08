@@ -3,8 +3,13 @@ body {
   background-color: lightgrey;
 }
 
+* {
+ font-size: 105%;
+ font-family: Arial;
+}
 
-/* Tooltip container */
+
+/* Tooltip container W3schools */
 .tooltip {
   position: relative;
   display: inline-block;
@@ -30,4 +35,5 @@ body {
 .tooltip:hover .tooltiptext {
   visibility: visible;
 }
+
 
