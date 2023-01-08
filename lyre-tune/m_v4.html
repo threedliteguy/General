@@ -330,10 +330,10 @@ function set_full() {
 
 
 <strong>Rescale Tool</strong>
-<label>From note </label><input maxlength="4" size="4" name="from_note" id="from_note" value="A#"></input> 
-<label>To note </label><input maxlength="4" size="4" name="to_note" id="to_note" value="C"></input>
+<label>From note </label><input maxlength="4" size="4" name="from_note" id="from_note" value="A"></input> 
+<label>To note </label><input maxlength="4" size="4" name="to_note" id="to_note" value="A"></input>
 <br />
-<label>Notes to rescale: </label><input size="80" name="notes_to_rescale" id="notes_to_rescale" value="F4# E4b"></input><br />
+<label>Notes to rescale: </label><input size="80" name="notes_to_rescale" id="notes_to_rescale" value="G3 A3 C4 E4"></input><br />
 <button onclick='javascript:rescale();'>Rescale</button><button onclick='javascript:fit();'>Fit</button><br />
 Rescaled notes: <label id="rescaled_notes"></label>
 <br /><br />
@@ -587,7 +587,9 @@ function rescale() {
       r = "";
    }
    document.getElementById("rescaled_notes").innerHTML = `${r}`;
+
    display_notes = r.split(' ').filter(l => l.length>0);
+   won = 0;   
    
 }
 
@@ -846,6 +848,11 @@ var source_tables = [
 
 
 var sustain = Array.from({length: 100}, (v, i) => 0);
+var hitnote = Array.from({length: 100}, (v, i) => 0);
+var start_time = new Date().getTime();
+var speed = 2000;
+var time_tolerance = 2000;
+var won = 0;
 
 
 // Audio:
@@ -997,6 +1004,17 @@ navigator.mediaDevices.getUserMedia({audio:true}).then(function(localStream) {
 
     }
     
+    current_note = Math.round( (new Date().getTime() - start_time) / speed) % display_notes.length;
+    if (current_note == 0) {
+        var sum = 0;
+        for (i = 0; i < display_notes.length; i++) sum = sum + hitnote[i];
+        if (sum < display_notes.length) {
+           hitnote = Array.from({length: 100}, (v, i) => 0);
+        } else {
+           won = 1;
+        }
+    }
+    
     try {
     
     console.log("display_notes="+display_notes);
@@ -1009,16 +1027,18 @@ navigator.mediaDevices.getUserMedia({audio:true}).then(function(localStream) {
          a = 0;
          if (s > -1) a = stringlocs[s]; 
          b = 30*i+20;
-	 lines.push([a,b]);
-	  
+         c = 0;
+         if (Math.abs((new Date()).getTime() - sustain[s] ) < time_tolerance && i == current_note) hitnote[i] = 1; 
+	 lines.push([a,b,hitnote[s]]);
+
+         if (i == current_note) {
+	 	canvasCtx.fillStyle = "rgb(128, 0, 0)";
+	 	canvasCtx.fillRect(0, b, xlim, 5);
+	 }
     }    
     
+    colors = ['blue','green'];
     for (let i = 0; i < lines.length; i++) {
-
-	 canvasCtx.beginPath();
-	 canvasCtx.fillStyle="blue";
-	 canvasCtx.arc(lines[i][0], lines[i][1], 10, 0, 2 * Math.PI);
-	 canvasCtx.fill();
 
          if (i > 0) {
 	     	 canvasCtx.beginPath();
@@ -1028,6 +1048,14 @@ navigator.mediaDevices.getUserMedia({audio:true}).then(function(localStream) {
 		 canvasCtx.lineTo(lines[i][0], lines[i][1]);
 		 canvasCtx.stroke();
 	 }
+    }
+    for (let i = 0; i < lines.length; i++) {
+
+	 canvasCtx.beginPath();
+	 canvasCtx.fillStyle=colors[lines[i][2]];
+	 canvasCtx.arc(lines[i][0], lines[i][1], 10, 0, 2 * Math.PI);
+	 canvasCtx.fill();
+
     }
     
     } catch (error) {
