@@ -58,6 +58,7 @@ function set_first_from_strings() {
   <option value="genres">Ancient Greek Genres</option>
   <option selected="selected" value="modes">Ancient Greek Modes</option>
   <option value="pentatonic">Pentatonic</option>
+  <option value="double_harmonic">Double harmonic</option>
 </select>
 <br />
 
@@ -533,7 +534,7 @@ function changemode() {
 
  var scale_type = document.getElementById("type").value;
  var selectedscale = (scale_type == "genres") ? document.getElementById("genus").value : document.getElementById("species").value ;
- if (scale_type == "pentatonic") selectedscale = "pentatonic";
+ if (scale_type == "pentatonic" || scale_type == "double_harmonic") selectedscale = scale_type;
  console.log('selectedscale = '+selectedscale);
  var first_note = document.getElementById("first_note").value;
  var first_note_accidental = "";
@@ -745,6 +746,12 @@ var source_tables = [
 "C D E G A C D E G A C D E G A C D E G A C D E G",
 "D E G A C D E G A C D E G A C D E G A C D E G A",
 "E G A C D E G A C D E G A C D E G A C D E G A C"
+]],
+["double_harmonic", [
+"C Db E F G Ab B C Db E F G Ab B C Db E F G Ab B C Db E"
+]],
+["double_harmonic_quarter", [
+"C C* E F G Ab B* C C* E F G Ab B* C C* E F G Ab B* C C*"
 ]]
 ]
 ;
