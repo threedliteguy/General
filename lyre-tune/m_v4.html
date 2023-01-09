@@ -59,6 +59,7 @@ function set_first_from_strings() {
   <option selected="selected" value="modes">Ancient Greek Modes</option>
   <option value="pentatonic">Pentatonic</option>
   <option value="double_harmonic">Double harmonic</option>
+  <option value="full_chromatic">Full chromatic</option>
   <option value="scale_file">Scale file import</option>
 </select>
 <br />
@@ -614,7 +615,13 @@ function changemode() {
  var scale = "";
  var scale_type = document.getElementById("type").value;
  var selectedscale = (scale_type == "genres") ? document.getElementById("genus").value : document.getElementById("species").value ;
- if (scale_type == "pentatonic" || scale_type == "double_harmonic" || scale_type == "scale_file") selectedscale = scale_type;
+ 
+ if (
+    scale_type == "pentatonic" 
+ || scale_type == "double_harmonic" 
+ || scale_type == "full_chromatic" 
+ || scale_type == "scale_file"
+ ) selectedscale = scale_type;
 
 
  console.log('selectedscale = '+selectedscale);
@@ -842,6 +849,9 @@ var source_tables = [
 ]],
 ["double_harmonic_quarter", [
 "C C* E F G Ab B* C C* E F G Ab B* C C* E F G Ab B* C C*"
+]],
+["full_chromatic", [
+"C C# D Eb E F F# G G# A Bb B C C# D Eb E F F# G G# A Bb B"
 ]]
 ]
 ;
@@ -1029,7 +1039,7 @@ navigator.mediaDevices.getUserMedia({audio:true}).then(function(localStream) {
          b = 30*i+20;
          c = 0;
          if (Math.abs((new Date()).getTime() - sustain[s] ) < time_tolerance && i == current_note) hitnote[i] = 1; 
-	 lines.push([a,b,hitnote[s]]);
+	 lines.push([a,b,hitnote[i]]);
 
          if (i == current_note) {
 	 	canvasCtx.fillStyle = "rgb(128, 0, 0)";
