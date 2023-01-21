@@ -1,6 +1,7 @@
-D4 D4 D4 F4# E4b D4 F4# F4# F4# A4 G4 F4# G4 G4 G4 B4b A4 G4 F4# E4b D4     
-D4 D4 D4 F4# E4b D4 F4# F4# F4# A4 G4 F4# G4 G4 G4 B4b A4 G4 F4# E4b D4 F4# F4# E4b D4 D4 D4   
-E4b E4b D4 C4 C4 C4 C4 E4b D4 C4 G4 F4# E4b D4 F4# F4# E4b D4 D4 D4 E4b E4b D4 C4 C4 C4
-C4 E4b D4 C4 G4 F4# E4b D4   G4  G4   G4 G4 G4 G4  G4 G4 B4b A4 G4 B4b A4 G4  G4 G4 B4b A4 G4 B4b A4 G4
-A4 A4 C5 B4b A4 C5 B4b A4 A4 A4 C5 B4b A4 C5 B4b A4  A4 A4 D5  A4 A4 D5   D4 D4 B4b A4 G4 F4# G4 
+# 15+ strings, start at C, full chromatic, +1 octave
+D4 D4 D4.e F4#.e E4b.e D4.e F4# F4# F4#.e A4.e G4.e F4#.e G4 G4 G4.e B4b.e A4.e G4.e F4# E4b D4.h     
+D4 D4 D4.e F4#.e E4b.e D4.e F4# F4# F4#.e A4.e G4.e F4#.e G4 G4 G4.e B4b.e A4.e G4.e F4# E4b D4.h F4#.e F4# E4b.e D4.e D4.e D4   
+E4b.e E4b D4.e C4.e C4.e C4 C4 E4b.e D4.e C4 G4 F4# E4b D4.h F4#.e F4# E4b.e D4.e D4.e D4 E4b.e E4b D4.e C4.e C4.e C4
+C4 E4b.e D4.e C4 G4 F4# E4b D4.h   G4.h  G4.h   G4 G4 G4 G4  G4.e G4.e B4b.e A4.e G4.e B4b.e A4.e G4.e  G4.e G4.e B4b.e A4.e G4.e B4b.e A4.e G4.e
+A4.e A4.e C5.e B4b.e A4.e C5.e B4b.e A4.e A4.e A4.e C5.e B4b.e A4.e C5.e B4b.e A4.e  A4.e A4.e D5.t  A4.e A4.e D5.t   D4 D4 B4b.e A4.e G4.e F4#.e G4.w 
 

@@ -547,9 +547,11 @@ function fit() {
          nn = transpose(a,b,c[i]);
          n = nn[0];  
          console.log(n);
-         if (notes_with_octaves_norm.indexOf(n) == -1) mismatch++;
+         if (notes_with_octaves_norm.indexOf(n) == -1) {
+             mismatch++;
+             console.log(b,mismatch);
+         }
        }
-       console.log(b,mismatch);
        if (mismatch == 0) {
            afit = a;
            bfit = b;
@@ -574,7 +576,7 @@ var durations = [];
 
 function getUnique(c) {
    var unique = [];
-   for (let i = 0; i < c.length; i++) { if (c[i] != '' && unique.indexOf(c[i]) == -1) unique.push(c[i]); }
+   for (let i = 0; i < c.length; i++) { if (c[i].trim() != '' && unique.indexOf(c[i]) == -1) unique.push(c[i]); }
    function sortfn(a) { 
         q = get_quartertones_from_a(a);
         if (a[0]<'C') q[1]++;
@@ -585,7 +587,7 @@ function getUnique(c) {
 }
 
 function parse_notes(n) {
-    n = n.split(" ").map(function (t) { return t.replace(',',''); });
+    n = n.split(" ").map(function (t) { return t.replace(',',''); }).filter(function (t) { return t.trim() != ''; });
     var notes = [];
     var durations = [];
     n.map(function (t) { 
@@ -596,8 +598,9 @@ function parse_notes(n) {
     	   s = a[1];
     	   if (s == "q") { d = .25; }  
     	   else if (s == "w") { d = 1.0; } 
-    	   else if (s == "h") { d = .5; }
-    	   else if (s == "e") { d = .25/2; }
+    	   else if (s == "h") { d = 0.5; }
+    	   else if (s == "e") { d = 0.125; }
+    	   else if (s == "t") { d = 0.75; }
     	   else { d = Number("0."+s); }
     	}
     	notes.push(t);
@@ -960,6 +963,7 @@ navigator.mediaDevices.getUserMedia({audio:true}).then(function(localStream) {
 
   const BASE = 60;
   
+  // TODO optimize
   function draw() {
     drawVisual = requestAnimationFrame(draw);
 
@@ -1065,13 +1069,13 @@ navigator.mediaDevices.getUserMedia({audio:true}).then(function(localStream) {
     
     elapsed = speed * (new Date().getTime() - start_time) / 1000;
     //console.log("elapsed = "+elapsed);
-    console.log("durations = "+durations);
+    //console.log("durations = "+durations);
     total_duration = 0;
     for (let i = 0; i < durations.length; i++) {
     	total_duration += durations[i];
     }
     elapsed = elapsed % total_duration;
-    console.log("elapsed = "+Math.round(elapsed*100)/100+" total_duration = "+total_duration);
+    //console.log("elapsed = "+Math.round(elapsed*100)/100+" total_duration = "+total_duration);
     
     elapsed_duration = 0;
     current_note = 0;
@@ -1080,7 +1084,7 @@ navigator.mediaDevices.getUserMedia({audio:true}).then(function(localStream) {
     	current_note = i;
     	if (elapsed_duration > elapsed) break;
     }
-    console.log("current_note = "+current_note);
+    //console.log("current_note = "+current_note);
     if (current_note == 0) {
         var sum = 0;
         for (i = 0; i < display_notes.length; i++) sum = sum + hitnote[i];
@@ -1103,18 +1107,23 @@ navigator.mediaDevices.getUserMedia({audio:true}).then(function(localStream) {
          s = notes_with_octaves_norm.indexOf(n);
          a = 0;
          if (s > -1) a = stringlocs[s]; 
-         b = 30*15*(duration/total_duration)+20;
+         b = (HEIGHT-80)*(duration/total_duration)+20;
          duration += durations[i];
          c = 0;
          if (Math.abs((new Date()).getTime() - sustain[s] ) < time_tolerance && i == current_note) hitnote[i] = 1; 
-	 lines.push([a,b,hitnote[i]]);
+         
+         color = hitnote[i];
+         if (i == current_note) color = 1;
+	 lines.push([a,b,color]);
 
+	 // current note line
          if (i == current_note) {
 	 	canvasCtx.fillStyle = "rgb(128, 0, 0)";
 	 	canvasCtx.fillRect(0, b, xlim, 5);
 	 }
     }    
     
+    // connecting lines
     colors = ['blue','yellow'];
     for (let i = 0; i < lines.length; i++) {
 
@@ -1127,6 +1136,8 @@ navigator.mediaDevices.getUserMedia({audio:true}).then(function(localStream) {
 		 canvasCtx.stroke();
 	 }
     }
+    
+    // notes
     for (let i = 0; i < lines.length; i++) {
 
 	 canvasCtx.beginPath();
@@ -1135,6 +1146,11 @@ navigator.mediaDevices.getUserMedia({audio:true}).then(function(localStream) {
 	 canvasCtx.fill();
 
     }
+
+    // timeline
+    canvasCtx.fillStyle = "rgb(65, 0, 0)";
+    canvasCtx.fillRect(0, (HEIGHT-80)*(elapsed/total_duration)+20, xlim, 5);
+
     
     } catch (error) {
        console.log(error);
