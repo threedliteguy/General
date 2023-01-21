@@ -907,8 +907,8 @@ var source_tables = [
 ;
 
 
-var sustain = Array.from({length: 100}, (v, i) => 0);
-var hitnote = Array.from({length: 100}, (v, i) => 0);
+var sustain = Array.from({length: 1000}, (v, i) => 0);
+var hitnote = Array.from({length: 1000}, (v, i) => 0);
 var start_time = new Date().getTime();
 var speed = 0.25;
 var time_tolerance = 2000;
@@ -1089,7 +1089,7 @@ navigator.mediaDevices.getUserMedia({audio:true}).then(function(localStream) {
         var sum = 0;
         for (i = 0; i < display_notes.length; i++) sum = sum + hitnote[i];
         if (sum < display_notes.length) {
-           hitnote = Array.from({length: 100}, (v, i) => 0);
+           hitnote = Array.from({length: 1000}, (v, i) => 0);
         } else {
            won = 1;
         }
@@ -1112,8 +1112,8 @@ navigator.mediaDevices.getUserMedia({audio:true}).then(function(localStream) {
          c = 0;
          if (Math.abs((new Date()).getTime() - sustain[s] ) < time_tolerance && i == current_note) hitnote[i] = 1; 
          
-         color = hitnote[i];
-         if (i == current_note) color = 1;
+         var color = hitnote[i];
+         if (i == current_note) color = 2;
 	 lines.push([a,b,color]);
 
 	 // current note line
@@ -1124,7 +1124,7 @@ navigator.mediaDevices.getUserMedia({audio:true}).then(function(localStream) {
     }    
     
     // connecting lines
-    colors = ['blue','yellow'];
+    colors = ['blue','yellow','white'];
     for (let i = 0; i < lines.length; i++) {
 
          if (i > 0) {
