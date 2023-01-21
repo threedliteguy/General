@@ -531,7 +531,9 @@ function transpose(note_a, note_b, note) {
  
 function fit() {
    var c = document.getElementById("notes_to_rescale").value;
-   c = c.split(" ").filter(function (t) { return t != "" ; }).map(function (t) { return t.replace(',','') ; });
+   n = parse_notes(c); 
+   c = n[0];
+   durations = n[1];
    getUnique(c);
    var afit = "";
    var bfit = "";
@@ -568,6 +570,7 @@ function fit() {
 }
 
 var display_notes = [];
+var durations = [];
 
 function getUnique(c) {
    var unique = [];
@@ -581,6 +584,30 @@ function getUnique(c) {
    document.getElementById("unique_notes").innerHTML = (""+unique).replaceAll(',',', ');
 }
 
+function parse_notes(n) {
+    n = n.split(" ").map(function (t) { return t.replace(',',''); });
+    var notes = [];
+    var durations = [];
+    n.map(function (t) { 
+    	var d = .25; // default quarter note
+    	if (t.indexOf('.')>0) {   // Note durations as:  G3.q  or  G3.25
+    	   a = t.split(".");
+    	   t = a[0];
+    	   s = a[1];
+    	   if (s == "q") { d = .25; }  
+    	   else if (s == "w") { d = 1.0; } 
+    	   else if (s == "h") { d = .5; }
+    	   else if (s == "e") { d = .25/2; }
+    	   else { d = Number("0."+s); }
+    	}
+    	notes.push(t);
+    	durations.push(d);
+    });
+    console.log(notes);
+    console.log(durations);
+    return [notes,durations];
+}
+
 function rescale() {
 
    var r = "";
@@ -588,7 +615,9 @@ function rescale() {
       var a = document.getElementById("from_note").value.trim();
       var b = document.getElementById("to_note").value.trim();
       var c = document.getElementById("notes_to_rescale").value;
-      c = c.split(" ").map(function (t) { return t.replace(',','') ; });
+      n = parse_notes(c); 
+      c = n[0];
+      durations = n[1];
       getUnique(c);
       for (let i = 0; i < c.length;i++) {
          if (c[i] == "") { 
@@ -1071,7 +1100,7 @@ navigator.mediaDevices.getUserMedia({audio:true}).then(function(localStream) {
          if (i > 0) {
 	     	 canvasCtx.beginPath();
 		 canvasCtx.strokeStyle="blue";
-		 canvasCtx.lineWidth=5;
+		 canvasCtx.lineWidth=3;
 		 canvasCtx.moveTo(lines[i-1][0], lines[i-1][1]);
 		 canvasCtx.lineTo(lines[i][0], lines[i][1]);
 		 canvasCtx.stroke();
