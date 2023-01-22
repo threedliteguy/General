@@ -327,8 +327,18 @@ function set_full() {
   show_full = Number(document.getElementById("full").value);
 }
 </script>
-<br /><br />
 
+<br /><label for="autoplay">Autoplay</label>
+<select name="autoplay" id="autoplay" onchange="javascript:set_autoplay();">
+  <option selected="selected" value="0">No</option>
+  <option value="1">Yes</option>
+</select>
+<script>
+function set_autoplay() {
+  autoplay = Number(document.getElementById("autoplay").value);
+}
+</script>
+<br /><br />
 
 <strong>Rescale Tool</strong><br />
 <label>From note </label><input maxlength="4" size="4" name="from_note" id="from_note" value="A"></input> 
@@ -422,6 +432,7 @@ var notes_with_octaves_norm = [];
 var zoom = 1;
 var tolerance = 1.5;
 var show_full = 0;
+var autoplay = 0;
 
 var scale_file_ratios = [];
 var scale_file_notes = [];
@@ -586,7 +597,35 @@ function getUnique(c) {
    document.getElementById("unique_notes").innerHTML = (""+unique).replaceAll(',',', ');
 }
 
+function play_sound(frequency, duration_sec, when) {
+
+	setTimeout(function(){
+
+		oscillator = audioContext.createOscillator();
+		oscillator.type = 'sine';
+		oscillator.frequency.value = frequency; // e.g. 440
+
+		gain = audioContext.createGain();
+		gain.gain.setValueAtTime(0.00001, audioContext.currentTime);
+		gain.connect(audioContext.destination);
+		oscillator.connect(gain);
+		gain.gain.exponentialRampToValueAtTime(1.0, audioContext.currentTime + duration_sec*0.01);
+		gain.gain.exponentialRampToValueAtTime(0.00001, audioContext.currentTime + duration_sec);
+		oscillator.start(audioContext.currentTime);
+		oscillator.stop(audioContext.currentTime + duration_sec);
+		  
+		console.log("*** played "+frequency+" ***");
+
+	}, when*1000);
+}
+
 function parse_notes(n) {
+
+    
+    //play_sound(293.7, 5.0, 0.01);
+    //play_sound(392.0, 1.0, 1);
+    
+
     n = n.split(" ").map(function (t) { return t.replace(',',''); }).filter(function (t) { return t.trim() != ''; });
     var notes = [];
     var durations = [];
@@ -919,10 +958,15 @@ var won = 0;
 // https://developer.mozilla.org/en-US/docs/Web/API/AnalyserNode/getByteFrequencyData
 // https://stackoverflow.com/questions/28329389/is-there-a-way-to-detect-audio-frequency-in-html-5-web-audio-api
 
+var audioContext;
+var oscillator;
+var gain;
 
 navigator.mediaDevices.getUserMedia({audio:true}).then(function(localStream) {
 
-  var audioContext = new(window.AudioContext || window.webkitAudioContext)();
+  audioContext = new(window.AudioContext || window.webkitAudioContext)();
+  
+  
   
   var sampleRate = audioContext.sampleRate;
   console.log('sample rate = '+ sampleRate);
@@ -1088,7 +1132,7 @@ navigator.mediaDevices.getUserMedia({audio:true}).then(function(localStream) {
     if (current_note == 0) {
         var sum = 0;
         for (i = 0; i < display_notes.length; i++) sum = sum + hitnote[i];
-        if (sum < display_notes.length) {
+        if (sum < display_notes.length || autoplay == 1) {
            hitnote = Array.from({length: 1000}, (v, i) => 0);
         } else {
            won = 1;
@@ -1106,11 +1150,24 @@ navigator.mediaDevices.getUserMedia({audio:true}).then(function(localStream) {
          n = display_notes[i];
          s = notes_with_octaves_norm.indexOf(n);
          a = 0;
-         if (s > -1) a = stringlocs[s]; 
+         f = 0;
+         if (s > -1) { a = stringlocs[s]; f = freqs[s]; }
          b = (HEIGHT-80)*(duration/total_duration)+20;
          duration += durations[i];
          c = 0;
-         if (Math.abs((new Date()).getTime() - sustain[s] ) < time_tolerance && i == current_note) hitnote[i] = 1; 
+         
+         if (i == current_note) {
+         
+		 if (Math.abs((new Date()).getTime() - sustain[s] ) < time_tolerance ) {
+		    hitnote[i] = 1; 
+		 }
+		 
+		 if (autoplay && hitnote[i] == 0) {
+		    play_sound(f,durations[i],0.01);
+		    hitnote[i] = 1; 
+		 }
+		 
+         }
          
          var color = hitnote[i];
          if (i == current_note) color = 2;
