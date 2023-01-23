@@ -158,10 +158,10 @@ function change_genus() {
 
 <strong>Melody graph</strong><br />
 <br />
-<textarea rows="5" cols="130" name="notes_to_rescale" id="notes_to_rescale" >D4 D4 D4.e F4#.e E4b.e D4.e F4# F4# F4#.e A4.e G4.e F4#.e G4 G4 G4.e B4b.e A4.e G4.e F4# E4b D4.h
-D4 D4 D4.e F4#.e E4b.e D4.e F4# F4# F4#.e A4.e G4.e F4#.e G4 G4 G4.e B4b.e A4.e G4.e F4# E4b D4.h F4#.e F4# E4b.e D4.e D4.e D4
-E4b.e E4b D4.e C4.e C4.e C4 C4 E4b.e D4.e C4 G4 F4# E4b D4.h F4#.e F4# E4b.e D4.e D4.e D4 E4b.e E4b D4.e C4.e C4.e C4
-C4 E4b.e D4.e C4 G4 F4# E4b D4.h   G4.h  G4.h   G4 G4 G4 G4  G4.e G4.e B4b.e A4.e G4.e B4b.e A4.e G4.e  G4.e G4.e B4b.e A4.e G4.e B4b.e A4.e G4.e
+<textarea rows="5" cols="130" name="notes_to_rescale" id="notes_to_rescale" >D4 D4 D4.e F4#.e E4b.e D4.e F4# F4# F4#.e A4.e G4.e F4#.e G4 G4 G4.e B4b.e A4.e G4.e F4# E4b D4.h 
+D4 D4 D4.e F4#.e E4b.e D4.e F4# F4# F4#.e A4.e G4.e F4#.e G4 G4 G4.e B4b.e A4.e G4.e F4# E4b D4.h F4#.e F4# E4b.e D4.e D4.e D4 
+E4b.e E4b D4.e C4.e C4.e C4 C4 E4b.e D4.e C4 G4 F4# E4b D4.h F4#.e F4# E4b.e D4.e D4.e D4 E4b.e E4b D4.e C4.e C4.e C4 
+C4 E4b.e D4.e C4 G4 F4# E4b D4.h   G4.h  G4.h   G4 G4 G4 G4  G4.e G4.e B4b.e A4.e G4.e B4b.e A4.e G4.e  G4.e G4.e B4b.e A4.e G4.e B4b.e A4.e G4.e 
 A4.e A4.e C5.e B4b.e A4.e C5.e B4b.e A4.e A4.e A4.e C5.e B4b.e A4.e C5.e B4b.e A4.e  A4.e A4.e D5.t  A4.e A4.e D5.t   D4 D4 B4b.e A4.e G4.e F4#.e G4.w </textarea></input><br />
 <button onclick='javascript:on_start();'>Start</button>
 <script>
@@ -473,7 +473,7 @@ var scale_file_notes = [];
 
 function import_scl() {
   s = document.getElementById("scl_file").value;
-  lines = s.split('\n').map(l=>l.replace('\m','').trim()).filter(l => l != '' && !l.startsWith("!"));
+  lines = s.split('\n').map(l=>l.replace('\r','').trim()).filter(l => l != '' && !l.startsWith("!"));
   console.log(lines);
   title = lines[0];
   number_of_notes = Number(lines[1]);
@@ -660,7 +660,7 @@ function parse_notes(n) {
     //play_sound(293.7, 5.0, 0.01);
     //play_sound(392.0, 1.0, 1);
     
-    n = n.replace(',',' ').replace('\n',' ').replace('\r',' ');
+    n = n.replace(',',' ').replace(/\r?\n|\r/g, ' ');
     n = n.split(" ").filter(function (t) { return t.trim() != ''; });
     var notes = [];
     var durations = [];
@@ -988,8 +988,8 @@ var sustain = Array.from({length: 1000}, (v, i) => 0);
 var hitnote = Array.from({length: 1000}, (v, i) => 0);
 var start_time = new Date().getTime();
 
-var base_speed = 0.25;
-var speed = 0.25;
+var base_speed = 0.5;
+var speed = 0.5;
 var time_tolerance = 2000;
 var won = 0;
 var last_current_note = -1;
@@ -1211,7 +1211,7 @@ navigator.mediaDevices.getUserMedia({audio:true}).then(function(localStream) {
 		 if (autoplay && hitnote[i] == 0) {
 		    hitnote[i] = 1; 
 		    //console.log("i = "+i);
-		    if (playing == 1) play_sound(f,durations[i]*10,0.01);
+		    if (playing == 1) play_sound(f,durations[i]*10*base_speed/speed,0.01);
 		 }
 		 
          }
