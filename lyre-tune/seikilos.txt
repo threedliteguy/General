@@ -1,4 +1,4 @@
 # https://en.wikipedia.org/wiki/Seikilos_epitaph
 A4.e E5 E5.375 C5#.e D5.e E5.e D5.375 C5# D5.e E5.e D5.e C5#.e B4.e A4 B4.e G4    
-A4.e C5#.e E5.e D5.e C5#.e D5.e C5#.e A4 B4.e G4 A4.e C5#.e B4.e D5.e E5.e C5#.e A4.e A4 A4.e F4#.e D4.e
+A4.e C5#.e E5.e D5.e C5#.e D5.e C5#.e A4 B4.e G4 A4.e C5#.e B4.e D5.e E5.e C5#.e A4.e A4 A4.e F4#.e E4.e
 
