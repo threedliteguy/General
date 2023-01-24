@@ -442,8 +442,8 @@ function transpose(note_a, note_b, note) {
    var n = na[0];
    var n = n + b - a;
    var o = na[1];
-   if (n < 0) { n = n + 24; o = o-1; }
-   if (n >= 24) { n = n - 24; o = o+1; }
+   if (n < 0) { n = n + 24; if (o>0) o = o-1; }
+   if (n >= 24) { n = n - 24; if (o>0) o = o+1; }
    var r = full_scale[n];
    if (o > 0) {
      var fn = r.substring(0,1)

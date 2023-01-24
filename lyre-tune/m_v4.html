@@ -19,6 +19,39 @@ Serving from an http url (insecure context) will not work due to browser securit
 <br />
 <center><div id="loudestfreq"></div></center>
 <center>
+
+<br />
+<strong>Melody graph</strong><br />
+<br />
+<textarea rows="5" cols="130" name="notes_to_rescale" id="notes_to_rescale" >
+A4 C4 D4 G4
+</textarea></input><br />
+<button onclick='javascript:on_start();'>Start</button>
+<script>
+function on_start() {
+  rescale();  
+  start_time = new Date().getTime(); 
+  playing=1;
+}
+</script>
+<button onclick='javascript:playing=0;'>Stop</button>
+<br />
+<label for="speed">Speed</label>
+<select name="speed" id="speed" onchange="javascript:set_speed();">
+  <option value="2">x2</option>
+  <option selected="selected" value="1">Normal</option>
+  <option value="0.5">x1/2</option>
+  <option value="0.25">x1/4</option>
+  <option value="0.125">x1/8</option>
+</select>
+<script>
+function set_speed() {
+  speed = base_speed * Number(document.getElementById("speed").value);
+}
+</script>
+<br/><br />
+<hr />
+
 <br /><strong><label for="octave">How many strings does your lyre have?</label></strong>
 <select name="strings" id="strings" onchange="set_first_from_strings();">
   <option value="7">7</option>
@@ -155,38 +188,8 @@ function change_genus() {
 
 <hr />
 <br/ >
+<br />
 
-<strong>Melody graph</strong><br />
-<br />
-<textarea rows="5" cols="130" name="notes_to_rescale" id="notes_to_rescale" >D4 D4 D4.e F4#.e E4b.e D4.e F4# F4# F4#.e A4.e G4.e F4#.e G4 G4 G4.e B4b.e A4.e G4.e F4# E4b D4.h 
-D4 D4 D4.e F4#.e E4b.e D4.e F4# F4# F4#.e A4.e G4.e F4#.e G4 G4 G4.e B4b.e A4.e G4.e F4# E4b D4.h F4#.e F4# E4b.e D4.e D4.e D4 
-E4b.e E4b D4.e C4.e C4.e C4 C4 E4b.e D4.e C4 G4 F4# E4b D4.h F4#.e F4# E4b.e D4.e D4.e D4 E4b.e E4b D4.e C4.e C4.e C4 
-C4 E4b.e D4.e C4 G4 F4# E4b D4.h   G4.h  G4.h   G4 G4 G4 G4  G4.e G4.e B4b.e A4.e G4.e B4b.e A4.e G4.e  G4.e G4.e B4b.e A4.e G4.e B4b.e A4.e G4.e 
-A4.e A4.e C5.e B4b.e A4.e C5.e B4b.e A4.e A4.e A4.e C5.e B4b.e A4.e C5.e B4b.e A4.e  A4.e A4.e D5.t  A4.e A4.e D5.t   D4 D4 B4b.e A4.e G4.e F4#.e G4.w </textarea></input><br />
-<button onclick='javascript:on_start();'>Start</button>
-<script>
-function on_start() {
-  rescale();  
-  start_time = new Date().getTime(); 
-  playing=1;
-}
-</script>
-<button onclick='javascript:playing=0;'>Stop</button>
-<br />
-<label for="speed">Speed</label>
-<select name="speed" id="speed" onchange="javascript:set_speed();">
-  <option value="2">x2</option>
-  <option selected="selected" value="1">Normal</option>
-  <option value="0.5">x1/2</option>
-  <option value="0.25">x1/4</option>
-  <option value="0.125">x1/8</option>
-</select>
-<script>
-function set_speed() {
-  speed = base_speed * Number(document.getElementById("speed").value);
-}
-</script>
-<br/><br />
 Rescale Tool:
 <label>From note </label><input maxlength="4" size="4" name="from_note" id="from_note" value="A"></input> 
 <label>To note </label><input maxlength="4" size="4" name="to_note" id="to_note" value="A"></input>
@@ -215,9 +218,9 @@ Rescale Tool:
 <option value="0">0 Hz</option>
 <option value="0.5">0.5 Hz</option>
 <option value="1.0">1 Hz</option>
-<option selected="selected" value="1.5">1.5 Hz</option>
+<option value="1.5">1.5 Hz</option>
 <option value="2.0">2 Hz</option>
-<option value="3.0">3 Hz</option>
+<option selected="selected" value="3.0">3 Hz</option>
 <option value="4.0">4 Hz</option>
 <option value="5.0">5 Hz</option>
 </select>
@@ -463,7 +466,7 @@ const octave = 2.0;
 var notes_with_octaves = [];
 var notes_with_octaves_norm = [];
 var zoom = 1;
-var tolerance = 1.5;
+var tolerance = 3.0;
 var show_full = 0;
 var autoplay = 1;
 var playing = 0;
@@ -560,8 +563,8 @@ function transpose(note_a, note_b, note) {
    var n = na[0];
    var n = n + b - a;
    var o = na[1];
-   if (n < 0) { n = n + 24; o = o-1; }
-   if (n >= 24) { n = n - 24; o = o+1; }
+   if (n < 0) { n = n + 24; if (o>0) o = o-1; }
+   if (n >= 24) { n = n - 24; if (o>0) o = o+1; }
    var r = full_scale[n];
    if (o > 0) {
      var fn = r.substring(0,1)
@@ -992,7 +995,7 @@ var base_speed = 0.5;
 var speed = 0.5;
 var time_tolerance = 2000;
 var won = 0;
-var last_current_note = -1;
+var last_current_note = 0;
 
 
 // Audio:
@@ -1208,7 +1211,7 @@ navigator.mediaDevices.getUserMedia({audio:true}).then(function(localStream) {
 		    hitnote[i] = 1; 
 		 }
 		 
-		 if (autoplay && hitnote[i] == 0) {
+		 if (autoplay && playing && hitnote[i] == 0) {
 		    hitnote[i] = 1; 
 		    //console.log("i = "+i);
 		    if (playing == 1) play_sound(f,durations[i]*10*base_speed/speed,0.01);
