@@ -1,0 +1,4 @@
+D4.t F4 D4.t A4 G4.h G4.w G4.w  A4.h G4 A4.h G4.h F4.h
+F4 G4.h F4 E4.h B4 A4.w   G4 A4.h G4.w F4 E4 A4
+G4.w A4 G4.h A4 G4.h F4.h   C4.h D4.t C4 D4.w C4 D4.h
+
