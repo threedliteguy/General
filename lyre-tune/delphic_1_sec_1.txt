@@ -3,6 +3,6 @@
 E5b.e D5.e D5.e C5 A4b.e C5 C5.e E5b.e D5.e C5.e D5.e C5.e A4b.e C5 
 C5 E5b.e D5.e E5b.e E5b.e D5 C5.e D5.e D5.e D5.e C5.e A4b.e C5 C5.e A4b.e A4b.e C5 E4b E4b.e G4
 G4.e A4b.e A4b.e E4b E5b.e E5b.e E5b.e G5.e A5b.e G5 E5b.e G5 G5 G5.e E5b E5b.e E5b.e C5.e C5.e E5b.e D5 D5.e C5.e A4b.e
-C5.e A4.e C5.e C5.e A4b.e C5.e D5.e E5b.e D5.e E5b.e F5 G5.e A5b.e F5.e F5.e G5.e A5b.e G5 G5 E5b.e F5.e F5.e 
+C5.e A4b.e C5.e C5.e A4b.e C5.e D5.e E5b.e D5.e E5b.e F5 G5.e A5b.e F5.e F5.e G5.e A5b.e G5 G5 E5b.e F5.e F5.e 
 F5 D5b.e D5b C5 C5.e C5.e C5.e C5.e A4b.e A4b.e C5.e D5.e E5b.e D5.e C5.e C5.e C5.e G4 G4.e G4 
 
