@@ -1,0 +1,28 @@
+Exact values from https://www.carnaticcorner.com/articles/22_srutis.htm
+(very good article)
+
+    sa = 1
+
+    ri = 256/243, 16/15  
+
+    Ri = 10/9,     9/8   
+
+    ga = 32/27,    6/5   
+
+    Ga = 5/4,     81/64  
+
+    ma = 4/3,     20/27  
+
+    Ma = (64/45),  45/32, 729/512 
+
+    pa = (40/27),    3/2   
+
+   dha = 128/81,   8/5   
+
+   Dha = 5/3,     27/16  
+
+    ni = 16/9,     9/5   
+
+    Ni = 15/8,   243/128 
+
+
