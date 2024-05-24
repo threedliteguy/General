@@ -11,25 +11,8 @@ C4          C5
 
 
 
-Ascending fifth versus moving up one octave and one descending a fourth ends in the same place exactly:
+Ascending a fourth versus moving up one octave and descending a fifth ends in the same place exactly:
        
-C4     G    C5
-|           |
- ------>             x 3/2  up one fifth
-
-ends in exactly same place as:
-
-C4          C5
-|           |
- ----------->        x 2   up one octave
-C4     G    C5
-|           |
-       <----         x 3/4  down one fourth
-
-
-
-The inverse is also true:
-
 
 C4    F     C5
 |           |
@@ -46,6 +29,26 @@ C4    F     C5
        
        
        
+The inverse is also true:
+
+Ascending a fifth versus moving up one octave and descending a fourth ends in the same place exactly:
+       
+C4     G    C5
+|           |
+ ------>             x 3/2  up one fifth
+
+ends in exactly same place as:
+
+C4          C5
+|           |
+ ----------->        x 2   up one octave
+C4     G    C5
+|           |
+       <----         x 3/4  down one fourth
+
+
+
+
 
 
 
