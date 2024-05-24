@@ -1,0 +1,72 @@
+Movement by one octave up and down lands in same place as where it started:
+
+C4          C5
+|           |
+ ----------->        x 2   up one octave
+
+C4          C5
+|           |
+<-----------         x 1/2  down one octave
+
+
+
+
+Ascending fifth versus moving up one octave and one descending a fourth ends in the same place exactly:
+       
+C4     G    C5
+|           |
+ ------>             x 3/2  up one fifth
+
+ends in exactly same place as:
+
+C4          C5
+|           |
+ ----------->        x 2   up one octave
+C4     G    C5
+|           |
+       <----         x 3/4  down one fourth
+
+
+
+The inverse is also true:
+
+
+C4    F     C5
+|           |
+ ----->              x 4/3  up one fourth
+
+ends in exactly same place as:
+
+C4          C5
+|           |
+ ----------->        x 2   up one octave
+C4    F     C5
+|           |
+      <-----         x 2/3  down one fifth
+       
+       
+       
+
+
+
+
+
+Tuning 13-string harp by only going up 7 semitones or down 5 semitones, or by +/- octave (ascending 5ths and descending 4ths, or octave)
+
+ C  C# D  D# E  F  F# G  G# A  A# B  C(+1 octave)
+ 1  2  3  4  5  6  7  8  9 10  11 12 13   (number strings by half tones)
+13  8  3 10  5 12  7  2  9  4  11  6  1   (starting from highest string)
+ 7  2 10  4 12  6  1  9  3 11  5  13  8   (or equivalently starting from the middle string, but can do any one)
+ 
+Count the steps in each direction:
+ downs x 9 (desc fourth, 3/4 ratio)
+ ups   x 4 (asc 5th, 3/2 ratio)
+ + one octave up at end to land back on starting string.
+ 
+ Want start and end notes to be the same C note, but:
+ 
+ (3/4)^9  x  (3/2)^4  x 2
+ 3^12 / 2^19 = (3/2)^12 / 2^7 = 531441/524288 = 1.01364...  or the "Pythagorean" comma.
+ 
+ 
+  
