@@ -1208,7 +1208,7 @@ navigator.mediaDevices.getUserMedia({audio:true}).then(function(localStream) {
          if (i == current_note) {
          
 		 if (Math.abs((new Date()).getTime() - sustain[s] ) < time_tolerance ) {
-		    hitnote[i] = 1; 
+		    if (!(autoplay && playing)) hitnote[i] = 1; 
 		 }
 		 
 		 if (autoplay && playing && hitnote[i] == 0) {
