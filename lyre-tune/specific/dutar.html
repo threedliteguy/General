@@ -1,0 +1,926 @@
+<!DOCTYPE html>
+<!-- 
+
+(c) 2022 Dan Meany, Nikolaos Koumartzis
+License: MIT (free open source)  
+
+Note: This file should be run as a locally saved file, or else served from an https url.  
+Serving from an http url (insecure context) will not work due to browser security restrictions.
+
+-->
+<html>
+<head>
+<link rel="stylesheet" href="m.css" >
+</head>
+<body>
+<script src="m.js" ></script>
+<span name="headline" id="headline" ></span>
+<center><canvas id="myc" width="9000" height="600"></canvas></center>
+<br />
+<center><div id="loudestfreq"></div></center>
+<center>
+<br /><strong><label for="octave">How many strings does your lyre have?</label></strong>
+<select name="strings" id="strings" onchange="set_first_from_strings();">
+  <option value="5">5</option>  
+  <option value="7">7</option>
+  <option value="8">8</option>
+  <option value="9">9</option>
+  <option value="10">10</option>
+  <option value="11">11</option>
+  <option selected="selected" value="12">12</option>
+  <option value="13">13</option>
+  <option value="24">24</option>
+</select>
+<script>
+function set_first_from_strings() {
+   fn = Number(document.getElementById("strings").value);
+   document.getElementById("first_note").value = "GFEDCBA".charAt(fn % 7);
+   document.getElementById("species").value = stringToModesObj[fn];
+   document.getElementById("zoom").value = stringToZoomObj[fn];
+   set_zoom();
+   changemode();
+}
+const stringToZoomObj = {3: "2", 7: "2", 8 : "2", 9 : "1.5", 10 : "1.5", 11 : "1.5", 12 : "1", 13 : "1", 24 : "1" };
+</script>
+<br />
+<strong><label for="first_note">What is your 1st string note?</label></strong>
+<select name="first_note" id="first_note"  onchange="javascript:changemode();">
+<option selected="selected" value="C">C</option>
+<option value="D">D</option>
+<option value="E">E</option>
+<option value="F">F</option>
+<option value="G">G</option>
+<option value="A">A</option>
+<option value="B">B</option>
+</select>
+<br />
+<br />
+<hr />
+<br />
+<strong><label for="type">Tune using</label></strong>
+<select name="type" id="type" onchange='changetype();'>
+  <option value="genres">Ancient Greek Genres</option>
+  <option selected="selected" value="modes">Ancient Greek Modes</option>
+  <option value="pentatonic">Pentatonic</option>
+  <option value="double_harmonic">Double harmonic</option>
+</select>
+<br />
+
+
+<script>
+function changetype() {
+  document.getElementById("intonation").value = "equal";
+  var type = document.getElementById("type").value;
+  if (type == "genres") {
+    document.getElementById("div_species").style.display="none";
+    document.getElementById("div_genus").style.display="block";
+  } else if (type == "modes") {
+    document.getElementById("div_species").style.display="block";
+    document.getElementById("div_genus").style.display="none";
+  } else {
+    document.getElementById("div_species").style.display="none";
+    document.getElementById("div_genus").style.display="none";
+  }
+  changemode();
+}
+</script>
+<div id="div_species" style="display:block">
+<strong><label for="species">What Mode?</label></strong>
+<select name="species" id="species"  onchange="javascript:changemode();">
+  <option value="mixolydios">Mixolydios (modern Locrian)</option><!-- Mesopotamian qablitu -->
+  <option value="hypodorios">Hypodorios/Locrian (modern Aeolian)</option><!--  Mesopotamian kitmu -->
+  <option selected="selected" value="lydios">Lydios (modern Ionian)</option><!--  Mesopotamian nid qabli -->
+  <option value="phrygios">Phrygios (modern Dorian)</option><!--  Mesopotamian embubu -->
+  <option value="dorios">Dorios (modern Phyrgian)</option><!--  Mesopotamian isartu -->
+  <option value="hypolydios">Hypolydios (modern Lydian)</option><!--  Mesopotamian nis gabari -->
+  <option value="hypophrygios">Hypophrygios (modern Mixolydian)</option><!-- Mesopotamian putu  -->
+</select>
+</div>
+<div id="div_genus" style="display:none">
+<strong><label for="genus">What Genus?</label></strong>
+<select name="genus" id="genus" onchange="javascript:change_genus();">
+<option selected="selected" value="diatonic">Diatonic genre</option>
+<option value="chromatic">Chromatic genre</option>
+<option value="enharmonic">Enharmonic genre</option>
+</select>
+<script>
+function change_genus() {
+  genus = document.getElementById("genus").value;
+  intonation_ele = document.getElementById("intonation");
+  if (genus == "enharmonic") {
+    intonation_ele.innerHTML = `
+<option value="equal">Equal Temperament</option>
+<option selected="selected" value="just">Just Intonation</option>
+`;
+  } else {
+    intonation_ele.innerHTML = `
+<option value="equal">Equal Temperament</option>
+<option selected="selected" value="just">Just Intonation</option>
+<option value="mean">Meantone Temperament</option>
+<option value="well">Well Temperament</option>
+`;
+  }
+  changemode();
+}
+</script>
+</div>
+<strong><label for="intonation">What Temperament?</label></strong>
+<select name="intonation" id="intonation"  onchange="javascript:changemode();">
+<option value="equal">Equal Temperament</option>
+<option selected="selected" value="just">Just Intonation</option>
+<option value="mean">Meantone Temperament</option>
+<option value="well">Well Temperament</option>
+</select>
+<br />
+<br />
+
+<label id="freqs"></label>
+<br /><br />
+
+<hr />
+<br/ >
+<button onclick='javascript:advanced();'>Advanced options</button>
+<br />
+<br />
+<div id="div_rescale" style="display:none">
+
+<label for="first_note_granularity">Options for the first note:</label>
+<select name="first_note_granularity" id="first_note_granularity" onchange="javascript:set_first_note_options();">
+<option selected="selected" value="tone">Only Tones</option>
+<option value="semitone">Tones & Semitones</option>
+<option value="quartertone">Tones, Semitones, and Quartertones</option>
+</select>
+<br/>
+
+<label for="tolerance">Tolerance:</label>
+<select name="tolerance" id="tolerance" onchange="javascript:set_tolerance();">
+<option value="0">0 Hz</option>
+<option value="0.5">0.5 Hz</option>
+<option value="1.0">1 Hz</option>
+<option selected="selected" value="1.5">1.5 Hz</option>
+<option value="2.0">2 Hz</option>
+<option value="3.0">3 Hz</option>
+<option value="4.0">4 Hz</option>
+<option value="5.0">5 Hz</option>
+</select>
+<div class="tooltip">[?]<span class="tooltiptext">&nbsp;&nbsp;Tolerance sets the range of frequencies that will cause the note to turn green.&nbsp;&nbsp;</span></div> 
+<script>
+function set_tolerance() {
+  tolerance = Number(document.getElementById("tolerance").value);
+}
+var show_advanced = false;
+function advanced() {
+   show_advanced = !show_advanced;
+   if (show_advanced) {
+     document.getElementById("div_rescale").style.display="block";
+   } else {
+     document.getElementById("div_rescale").style.display="none";
+   }
+}
+function set_first_note_options() {
+  var granularity = document.getElementById("first_note_granularity").value;
+  var op = document.getElementById("first_note");
+  if (granularity == "tone") {
+    op.innerHTML = `
+<option value="C">C</option>
+<option value="D">D</option>
+<option value="E">E</option>
+<option value="F">F</option>
+<option value="G">G</option>
+<option selected="selected" value="A">A</option>
+<option value="B">B</option>`;
+  } else if (granularity == "semitone") {
+    op.innerHTML = `
+<option value="C">C</option>
+<option value="C#">C#</option>
+<option value="Db">Db</option>
+<option value="D">D</option>
+<option value="D#">D#</option>
+<option value="Eb">Eb</option>
+<option value="E">E</option>
+<option value="F">F</option>
+<option value="F#">F#</option>
+<option value="Gb">Gb</option>
+<option selected="selected" value="G">G</option>
+<option value="G#">G#</option>
+<option value="Ab">Ab</option>
+<option value="A">A</option>
+<option value="A#">A#</option>
+<option value="Bb">Bb</option>
+<option value="B">B</option>
+`;
+  } else if (granularity == "quartertone"){
+    op.innerHTML = `
+<option value="C">C</option>
+<option value="C*">C*</option>
+<option value="C#">C#</option>
+<option value="C#*">C#*</option>
+<option value="D">D</option>
+<option value="D*">D*</option>
+<option value="D#">D#</option>
+<option value="D#*">D#*</option>
+<option value="E">E</option>
+<option value="E*">E*</option>
+<option value="F">F</option>
+<option value="F*">F*</option>
+<option value="F#">F#</option>
+<option value="F#*">F#*</option>
+<option selected="selected" value="G">G</option>
+<option value="G*">G*</option>
+<option value="G#">G#</option>
+<option value="G#*">G#*</option>
+<option value="A">A</option>
+<option value="A*">A(</option>
+<option value="A#">A#</option>
+<option value="A#*">A#*</option>
+<option value="B">B</option>
+<option value="B*">B*</option>
+`;
+  }
+}
+</script>
+
+<br />
+<label for="highlimit">What is the upper limit for your highest string?</label><!-- Values fixed based on standard A4 -->
+<select name="highlimit" id="highlimit" onchange="javascript:changemode();">
+  <option value="-14">A2</option>
+  <option value="-13">B2</option>
+  <option value="-12">C3</option>
+  <option value="-11">D3</option>
+  <option value="-10">E3</option>
+  <option value="-9">F3</option>
+  <option value="-8">G3</option>
+  <option value="-7">A3</option>
+  <option value="-6">B3</option>
+  <option value="-5">C4</option>
+  <option value="-4">D4</option>
+  <option value="-3">E4</option>
+  <option value="-2">F4</option>
+  <option value="-1">G4</option>
+  <option value="0">A4</option>
+  <option value="1">B4</option>
+  <option selected="selected" value="2">C5</option>
+  <option value="3">D5</option>
+  <option value="4">E5</option>
+  <option value="5">F5</option>
+  <option value="6">G5</option>
+  <option value="7">A5</option>
+  <option value="8">B5</option>
+  <option value="9">C6</option>
+  <option value="10">D6</option>
+  <option value="11">E6</option>
+  <option value="12">F6</option>
+  <option value="13">G6</option>
+  <option value="14">A6</option>
+  <option value="15">B6</option>
+</select>
+<br />
+<label for="octave">Need to change an octave?</label>
+<select name="octave" id="octave"  onchange="javascript:changemode();">
+  <option value="3">+3 octaves</option>
+  <option value="2">+2 octaves</option>
+  <option value="1">+1 octaves</option>
+  <option selected="selected" value="0">No</option>
+  <option value="-1">-1 octaves</option>
+  <option value="-2">-2 octaves</option>
+  <option value="-3">-3 octaves</option>
+</select>
+<br />
+<label for="zoom">Zoom level</label>
+<select name="zoom" id="zoom" onchange="javascript:set_zoom();">
+  <option value="4">+3</option>
+  <option value="2">+2</option>
+  <option value="1.5">+1</option>
+  <option selected="selected" value="1">No</option>
+  <option value="0.75">-1</option>
+  <option value="0.5">-2</option>
+  <option value="0.25">-3</option>
+</select>
+<script>
+function set_zoom() {
+  zoom = Number(document.getElementById("zoom").value);
+}
+</script>
+<br /><label for="full">Show full spectrum</label>
+<select name="full" id="full" onchange="javascript:set_full();">
+  <option selected="selected" value="0">No</option>
+  <option value="1">Yes</option>
+</select>
+<script>
+function set_full() {
+  show_full = Number(document.getElementById("full").value);
+}
+</script>
+<br /><br />
+
+<!--
+<strong>Rescale Tool</strong>
+<label>From note </label><input maxlength="4" size="4" name="from_note" id="from_note" value="A#"></input> 
+<label>To note </label><input maxlength="4" size="4" name="to_note" id="to_note" value="C"></input>
+<br />
+<label>Notes to rescale: </label><input size="80" name="notes_to_rescale" id="notes_to_rescale" value="F4# E4b"></input><br />
+<button onclick='javascript:rescale();'>Rescale</button><button onclick='javascript:fit();'>Fit</button><br />
+Rescaled notes: <label id="rescaled_notes"></label>
+<br /><br />
+-->
+
+</div>
+<script>
+const BASE_WIDTH=8000;
+var WIDTH=BASE_WIDTH;
+const HEIGHT=600;
+
+const stringToModesObj = {7: "hypophrygios", 8 : "hypolydios", 9 : "dorios", 
+    10 : "phrygios", 11 : "lydios", 12 : "mixolydios", 13 : "hypodorios", 24 : "hypodorios" };
+
+
+// Tuning 7 string lyre for Ancient Greek modes by alternating ascending or descending fifths and fourths:
+// https://www.reddit.com/r/lyres/comments/kntcxl/method_for_tuning_a_sevenstring_lyre_by_ear_a/
+// https://youtu.be/Yk6bLMe2Uak?t=318
+// https://pages.mtu.edu/~suits/fifths.html
+
+// https://en.wikipedia.org/wiki/Just_intonation
+// http://www.tonalsoft.com/enc/j/just.aspx
+// https://en.wikipedia.org/wiki/Pythagorean_tuning
+// https://en.wikipedia.org/wiki/Pentatonic_scale
+
+
+
+// This program will help do it visually instead of by ear.
+
+// Mesopotamian names:
+// https://en.wikipedia.org/wiki/Music_of_Mesopotamia
+// https://www.flutopedia.com/mesopotamian_flutes.htm
+// https://books.google.com/books?id=eliIDwAAQBAJ&lpg=PA30&ots=41IchPISlq&dq=qabl%C4%ABtu&pg=PA40#v=onepage&q&f=false
+
+
+
+var divloudestfreq = document.getElementById("loudestfreq");
+var divfreqs = document.getElementById("freqs");
+var canvas = document.getElementById("myc");
+var canvasCtx = canvas.getContext("2d");
+canvasCtx.clearRect(0, 0, WIDTH, HEIGHT);
+canvasCtx.font = "16px Arial";
+canvasCtx.fillText("Microphone access needed.", 100, 100); 
+
+var freqs = [];
+
+var magnify = 5;
+var num_add_octaves_to_mode_lines = 0;
+
+var TET_12 = 2 ** (1/12);
+var TET_24 = 2 ** (1/24);
+var RT_2_2 = 2 ** (1/2);
+var RT_4_2 = 2 ** (1/4);
+var RT_4_8 = 8 ** (1/4);
+
+
+//                           C (C*) Db Db* D   D*  Eb  Eb* E   E*  F   F*  F#  F#* G   (G*) Ab  Ab* A   A*  Bb  Bb*  B    B* 
+var SHRUTI_22_CENTS_PLUS2 = [0, 22, 90,112,182,204,294,316,386,408,498,520,590,612,702,722, 792,814,884,906,996,1018,1088,1110];
+var SHRUTI_24_A_INDEX = 19;
+
+// https://en.wikipedia.org/wiki/Quarter-comma_meantone (Chromatic)
+//                                   C  C#     D      Eb      E     F       F#     G      G#      A     Bb     B
+var QUARTER_COMMA_MEANTONE_RATIOS = [1.0,1.0449,1.1180,1.1963,1.2500,1.3375,1.3975,1.4953,1.5625,1.6719,1.7889,1.8692];
+
+// Well temperment (Werckmeister)  https://en.wikipedia.org/wiki/Werckmeister_temperament 
+//                 C  C#     D      Eb      E     F       F#     G      G#      A     Bb     B
+var WELL_RATIOS = [1.0,256/243,64/81*RT_2_2,32/27,256/243*RT_4_2,4/3,1024/729,8/9*RT_4_8,128/81,1024/729*RT_4_2,16/9,128/81*RT_4_2];
+
+
+
+var standard_a4 = 440;
+var standard_c4 = 261.63;
+var high_limit_hz = 0;
+var strings = 1;
+
+const unison = 1.0;
+const octave = 2.0;
+
+var notes_with_octaves = [];
+var zoom = 1;
+var tolerance = 1.5;
+var show_full = 0;
+
+
+// f.length must span exactly a complete octave and be able to be shifted up an octave for this to work (e.g. no Pythagorean comma)
+function extend(frequencies_set, strings) {
+  for (n = 0; n < frequencies_set.length; n++) {
+    f = frequencies_set[n];
+    var b = f.length;
+    for (let i = b; i < strings; i++) {
+        f.push(f[i % b]*(octave**Math.floor(i/b)));
+    }
+    frequencies_set[n] = f;
+  }
+  return frequencies_set;
+}
+
+// jquery
+function isNumeric(n) {
+  return !isNaN(parseFloat(n)) && isFinite(n);
+}
+
+function get_quartertones_from_a(note) {
+    var n = note.substring(0,1);
+    var semitones_from_a = "A BC D EF G".indexOf(n);
+    var quarter_tones_from_a = semitones_from_a * 2;
+    var s = note.substring(1);
+    var o = 0;
+    if (isNumeric(s.substring(0,1))) { o = Number(s.substring(0,1)); s = s.substring(1); } // Handle if they sent octave
+    if (s.startsWith("#")) quarter_tones_from_a = quarter_tones_from_a + 2;
+    if (s.startsWith("b")) quarter_tones_from_a = quarter_tones_from_a - 2;
+    if (s.endsWith("*")) quarter_tones_from_a = quarter_tones_from_a + 1; 
+    return [quarter_tones_from_a, o];
+}
+
+var full_scale = ["A","A*","A#","A#*","B","B*","C","C*","C#","C#*","D","D*","D#","D#*","E","E*","F","F*","F#","F#*","G","G*","G#","G#*"];
+
+function transpose(note_a, note_b, note) {
+   var a = get_quartertones_from_a(note_a)[0];
+   var b = get_quartertones_from_a(note_b)[0];
+   var na = get_quartertones_from_a(note);
+   var n = na[0];
+   var n = n + b - a;
+   var o = na[1];
+   if (n < 0) { n = n + 24; if (o>0) o = o-1; }
+   if (n >= 24) { n = n - 24; if (o>0) o = o+1; }
+   var r = full_scale[n];
+   if (o > 0) {
+     var fn = r.substring(0,1)
+     if (fn < "C" && note >= "C") o--;
+     if (fn >= "C" && note < "C") o++;
+     if (o>0) {
+       r = fn+o+r.substring(1);
+     }
+   }
+   return [r,o]; 
+}
+ 
+function fit() {
+   var c = document.getElementById("notes_to_rescale").value;
+   c = c.split(" ").filter(function (t) { return t != "" ; }).map(function (t) { return t.replace(',','') ; });
+   var unique = [];
+   for (let i = 0; i < c.length; i++) { if (unique.indexOf(c[i]) == -1) unique.push(c[i]); }
+   unique.sort();
+   var afit = "";
+   var bfit = "";
+   var tryn = ["A","G"];
+   for (let t=0;t<tryn.length;t++) {
+    for (let i = 0; i < 24; i++) {
+       var a = tryn[t];
+       var b = full_scale[i];
+       var mismatch = 0;
+       for (let i = 0; i < c.length;i++) {
+         nn = transpose(a,b,c[i]);
+         n = nn[0];  
+         console.log(n);
+         if (notes_with_octaves.indexOf(n) == -1) mismatch++;
+       }
+       console.log(b,mismatch);
+       if (mismatch == 0) {
+           afit = a;
+           bfit = b;
+           break;
+       }
+    }
+    if (afit != "") break;
+   }
+   if (afit != "") {
+      document.getElementById("from_note").value = afit;
+      document.getElementById("to_note").value = bfit;
+      rescale();
+   } else {
+      document.getElementById("from_note").value = "";
+      document.getElementById("to_note").value = "";
+      document.getElementById("rescaled_notes").innerHTML = "No fit for "+(""+unique).replaceAll(',',', ');
+   }
+}
+
+function rescale() {
+   var r = "";
+   try {
+      var a = document.getElementById("from_note").value.trim();
+      var b = document.getElementById("to_note").value.trim();
+      var c = document.getElementById("notes_to_rescale").value;
+      c = c.split(" ").map(function (t) { return t.replace(',','') ; });
+      for (let i = 0; i < c.length;i++) {
+         if (c[i] == "") { 
+            r = r + " "; 
+         } else {
+            r = r + transpose(a,b,c[i])[0] + " "; 
+         }
+      } 
+   } catch (error) {
+      console.log(error);
+      r = "";
+   }
+   document.getElementById("rescaled_notes").innerHTML = `${r}`;
+   
+}
+
+function frequency_of_note(note, ratios, current_octave) {
+    var quarter_tones_from_a = get_quartertones_from_a(note)[0];
+    var use_octave = current_octave;
+    if (quarter_tones_from_a < 0) { quarter_tones_from_a = 24 + quarter_tones_from_a; use_octave = current_octave - 1;} // e.g. A-flat
+    var r = ratios[quarter_tones_from_a];
+    var f = standard_a4 * r * (octave ** use_octave);
+    console.log("frequency_of_note",note,current_octave,f);
+    return f;
+}
+ 
+ 
+function changemode() {
+
+ var initial_octave_offset = -2;
+ num_add_octaves_to_mode_lines = Number(document.getElementById("octave").value) + initial_octave_offset;
+ strings = Number(document.getElementById("strings").value);
+
+ var scale_type = document.getElementById("type").value;
+ var selectedscale = (scale_type == "genres") ? document.getElementById("genus").value : document.getElementById("species").value ;
+ if (scale_type == "pentatonic" || scale_type == "double_harmonic") selectedscale = scale_type;
+ console.log('selectedscale = '+selectedscale);
+ var first_note = document.getElementById("first_note").value;
+ var first_note_accidental = "";
+ if (scale_type == "pentatonic" && first_note == "B") first_note_accidental = "b";
+ var first = first_note + first_note_accidental;
+ console.log('first = '+first);
+ var scale_data = source_tables.filter(function (t) { return t[0] == selectedscale; })[0];
+ console.log('scale_data = '+scale_data);
+ var scale = scale_data[1].filter(function (t) { return t.split(" ")[0] == first; });
+ if (scale.length > 0) {
+   // Scale is defined for this first note
+   scale = scale[0];  
+ } else {
+   // Scale is not defined for this first note, transpose first entry
+   var c = scale_data[1][0].split(" ");   
+   var a = c[0];
+   var b = first;
+   scale = "";
+   for (let i = 0; i < c.length;i++) {
+      scale = scale + transpose(a,b,c[i])[0] + " "; 
+   }
+ }
+ console.log('scale = '+scale);
+
+
+
+ // Ratios for equal tempered
+ var semis = [2,1,2,2,1,2,2]; // starting at A 
+ var equiratios = [1.0];
+ var semisup = 0;
+ for (let n = 0; n < 7*2; n++) {
+     semisup = semisup + semis[n % 7];
+     equiratios.push(TET_12 ** (semisup));
+ }
+ console.log('equiratios = '+equiratios);
+ // Handle high limit indicator 
+ var high_limit_selection = Number(document.getElementById("highlimit").value); 
+ var high_limit_octave = Math.floor(high_limit_selection / 7.0);
+ console.log('high_limit_octave = '+high_limit_octave);
+ var high_limit_note = (high_limit_selection+7*7) % 7; 
+ console.log('high_limit_note = '+high_limit_note);
+ high_limit_hz = standard_a4 * equiratios[high_limit_note] * (octave ** high_limit_octave);
+ console.log('high_limit_hz = '+high_limit_hz);
+
+
+
+ // Quarter tone equal temperment
+ tet_24_ratios = [];
+ for (let n = 0; n < 24; n++) {
+   tet_24_ratios.push(TET_24 ** n);
+ } 
+ console.log('tet_24_ratios = '+tet_24_ratios);
+ justratios = [];
+ for (let n = 0; n < 24; n++) {
+   justratios.push(2 ** (SHRUTI_22_CENTS_PLUS2[n]/1200)); 
+ }  
+ console.log('justratios = '+justratios);
+ 
+ // Since we dont have quartertones for mean and well temperments yet, they will not support enharmonic genre.
+ // One option may be to use a program like Scala program to generate quartertones for these temperments, and then specify in cents instead of ratios.
+ mean = [];
+ for (let n = 0; n < 12; n++) {
+   r = QUARTER_COMMA_MEANTONE_RATIOS[n];
+   mean.push(r); 
+   mean.push(r); 
+ }  
+ console.log('mean = '+mean);
+ well = [];
+ for (let n = 0; n < 12; n++) {
+   r = WELL_RATIOS[n];
+   well.push(r); 
+   well.push(r); 
+ }  
+ console.log('well = '+well);
+ 
+ 
+ var intonation = document.getElementById("intonation").value;
+ var ratios = tet_24_ratios; // equal 
+ if (intonation == "just") ratios = justratios;
+ if (intonation == "mean") ratios = mean;
+ if (intonation == "well") ratios = well;
+ console.log('selected ratios = '+ratios);
+
+ // Compute frequencies 
+ notes_with_octaves = [];
+ freqs = [];
+ var scale_notes = scale.split(" ");
+ console.log(scale_notes);
+ var current_octave = num_add_octaves_to_mode_lines;
+ for (let i = 0; i < scale_notes.length; i++) {
+    var note = scale_notes[i];
+    var base_note = note.substring(0,1);
+    var accidental = note.substring(1);
+    if (i>0 && base_note < scale_notes[i-1].substring(0,1)) current_octave++;
+    var f = frequency_of_note(note, ratios, current_octave);
+    freqs.push(f);
+    var c_based_octave = current_octave+5;
+    if (base_note < "C") c_based_octave--;
+    notes_with_octaves.push(base_note + c_based_octave + accidental);
+ }
+ console.log(freqs);
+ freqs = freqs.slice(0,strings);
+ console.log(freqs);
+ notes_with_octaves = notes_with_octaves.slice(0,strings);
+
+ canvasCtx.clearRect(0, 0, WIDTH, HEIGHT);
+ divfreqs.innerHTML = `${notes_with_octaves.join(', ')}`
+
+}
+
+
+// Source tables from Nikolaos Koumartzis
+var source_tables = [
+["diatonic", [
+"C Db Eb F Gb Ab Bb B Db Eb E F# G# A B C# D E F# G A B C D",
+"D Eb F G Ab Bb C Db Eb F Gb Ab Bb B Db Eb E F# G# A B C# D E",
+"E F G A Bb C D Eb F G Ab Bb C Db Eb F Gb Ab Bb B Db Eb E F#",
+"F Gb Ab Bb B Db Eb E F# G# A B C# D E F# G A B C D E F G",
+"G Ab Bb C Db Eb F Gb Ab Bb B Db Eb E F# G# A B C# D E F# G A",
+"A Bb C D Eb F G Ab Bb C Db Eb F Gb Ab Bb B Db Eb E F# G A B",
+"B C D E F G A Bb C D Eb F G Ab Bb C Db Eb F Gb Ab Bb B Db"
+]],
+["chromatic", [
+"C C# D F F# G Bb B C Eb E F Ab A Bb Db D D# F# G G# B C C#",
+"D D# E G G# A C C# D F F# G Bb B C Eb E F Ab A Bb Db D D#",
+"E F F# A Bb B D D# E G G# A C C# D F F# G Bb B C Eb E F",
+"F F# G Bb B C Eb E F Ab A Bb B D D# E G G# A C C# D F F#",
+"G G# A C C# D F F# G Bb B C Eb E F Ab A Bb Db D D# F# G G#",
+"A A# B D D# E G G# A C C# D F F# G Bb B C Eb E F Ab A Bb",
+"B C C# E F F# A Bb B D D# E G G# A C C# D F F# G Bb B C"
+]],
+["enharmonic", [
+"C C* C# F F* F# A# A#* B D# D#* E G# G#* A C# C#* D F# F#* G B B* C",
+"D D* D#* G G* G#* C C* C# F F* F# A# A#* B D# D#* E G# G#* A C# C#* D",
+"E E* F A A* A# D D* D#* G G* G#* C C* C# F F* F# A# A#* B D# D#* E",
+"F F* F# A# A#* B D# D#* E G# G#* A C# C#* D F# F#* G B B* C E E* F",
+"G G* G#* C C* C# F F* F# A# A#* B D# D#* E G# G#* A C# C#* D F# F#* G",
+"A A* A# D D* D#* G G* G#* C C* C# F F* F# A# A#* B D# D#* E G# G#* A",
+"B B* C E E* F A A* A# D D* D#* G G* G#* C C* C# F F* F# A# A#* B"
+]],
+["mixolydios", [
+"B C D E F G A B C D E F G A B C D E F G A B C D",
+"C Db Eb F Gb Ab Bb C Db Eb F Gb Ab Bb C Db Eb F Gb Ab Bb C Db Eb",
+"D Eb F G Ab Bb C D Eb F G Ab Bb C D Eb F G Ab Bb C D Eb F",
+"E F G A Bb C D E F G A Bb C D E F G A Bb C D E F G",
+"F Gb Ab Bb Cb Db Eb F Gb Ab Bb Cb Db Eb F Gb Ab Bb Cb Db Eb F Gb Ab",
+"G Ab Bb C Db Eb F G Ab Bb C Db Eb F G Ab Bb C D Eb F G Ab Bb",
+"A Bb C D Eb F G A Bb C D Eb F G A Bb C D Eb F G A Bb C"
+]],
+["hypodorios", [
+"A B C D E F G A B C D E F G A B C D E F G A B C",
+"B C# D E F# G A B C# D E F# G A B C# D E F# B C# D",
+"C D Eb F G Ab Bb C D Eb F G Ab Bb C D Eb F G Ab Bb C D Eb",
+"D E F G A Bb C D E F G A Bb C D E F G A Bb C D E F",
+"E F# G A B C D E F# G A B C D E F# G A B C D E F# G",
+"F G Ab Bb C Db Eb F G Ab Bb C Db Eb F G Ab Bb C Db Eb F G Ab",
+"G A Bb C D Eb F G A Bb C D Eb F G A Bb C D Eb F G A Bb"
+]],
+["lydios", [
+"C D E F G A B C D E F G A B C D E F G A B C D E",
+"D E F# G A B C# D E F# G A B C# D E F# G A B C D E F#",
+"E F# G# A B C# D# E F# G# A B C# D# E F# G# A B C# D# E F# G#",
+"F G A Bb C D E F G A Bb C D E F G A Bb C D E F G A",
+"G A B C D E F# G A B C D E F# G A B C D E F# G A B",
+"A B C# D E F# G# A B C# D E F# G# A B C# D E F# G# A B C#",
+"B C# D# E F# G# A# B C# D# E F# G# A# B C# D# E F# G# A# B C# D#"
+]],
+["phrygios", [
+"D E F G A B C D E F G A B C D E F G A B C D E F",
+"E F# G A B C# D E F# G A B C# D E F# G A B C# D E F# G",
+"F G Ab Bb C D Eb F G Ab Bb C D Eb F G Ab Bb C D Eb F G Ab",
+"G A Bb C D E F G A Bb C D E F G A Bb C D E F G A Bb",
+"A B C D E F# G A B C D E F# G A B C D E F# G A B C",
+"B C# D E F# G# A B C# D E F# G# A B C# D E F# G# A B C# D",
+"C D Eb F G A Bb C D Eb F G A Bb C D Eb F G A Bb C D Eb"
+]],
+["dorios", [
+"E F G A B C D E F G A B C D E F G A B C D E F G",
+"F Gb Ab Bb C Db Eb F Gb Ab Bb C Db Eb F Gb Ab Bb C Db Eb F Gb Ab",
+"G Ab Bb C D Eb F G Ab Bb C D Eb F G Ab Bb C D Eb F G Ab Bb",
+"A Bb C D E F G A Bb C D E F G A Bb C D E F G A Bb C",
+"B C D E F# G A B C D E F# G A B C D E F# G A B C D",
+"C Db Eb F G Ab Bb C Db Eb F G Ab Bb C Db Eb F G Ab Bb C Db Eb",
+"D Eb F G A Bb C D Eb F G A Bb C D Eb F G A Bb C D Eb F"
+]],
+["hypolydios", [
+"F G A B C D E F G A B C D E F G A B C D E F G A",
+"G A B C# D E F# G A B C# D E F# G A B C# D E F# G A B",
+"A B C# D# E F# G# A B C# D# E F# G# A B C# D# E F# G# A B C#",
+"B C# D# E# F# G# A# B C# D# E# F# G# A# B C# D# E# F# G# A# B C# D#",
+"C D E F# G A B C D E F# G A B C D E F# G A B C D E",
+"D E F# G# A B C# D E F# G# A B C# D E F# G# A B C# D E F#",
+"E F# G# A# B C# D# E F# G# A# B C# D# E F# G# A# B C# D# E F# G#"
+]],
+["hypophrygios", [
+"G A B C D E F G A B C D E F G A B C D E F G A B",
+"A B C# D E F# G A B C# D E F# G A B C# D E F# G A B C#",
+"B C# D# E F# G# A B C# D# E F# G# A B C# D# E F# G# A B C# D#",
+"C D E F G A Bb C D E F G A Bb C D E F G A Bb C D E",
+"D E F# G A B C D E F# G A B C D E F# G A B C D E F#",
+"E F# G# A B C# D E F# G# A B C# D E F# G# A B C# D E F# G#",
+"F G A Bb C D Eb F G A Bb C D Eb F G A Bb C D Eb F G A"
+]],
+["pentatonic", [
+"F G Bb C D F G Bb C D F G Bb C D F G Bb C D F G Bb C",
+"G A C D E G A C D E G A C D E G A C D E G A C D",
+"A C D E G A C D E G A C D E G A C D E G A C D E",
+"Bb C D F G Bb C D F G Bb C D F G Bb C D F G Bb C D F",
+"C D E G A C D E G A C D E G A C D E G A C D E G",
+"D E G A C D E G A C D E G A C D E G A C D E G A",
+"E G A C D E G A C D E G A C D E G A C D E G A C"
+]],
+["double_harmonic", [
+"C Db E F G Ab B C Db E F G Ab B C Db E F G Ab B C Db E"
+]],
+["double_harmonic_quarter", [
+"C C* E F G Ab B* C C* E F G Ab B* C C* E F G Ab B* C C*"
+]]
+]
+;
+
+
+var sustain = Array.from({length: 100}, (v, i) => 0);
+
+
+// Audio:
+// https://developer.mozilla.org/en-US/docs/Web/API/AnalyserNode/getByteFrequencyData
+// https://stackoverflow.com/questions/28329389/is-there-a-way-to-detect-audio-frequency-in-html-5-web-audio-api
+
+
+navigator.mediaDevices.getUserMedia({audio:true}).then(function(localStream) {
+
+  var audioContext = new(window.AudioContext || window.webkitAudioContext)();
+  
+  var sampleRate = audioContext.sampleRate;
+  console.log('sample rate = '+ sampleRate);
+  
+  
+  // https://github.com/hughsk/clamp/blob/master/index.js [MIT license]
+  function clamp(value, min, max) {
+  return min < max
+    ? (value < min ? min : value > max ? max : value)
+    : (value < max ? max : value > min ? min : value)
+  }
+  
+  // https://github.com/Jam3/audio-frequency-to-index/blob/master/index.js [MIT license]
+  function indexToFrequency (index, sampleRate, frequencyBinCount) {
+    return index * sampleRate / (frequencyBinCount * 2);
+  }
+  function frequencyToIndex (frequency, sampleRate, frequencyBinCount) { 
+    var nyquist = sampleRate / 2;
+    var index = Math.round(frequency / nyquist * frequencyBinCount);
+    return clamp(index, 0, frequencyBinCount);
+  }
+
+  var input = audioContext.createMediaStreamSource(localStream);
+  var scriptProcessor = audioContext.createScriptProcessor();
+  
+  var analyser = audioContext.createAnalyser();
+
+  analyser.fftSize = 16384*2;
+
+  input.connect(analyser);
+  analyser.connect(scriptProcessor);
+  scriptProcessor.connect(audioContext.destination);
+
+  const frequencyBinCount = analyser.frequencyBinCount;
+  console.log('frequencyBinCount = '+frequencyBinCount);
+  
+  var dataArray = new Uint8Array(frequencyBinCount*2);
+
+  const BASE = 60;
+  
+  function draw() {
+    drawVisual = requestAnimationFrame(draw);
+
+    analyser.getByteFrequencyData(dataArray);
+
+    var indexlimit = frequencyToIndex(high_limit_hz, sampleRate, frequencyBinCount);
+
+
+    // Find peak 
+    let mi = 0;
+    let mv = 0;
+    for (let i = 0; i < frequencyBinCount; i++) {
+      if (dataArray[i]>mv && i <= indexlimit) {mv = dataArray[i]; mi=i;}
+    }    
+    peakhz = indexToFrequency(mi, sampleRate, frequencyBinCount);
+
+    var base_zoom = freqs.length/7 * 200/(freqs[freqs.length-1]-freqs[0]);
+    var adj_magnify = magnify * zoom * base_zoom;
+    var drawscale = WIDTH/frequencyBinCount * adj_magnify;
+    var barWidth = drawscale ;
+    
+    // String locations
+    x = [];
+    for (let h = 0; h < freqs.length; h++) {
+       x.push( drawscale*frequencyToIndex(freqs[h], sampleRate, frequencyBinCount) );
+    }
+    
+    xofs = 0;
+    xlim = WIDTH;
+    if (show_full == 0) {
+      xofs = -(x[0] - 100);
+      xlim = x[x.length-1] + 100 + xofs;
+    }
+    canvas.width=xlim;
+
+    canvasCtx.clearRect(0, 0, WIDTH, HEIGHT);
+    canvasCtx.fillStyle = "rgb(0, 0, 0)";
+    canvasCtx.fillRect(0, 0, Math.min(WIDTH*magnify,xlim), HEIGHT);
+
+    
+    // Hits
+    var target = 0;
+    var db = 0;
+    for (let h = 0; h < freqs.length; h++) {
+       df = Math.abs(freqs[h] - peakhz);
+       fdb = dataArray[h];
+       if (df < tolerance && fdb > 10)  { 
+      	 sustain[h] = (new Date()).getTime(); 
+       }
+       if (df < 3) {target = freqs[h];db=fdb;}
+    } 
+    var msg = Math.round(peakhz)+" Hz <br /> &nbsp;";
+    if (target > 0) msg = msg + " "+Math.round(target)+" Target Hz ";
+    //msg = msg + " &nbsp;&nbsp;&nbsp;&nbsp; " + db +" volume ";
+    divloudestfreq.innerHTML = msg;
+  
+    // Over limit area
+    if (freqs[freqs.length-1] > high_limit_hz) {
+       canvasCtx.fillStyle = "rgb(128, 0, 0)";  // warn over string limit
+       var start_limit = drawscale*indexlimit+barWidth*.5;
+       canvasCtx.fillRect(xofs + start_limit, 0, Math.min(WIDTH*adj_magnify, xlim) - start_limit - xofs, HEIGHT-BASE);
+    }
+    
+    // Strings
+    for (let h = 0; h < freqs.length; h++) {
+       canvasCtx.fillStyle = "rgb(256, 256, 0)";
+       if ((new Date()).getTime() - sustain[h] < 3000) canvasCtx.fillStyle = "rgb(0, 256, 0)";
+       x0 = h == 0 ? 0 : x[h-1];
+       x1 = x[h];
+       x2 = h == freqs.length-1 ? WIDTH : x[h+1];
+       canvasCtx.fillRect(xofs + x1, 0, barWidth*.5, HEIGHT-BASE);
+       dx = Math.round(Math.min(x1-x0,x2-x1));
+       canvasCtx.font = "20px Arial";
+       y = HEIGHT-BASE*0.33;
+       if (h%2 == 0) {
+          y = HEIGHT-BASE*0.66;
+       }
+       if (dx < 40) {
+          pt = Math.round((dx+7)*0.8);
+          if (pt > 20) pt = 20;
+          canvasCtx.font = pt+"px Arial";
+       }
+       canvasCtx.fillText(notes_with_octaves[h], xofs + x1-10, y); 
+    } 
+
+    // Spectrum lines       
+    for (let i = 0; i < frequencyBinCount; i++) {
+      
+      sx = xofs + drawscale*i;
+      if (sx <= xlim) {
+         barHeight = dataArray[i];
+         canvasCtx.fillStyle = `rgb(${barHeight + 100}, 200, 200)`;
+         canvasCtx.fillRect(sx, HEIGHT - barHeight - BASE, barWidth, barHeight);
+      }
+
+
+    }
+
+    
+  }
+
+  changemode();
+  draw();
+ 
+});
+ 
+ 
+ 
+</script>
+</center>
+</body></html>
+
